@@ -1,0 +1,21 @@
+{
+  "name": "digvation-design-system-workspace",
+  "private": true,
+  "version": "0.1.1",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run build:ui && npm run dev -w @digvation/docs",
+    "build": "npm run build:ui && npm run build -w @digvation/docs",
+    "build:ui": "npm run build -w @digvation/ui",
+    "typecheck": "npm run typecheck -w @digvation/ui && npm run build:ui && npm run typecheck -w @digvation/docs",
+    "pack:ui": "npm run build:ui && npm pack -w @digvation/ui --pack-destination ./release",
+    "preview": "npm run build && npm run preview -w @digvation/docs",
+    "test": "npm run test -w @digvation/ui"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
