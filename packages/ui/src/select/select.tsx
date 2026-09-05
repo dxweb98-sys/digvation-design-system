@@ -2,6 +2,7 @@ import {
   Children,
   forwardRef,
   isValidElement,
+  useEffect,
   useId,
   useMemo,
   useRef,
@@ -125,11 +126,39 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
   );
   const selected = staticOptions.find((option) => sameValue(option.value, selectedValue)) ?? (sameValue(resolvedAsyncSelection?.value, selectedValue) ? resolvedAsyncSelection : null);
 
-  useMemo(() => undefined, []);
+  useEffect(() => {
+    if (!isAsync || !fetchOptions || !isOpen) return;
+    const requestId = ++requestIdRef.current;
+    const timeout = window.setTimeout(() => {
+      setFetching(true);
+      setFetchError(null);
+      void fetchOptions(query)
+        .then((result) => {
+          if (requestId === requestIdRef.current) setAsyncOptions(result);
+        })
+        .catch((nextError: unknown) => {
+          if (requestId !== requestIdRef.current) return;
+          setFetchError(nextError);
+          onFetchError?.(nextError);
+        })
+        .finally(() => {
+          if (requestId === requestIdRef.current) setFetching(false);
+        });
+    }, debounceMs);
+    return () => window.clearTimeout(timeout);
+  }, [debounceMs, fetchOptions, isAsync, isOpen, onFetchError, query, refetchKey]);
 
-  if (isAsync && fetchOptions && isOpen) {
-    // Fetching is handled below by the existing request effect pattern through refs/state.
-  }
+  useEffect(() => {
+    if (!isAsync || !fetchOptions || selectedValue == null || selectedValue === '' || sameValue(resolvedAsyncSelection?.value, selectedValue)) return;
+    const requestId = ++resolveRequestIdRef.current;
+    void fetchOptions('')
+      .then((result) => {
+        if (requestId !== resolveRequestIdRef.current) return;
+        const found = result.find((option) => sameValue(option.value, selectedValue));
+        if (found) setResolvedAsyncSelection(found);
+      })
+      .catch((nextError: unknown) => onFetchError?.(nextError));
+  }, [fetchOptions, isAsync, onFetchError, refetchKey, resolvedAsyncSelection?.value, selectedValue]);
 
   const selectedIndex = () => {
     const index = filteredOptions.findIndex((option) => sameValue(option.value, selectedValue));
