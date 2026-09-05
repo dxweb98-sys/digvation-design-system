@@ -31,7 +31,19 @@ export { DTextarea, type TextareaProps } from './textarea';
 export { DToastProvider, DToastContainer, useToast, type ToastContextValue, type ToastInput, type ToastItem, type ToastProviderProps, type ToastVariant, type ToastContainerProps, type ControlledToastItem, type ControlledToastVariant } from './toast';
 export { DRadio, type RadioProps } from './radio';
 export { DToggle, type ToggleProps } from './toggle';
-export { DThemeProvider, defaultThemeTokens, themeTokensToCss, type ThemeProviderProps, type ThemeTokens, type ThemeMode, type ThemeRadius } from './theme';
+export {
+  DThemeProvider,
+  defaultThemeTokens,
+  themeTokensToCss,
+  createProjectThemeTokens,
+  createCssVariableTheme,
+  type ThemeProviderProps,
+  type ThemeTokens,
+  type ProjectThemeTokens,
+  type CssVariableThemeMap,
+  type ThemeMode,
+  type ThemeRadius,
+} from './theme';
 export { DAvatar, type AvatarProps, type AvatarSize } from './avatar';
 export { DTooltip, type TooltipProps } from './tooltip';
 export { DSeparator, type SeparatorProps } from './separator';
