@@ -36,14 +36,24 @@ Without `DThemeProvider`, components use the built-in fallback values from `styl
 - shadows
 - Digvation fallback font stack
 
-Panel item radius is derived from the panel radius so menus remain concentric:
+### Concentric popup radius
+
+Selection/menu surfaces use one geometry contract rather than hard-coded unrelated rounded classes:
 
 ```css
 --radius-panel: 16px;
 --radius-menu-item: max(6px, calc(var(--radius-panel) - 6px));
 ```
 
-When a project overrides `--radius-panel`, dropdown item rounding follows automatically.
+The standard popup content inset is `6px`, so the inner option radius follows the outer panel radius visually. For the defaults that means:
+
+```text
+outer popup radius  = 16px
+content inset        = 6px
+inner option radius  = 10px
+```
+
+If a project changes `--radius-panel`, `--radius-menu-item` follows automatically. Triggers and search fields use `--radius-control`, while list options/menu items inside floating surfaces use `--radius-menu-item`.
 
 ## Recommended integration: project variables are the source of truth
 
