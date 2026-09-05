@@ -104,18 +104,27 @@ export function DSearchInput({
             if (event.target.value) setActive(true);
           }}
           placeholder={placeholder}
-          className="h-9 w-full rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-surface)] pl-9 pr-9 text-sm text-[var(--color-text)] outline-none shadow-[var(--shadow-sm)] placeholder:text-[var(--color-text-muted)]/70 focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/20"
+          className="h-9 w-full appearance-none rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] pl-9 pr-9 text-sm text-[var(--color-text)] outline-none shadow-sm placeholder:text-[var(--color-text-muted)]/70 focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/20"
         />
-        {localValue ? <button type="button" aria-label="Clear search" onClick={clearSearch} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-[var(--radius-menu-item)] p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]"><ClearIcon /></button> : null}
+        {localValue ? (
+          <button
+            type="button"
+            aria-label="Clear search"
+            onClick={clearSearch}
+            className="absolute right-2 top-1/2 -translate-y-1/2 appearance-none rounded-md border-0 bg-transparent p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]"
+          >
+            <ClearIcon />
+          </button>
+        ) : null}
       </div>
 
       <div
         className={cn('relative hidden items-center transition-[width] duration-200 ease-out sm:flex', align === 'right' ? 'justify-end' : 'justify-start')}
-        style={{ width: active ? expandedWidth : '40px' }}
+        style={{ width: active ? expandedWidth : '44px' }}
       >
         <div
           className={cn(
-            'relative h-9 w-full overflow-hidden rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-sm)] transition-[border-color,box-shadow,background-color] duration-150 focus-within:border-[var(--color-brand)] focus-within:ring-2 focus-within:ring-[var(--color-brand)]/20',
+            'relative h-9 w-full overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-sm transition-all duration-200 ease-out focus-within:border-[var(--color-brand)] focus-within:ring-2 focus-within:ring-[var(--color-brand)]/20',
             active ? 'cursor-text' : 'cursor-pointer hover:bg-[var(--color-surface-muted)]',
           )}
           onClick={() => setActive(true)}
@@ -133,9 +142,25 @@ export function DSearchInput({
               if (event.key === 'Escape') clearSearch();
             }}
             placeholder={placeholder}
-            className={cn('h-full w-full bg-transparent pl-9 pr-9 text-sm text-[var(--color-text)] outline-none placeholder:text-[var(--color-text-muted)]/70 transition-opacity duration-150 ease-out', active ? 'opacity-100' : 'pointer-events-none opacity-0')}
+            className={cn(
+              'h-full w-full appearance-none border-0 bg-transparent pl-9 pr-9 text-sm text-[var(--color-text)] outline-none placeholder:text-[var(--color-text-muted)]/70 transition-opacity duration-150 ease-out',
+              active ? 'opacity-100' : 'pointer-events-none opacity-0',
+            )}
           />
-          {active && localValue ? <button type="button" aria-label="Clear search" onClick={(event) => { event.preventDefault(); event.stopPropagation(); clearSearch(); }} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-[var(--radius-menu-item)] p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]"><ClearIcon /></button> : null}
+          {active && localValue ? (
+            <button
+              type="button"
+              aria-label="Clear search"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                clearSearch();
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 appearance-none rounded-md border-0 bg-transparent p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]"
+            >
+              <ClearIcon />
+            </button>
+          ) : null}
         </div>
       </div>
     </div>
