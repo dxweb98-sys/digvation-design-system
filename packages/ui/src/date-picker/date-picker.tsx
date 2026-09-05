@@ -74,9 +74,9 @@ function DatePickerContent({ value, onChange, minDate, maxDate }: Pick<DatePicke
   return (
     <div className="w-[280px] p-3">
       <div className="mb-2 flex items-center justify-between">
-        <button type="button" aria-label="Previous month" onClick={() => move(-1)} className="rounded-md p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]"><ChevronLeftIcon /></button>
+        <button type="button" aria-label="Previous month" onClick={() => move(-1)} className="flex size-8 items-center justify-center rounded-[var(--radius-menu-item)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]"><ChevronLeftIcon /></button>
         <span className="text-sm font-medium text-[var(--color-text)]">{MONTHS[viewMonth]} {viewYear}</span>
-        <button type="button" aria-label="Next month" onClick={() => move(1)} className="rounded-md p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]"><ChevronRightIcon /></button>
+        <button type="button" aria-label="Next month" onClick={() => move(1)} className="flex size-8 items-center justify-center rounded-[var(--radius-menu-item)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]"><ChevronRightIcon /></button>
       </div>
       <div className="mb-1 grid grid-cols-7 text-xs">{DAYS.map((day) => <div key={day} className="text-center text-[var(--color-text-muted)]">{day}</div>)}</div>
       <div className="grid grid-cols-7 gap-1">
@@ -85,10 +85,10 @@ function DatePickerContent({ value, onChange, minDate, maxDate }: Pick<DatePicke
           const dateValue = toValue(viewYear, viewMonth, day);
           const selected = value === dateValue;
           const outside = (minDate && compareDateValue(dateValue, minDate) < 0) || (maxDate && compareDateValue(dateValue, maxDate) > 0);
-          return <button key={day} type="button" disabled={Boolean(outside)} onClick={() => selectDate(day)} className={cn('aspect-square w-full rounded text-sm transition-colors hover:bg-[var(--color-surface-muted)] disabled:cursor-not-allowed disabled:opacity-30', selected && 'bg-[var(--color-brand)] font-medium text-white hover:bg-[var(--color-brand)]')}>{day}</button>;
+          return <button key={day} type="button" disabled={Boolean(outside)} onClick={() => selectDate(day)} className={cn('aspect-square w-full rounded-[var(--radius-control)] text-sm transition-colors hover:bg-[var(--color-surface-muted)] disabled:cursor-not-allowed disabled:opacity-30', selected && 'bg-[var(--color-brand)] font-medium text-[var(--color-brand-foreground)] hover:bg-[var(--color-brand)]')}>{day}</button>;
         })}
       </div>
-      <div className="mt-2 border-t border-[var(--color-border)] pt-2"><button type="button" disabled={Boolean(todayDisabled)} onClick={() => { onChange?.(todayValue); close?.(); }} className="text-xs text-[var(--color-brand)] hover:underline disabled:cursor-not-allowed disabled:opacity-40">Hari ini</button></div>
+      <div className="mt-2 border-t border-[var(--color-border)] pt-2"><button type="button" disabled={Boolean(todayDisabled)} onClick={() => { onChange?.(todayValue); close?.(); }} className="rounded-[var(--radius-menu-item)] px-2 py-1 text-xs font-medium text-[var(--color-brand)] hover:bg-[var(--color-brand)]/8 disabled:cursor-not-allowed disabled:opacity-40">Hari ini</button></div>
     </div>
   );
 }
@@ -118,11 +118,11 @@ export function DDatePicker({
   })();
 
   return (
-    <div className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
+    <div data-ds-component="date-picker" className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
       {label ? <label htmlFor={id} className={cn(s.label, 'w-fit font-medium text-[var(--color-text)]')}>{label}</label> : null}
-      <DDropdown contentRole="dialog" scrollBehavior={scrollBehavior} trigger={() => (
+      <DDropdown contentRole="dialog" contentPadding={false} scrollBehavior={scrollBehavior} trigger={() => (
         <div className="relative">
-          <button id={id} type="button" disabled={disabled} className={cn('flex w-full items-center gap-2 rounded-lg border bg-[var(--color-surface)] text-left text-[var(--color-text)] transition-colors focus:border-[var(--color-brand)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:opacity-50', s.input, error ? 'border-[var(--color-danger)]' : 'border-[var(--color-border)]', !value && 'text-[var(--color-text-muted)]/60', clearable && value && 'pr-10')}>
+          <button id={id} type="button" disabled={disabled} className={cn('flex w-full items-center gap-2 rounded-[var(--radius-control)] border bg-[var(--color-surface)] text-left text-[var(--color-text)] transition-colors focus:border-[var(--color-brand)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:opacity-50', s.input, error ? 'border-[var(--color-danger)]' : 'border-[var(--color-border)]', !value && 'text-[var(--color-text-muted)]/60', clearable && value && 'pr-10')}>
             <span className="text-[var(--color-text-muted)]"><CalendarIcon /></span><span className="min-w-0 flex-1 truncate">{display || placeholder}</span>
           </button>
           {clearable && value && !disabled ? <button type="button" aria-label="Clear date" onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); onChange?.(''); onClear?.(); }} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]"><ClearIcon /></button> : null}
