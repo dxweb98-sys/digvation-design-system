@@ -56,8 +56,7 @@ export function DAccordion({
       <div
         data-ds-component="accordion"
         className={cn(
-          variant === 'default' && 'divide-y divide-[var(--color-border)]',
-          variant === 'card' && 'overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)] divide-y divide-[var(--color-border)]',
+          variant === 'card' && 'overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)]',
           variant === 'separated' && 'space-y-2',
           className,
         )}
@@ -83,8 +82,9 @@ export function DAccordionItem({ value, title, disabled, className, children, ..
   return (
     <div
       className={cn(
+        context.variant === 'card' && 'border-b border-[var(--color-border)] last:border-b-0 px-4',
         context.variant === 'separated' && 'overflow-hidden rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4',
-        context.variant !== 'separated' && 'px-0',
+        context.variant === 'default' && 'px-0',
         className,
       )}
       {...props}
@@ -96,7 +96,7 @@ export function DAccordionItem({ value, title, disabled, className, children, ..
         aria-expanded={open}
         aria-controls={contentId}
         onClick={() => context.toggle(value)}
-        className="group flex w-full items-center justify-between gap-4 rounded-[var(--radius-control)] px-2 py-3 text-left text-sm font-medium text-[var(--color-text)] outline-none transition-[background-color,color] duration-150 hover:bg-[var(--color-surface-muted)]/60 hover:text-[var(--color-brand)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25 disabled:cursor-not-allowed disabled:opacity-40"
+        className="group flex w-full appearance-none items-center justify-between gap-4 border-0 bg-transparent py-3 text-left text-sm font-medium text-[var(--color-text)] outline-none transition-colors duration-150 hover:text-[var(--color-brand)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25 disabled:cursor-not-allowed disabled:opacity-40"
       >
         <span>{title}</span>
         <ChevronDownIcon
@@ -115,7 +115,7 @@ export function DAccordionItem({ value, title, disabled, className, children, ..
         )}
       >
         <div className="min-h-0 overflow-hidden">
-          <div className="px-2 pb-4 pt-1 text-sm leading-relaxed text-[var(--color-text-muted)]">{children}</div>
+          <div className="pb-4 text-sm leading-relaxed text-[var(--color-text-muted)]">{children}</div>
         </div>
       </div>
     </div>
