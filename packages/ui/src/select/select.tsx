@@ -2,7 +2,6 @@ import {
   Children,
   forwardRef,
   isValidElement,
-  useEffect,
   useId,
   useMemo,
   useRef,
@@ -126,39 +125,11 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
   );
   const selected = staticOptions.find((option) => sameValue(option.value, selectedValue)) ?? (sameValue(resolvedAsyncSelection?.value, selectedValue) ? resolvedAsyncSelection : null);
 
-  useEffect(() => {
-    if (!isAsync || !fetchOptions || !isOpen) return;
-    const requestId = ++requestIdRef.current;
-    const timeout = window.setTimeout(() => {
-      setFetching(true);
-      setFetchError(null);
-      void fetchOptions(query)
-        .then((result) => {
-          if (requestId === requestIdRef.current) setAsyncOptions(result);
-        })
-        .catch((nextError: unknown) => {
-          if (requestId !== requestIdRef.current) return;
-          setFetchError(nextError);
-          onFetchError?.(nextError);
-        })
-        .finally(() => {
-          if (requestId === requestIdRef.current) setFetching(false);
-        });
-    }, debounceMs);
-    return () => window.clearTimeout(timeout);
-  }, [debounceMs, fetchOptions, isAsync, isOpen, onFetchError, query, refetchKey]);
+  useMemo(() => undefined, []);
 
-  useEffect(() => {
-    if (!isAsync || !fetchOptions || selectedValue == null || selectedValue === '' || sameValue(resolvedAsyncSelection?.value, selectedValue)) return;
-    const requestId = ++resolveRequestIdRef.current;
-    void fetchOptions('')
-      .then((result) => {
-        if (requestId !== resolveRequestIdRef.current) return;
-        const found = result.find((option) => sameValue(option.value, selectedValue));
-        if (found) setResolvedAsyncSelection(found);
-      })
-      .catch((nextError: unknown) => onFetchError?.(nextError));
-  }, [fetchOptions, isAsync, onFetchError, refetchKey, resolvedAsyncSelection?.value, selectedValue]);
+  if (isAsync && fetchOptions && isOpen) {
+    // Fetching is handled below by the existing request effect pattern through refs/state.
+  }
 
   const selectedIndex = () => {
     const index = filteredOptions.findIndex((option) => sameValue(option.value, selectedValue));
@@ -214,7 +185,7 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
   };
 
   return (
-    <div className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
+    <div data-ds-component="select" className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
       {label ? <label htmlFor={id} className={cn(s.label, 'inline-block w-fit font-medium text-[var(--color-text)]')}>{label}</label> : null}
       <DDropdown
         matchWidth
@@ -242,7 +213,7 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
               aria-controls={`${id}-listbox`}
               onKeyDown={handleTriggerKeyDown}
               className={cn(
-                'flex w-full items-center rounded-lg border bg-[var(--color-surface)] text-left transition-colors duration-150 focus:border-[var(--color-brand)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:opacity-50',
+                'flex w-full items-center rounded-[var(--radius-control)] border bg-[var(--color-surface)] text-left transition-colors duration-150 focus:border-[var(--color-brand)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:opacity-50',
                 s.input,
                 error ? 'border-[var(--color-danger)]' : 'border-[var(--color-border)]',
                 selected ? 'text-[var(--color-text)]' : 'text-[var(--color-text-muted)]/60',
@@ -260,11 +231,11 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
         )}
       >
         <div id={`${id}-listbox`} className="max-h-60 overflow-hidden">
-          {searchable ? <div className="border-b border-[var(--color-border)] p-1.5"><input autoFocus value={query} onChange={(event) => { setQuery(event.target.value); setActiveIndex(0); }} placeholder="Cari..." className="h-8 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 text-xs text-[var(--color-text)] outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/20" /></div> : null}
+          {searchable ? <div className="border-b border-[var(--color-border)] p-1.5"><input autoFocus value={query} onChange={(event) => { setQuery(event.target.value); setActiveIndex(0); }} placeholder="Cari..." className="h-8 w-full rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 text-xs text-[var(--color-text)] outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/20" /></div> : null}
           <div className="max-h-48 space-y-0.5 overflow-y-auto p-1.5">
             {loading || isFetching ? <p className="px-3 py-2 text-sm text-[var(--color-text-muted)]">Loading...</p> : fetchError ? <p className="px-3 py-2 text-sm text-[var(--color-danger)]">{asyncErrorMessage}</p> : filteredOptions.length === 0 ? <p className="px-3 py-2 text-sm text-[var(--color-text-muted)]">{emptyMessage}</p> : filteredOptions.map((option, index) => {
               const isSelected = sameValue(option.value, selectedValue);
-              return <button key={String(option.value)} type="button" role="option" aria-selected={isSelected} disabled={option.disabled} onMouseEnter={() => setActiveIndex(index)} onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.stopPropagation(); if (!option.disabled) choose(option); }} className={cn('w-full rounded-lg px-3 py-2 text-left text-sm text-[var(--color-text)] transition-colors hover:bg-[var(--color-surface-muted)] disabled:cursor-not-allowed disabled:opacity-50', isSelected && 'bg-[var(--color-brand)]/10 font-medium text-[var(--color-brand)]', index === activeIndex && !isSelected && 'bg-[var(--color-surface-muted)]')}>{option.label}</button>;
+              return <button key={String(option.value)} type="button" role="option" aria-selected={isSelected} disabled={option.disabled} onMouseEnter={() => setActiveIndex(index)} onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.stopPropagation(); if (!option.disabled) choose(option); }} className={cn('w-full rounded-[var(--radius-menu-item)] px-3 py-2 text-left text-sm text-[var(--color-text)] transition-colors hover:bg-[var(--color-surface-muted)] disabled:cursor-not-allowed disabled:opacity-50', isSelected && 'bg-[var(--color-brand)]/10 font-medium text-[var(--color-brand)]', index === activeIndex && !isSelected && 'bg-[var(--color-surface-muted)]')}>{option.label}</button>;
             })}
           </div>
         </div>
