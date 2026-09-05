@@ -1,6 +1,6 @@
 # Component catalog
 
-The local docs app contains interactive previews and copyable usage snippets. This file is a quick inventory of the reusable package surface.
+The local docs app contains interactive previews and copyable usage snippets. This file is a quick inventory of the reusable package surface. Detailed form and overlay behavior is documented in `FORM_CONTROLS.md` and `FLOATING_OVERLAYS.md`.
 
 ## Actions
 
@@ -15,19 +15,21 @@ The local docs app contains interactive previews and copyable usage snippets. Th
 |---|---|---|
 | `DInput` | Canonical text/password/number input preserving oldUi behavior | `label`, `format`, `clearable`, `size`, `onChange(value,event)`, `onNativeChange`, `prefix`, `suffix` |
 | `DDecimalInput` | Controlled normalized numeric text | `value`, `onValueChange`, `scale`, `integer` |
-| `DCurrencyInput` | Controlled money text + formatted presentation | `value`, `onValueChange`, `currencySymbol`, separators |
+| `DCurrencyInput` | Controlled money field with live localized presentation | `value`, `onValueChange`, `currencySymbol`, `groupSeparator`, `decimalSeparator` |
 | `DTextarea` | Canonical multiline field | `label`, `value`, `onChange(value,event)`, `clearable`, `error`, `hint` |
-| `DSelect` | Custom select panel | `options`, `value`, `onChange`, `searchable`, `fetchOptions`, `clearable` |
-| `DCombobox` | Search/autocomplete/create option | `fetchOptions`, `allowCreate`, `onCreateOption`, `renderOption`, `debounceMs` |
+| `DSelect` | Simple single-selection control; searchable/async props retained for compatibility | `options`, `value`, `onChange`, `clearable`, `scrollBehavior` |
+| `DCombobox` | Search/autocomplete/create/async option control | `fetchOptions`, `refetchKey`, `onFetchError`, `allowCreate`, `onCreateOption`, `renderOption`, `debounceMs`, `scrollBehavior` |
 | `DSearchInput` | Debounced search field | `value`, `onChange`, `debounceMs`, `placeholder` |
 | `DCheckbox` | Boolean checkbox | Native checkbox props |
-| `DRadio` | DRadio selection | Native radio props |
+| `DRadio` | Radio selection | Native radio props |
 | `DToggle` | Switch/toggle with oldUi label layout | `checked`, `onChange`, `labelPosition`, `size`, `fullWidth` |
-| `DDatePicker` | Single date calendar | `value`, `onChange`, `minDate`, `maxDate`, `clearable`, `size` |
-| `DRangeDatePicker` | Date range calendar | `value`, `onChange`, `clearable`, `size` |
+| `DDatePicker` | Single date calendar | `value`, `onChange`, `minDate`, `maxDate`, `clearable`, `size`, `scrollBehavior` |
+| `DRangeDatePicker` | Date range calendar | `value`, `onChange`, `clearable`, `size`, `scrollBehavior` |
 | `DDateRangeFilter` | Toolbar date filter | `from`, `to`, change callbacks, `onClear` |
-| `DSelectFilter` | OldUi-style inline-label select filter | `label`, `options`, `value`, `onChange` |
+| `DSelectFilter` | OldUi-style inline-label select filter | `label`, `options`, `value`, `onChange`, `scrollBehavior` |
 | `DStatusFilter` | Quick status chips | `options`, `value`, `onChange`, counts |
+
+For new work, keep `DSelect` simple/static-first and use `DCombobox` when the user types to filter/search or options are fetched from an API.
 
 ## Feedback
 
@@ -42,7 +44,7 @@ The local docs app contains interactive previews and copyable usage snippets. Th
 | `DLoadingOverlay` | Full-screen loading state |
 | `DSkeleton` | Base loading skeleton |
 | `DTableSkeleton` | Table loading composition |
-| `DCardSkeleton` | DCard loading composition |
+| `DCardSkeleton` | Card loading composition |
 | `DFormSkeleton` | Form loading composition |
 | `DConnectionError` | Full-screen connection failure |
 | `DSplashScreen` | Full-screen application splash |
@@ -71,11 +73,13 @@ The local docs app contains interactive previews and copyable usage snippets. Th
 
 | Component | Purpose |
 |---|---|
-| `DDropdown` | Shared portal positioning engine used by DSelect, DCombobox, DDatePicker, DDataTable and DExportButton |
-| `DTooltip` | Contextual hover/focus information |
-| `DDialog` | Mobile bottom-sheet + desktop modal preserving oldUi behavior |
-| `DConfirmDialog` | Destructive/non-destructive confirmation |
-| `DNotificationPanel` | Notification dropdown panel |
+| `DDropdown` | Shared portal/floating engine | `placement`, `matchWidth`, `scrollBehavior`, `viewportPadding` |
+| `DTooltip` | Contextual hover/focus information | content/delay/placement behavior |
+| `DDialog` | Mobile bottom-sheet + desktop modal preserving oldUi behavior | modal focus/scroll lifecycle |
+| `DConfirmDialog` | Destructive/non-destructive confirmation | confirm/cancel actions |
+| `DNotificationPanel` | Notification dropdown panel | `anchorRef`, `scrollBehavior`, read/dismiss callbacks |
+
+`FloatingScrollBehavior` is exported as `reposition | close | lock`.
 
 ## Theme
 
@@ -87,11 +91,16 @@ The local docs app contains interactive previews and copyable usage snippets. Th
 
 ## Shared helpers
 
-The package also exports format/normalization helpers that are useful when building project-specific form logic:
+The package exports reusable helpers for project-specific form logic:
 
 - `normalizeDecimalInput`
 - `formatCurrencyInputValue`
+- `parseCurrencyInputValue`
 - `selectOptionsFromChildren`
 - `getPaginationPages`
 - `getPaginationItems`
 - `cn`
+
+## Roadmap
+
+See `COMPONENT_AUDIT.md`. High-priority gaps are currently `DMultiSelect`, `DPopover`, `DFileUpload/DDropzone`, and grouped radio/checkbox controls. They should be implemented on focused feature branches instead of being added opportunistically to unrelated changes.
