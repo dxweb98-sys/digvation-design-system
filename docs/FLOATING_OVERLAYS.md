@@ -19,11 +19,13 @@ Keep the overlay open and follow its anchor while window or nested scroll contai
 <DCombobox scrollBehavior="reposition" ... />
 ```
 
-This is the default for form controls because dismissing a selection/search panel during normal page scrolling is usually disruptive.
+This is the default for form controls because dismissing a selection/search panel during small, normal scrolling is usually disruptive.
+
+`reposition` does **not** mean that a panel may float independently forever. The shared engine continuously checks the anchor against the viewport and clipping scroll ancestors. When the anchor is no longer visible, the overlay closes automatically. This keeps a select/combobox attached to its field instead of following the viewport after its parent has scrolled far away.
 
 ### close
 
-Close the overlay when the page/ancestor scrolls.
+Close the overlay on the first page/ancestor scroll event.
 
 ```tsx
 <DDropdown
@@ -77,8 +79,10 @@ The shared engine:
 - listens to scroll in capture mode so nested scroll containers are handled
 - throttles repeated reposition work with `requestAnimationFrame`
 - ignores scrolling generated inside the floating panel itself
+- closes a persistent overlay when its anchor leaves the viewport
+- closes a persistent overlay when a clipping/scroll ancestor hides its anchor
 - cleans listeners/observers/animation frames on close/unmount
 
 ## Component guidance
 
-Choose `reposition` for interactions where the user's input/search state should survive a scroll. Choose `close` for transient action menus where maintaining context is less valuable than avoiding detached menus. Use `lock` only when scrolling itself conflicts with the interaction.
+Choose `reposition` for interactions where the user's input/search state should survive a small scroll while the field is still visible. Choose `close` for transient action menus where any scroll should dismiss the panel. The shared engine automatically closes `reposition` overlays once the field itself is no longer visible, so consumers do not need custom distance calculations. Use `lock` only when scrolling itself conflicts with the interaction.
