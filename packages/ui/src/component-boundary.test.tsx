@@ -1,8 +1,10 @@
 import { cleanup, render, screen } from '@testing-library/react';
+import { createRef } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { DAccordion, DAccordionItem } from './accordion';
 import { DDataTable } from './data-table';
+import { DNotificationPanel } from './notification-panel';
 import { DPagination } from './pagination';
 import { DSearchInput } from './search-input';
 import { DTabs, DTabsContent, DTabsList, DTabsTrigger } from './tabs';
@@ -57,14 +59,19 @@ describe('component normalization boundaries', () => {
 
     render(
       <DTabs defaultValue="preview">
-        <DTabsList><DTabsTrigger value="preview">Preview</DTabsTrigger></DTabsList>
+        <DTabsList>
+          <DTabsTrigger value="preview">Preview</DTabsTrigger>
+          <DTabsTrigger value="api">API</DTabsTrigger>
+        </DTabsList>
         <DTabsContent value="preview">Content</DTabsContent>
       </DTabs>,
     );
-    const tab = screen.getByRole('tab', { name: 'Preview' });
-    expect(tab.className).toContain('appearance-none');
-    expect(tab.className).toContain('border-0');
-    expect(tab.className).toContain('bg-transparent');
+    const activeTab = screen.getByRole('tab', { name: 'Preview' });
+    const inactiveTab = screen.getByRole('tab', { name: 'API' });
+    expect(activeTab.className).toContain('appearance-none');
+    expect(activeTab.className).toContain('border-0');
+    expect(activeTab.className).toContain('bg-[var(--color-surface)]');
+    expect(inactiveTab.className).toContain('bg-transparent');
     cleanup();
 
     const { container: accordion } = render(
@@ -100,5 +107,38 @@ describe('component normalization boundaries', () => {
     expect(sortButton.className).toContain('border-0');
     expect(sortButton.className).toContain('bg-transparent');
     expect(screen.getByRole('button', { name: 'Page 1' }).className).toContain('border-0');
+  });
+
+  it('keeps accordion visual variants intentional and notification portal controls scoped', () => {
+    const { container } = render(
+      <DAccordion variant="separator">
+        <DAccordionItem value="one" title="One">Content</DAccordionItem>
+        <DAccordionItem value="two" title="Two">Content</DAccordionItem>
+      </DAccordion>,
+    );
+    const root = container.querySelector('[data-accordion-variant="separator"]');
+    expect(root).toBeTruthy();
+    expect(root?.firstElementChild?.className).toContain('border-b');
+    cleanup();
+
+    const anchorRef = createRef<HTMLButtonElement>();
+    render(
+      <>
+        <button ref={anchorRef}>Anchor</button>
+        <DNotificationPanel
+          anchorRef={anchorRef}
+          open
+          notifications={[{ id: '1', title: 'Build complete', message: 'Ready', type: 'success', read: false, createdAt: 'Now' }]}
+          onClose={() => undefined}
+          onMarkRead={() => undefined}
+          onMarkAllRead={() => undefined}
+          onDismiss={() => undefined}
+        />
+      </>,
+    );
+    const panel = screen.getByRole('dialog', { name: 'Notifikasi' });
+    expect(panel.getAttribute('data-ds-component')).toBe('notification-panel');
+    expect(screen.getByRole('button', { name: 'Mark all read' }).className).toContain('border-0');
+    expect(screen.getByRole('button', { name: 'Dismiss Build complete' }).className).toContain('border-0');
   });
 });
