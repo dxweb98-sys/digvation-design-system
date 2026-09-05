@@ -2,9 +2,11 @@ import {
   forwardRef,
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
   type ChangeEvent,
+  type ForwardedRef,
   type InputHTMLAttributes,
   type ReactNode,
 } from 'react';
@@ -25,6 +27,11 @@ function InfoIcon({ className }: { className?: string }) {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}><circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/></svg>;
 }
 
+function assignRef<T>(ref: ForwardedRef<T>, value: T | null) {
+  if (typeof ref === 'function') ref(value);
+  else if (ref) ref.current = value;
+}
+
 function formatLegacyCurrency(value: string | number): string {
   const raw = String(value).replace(/\D/g, '');
   if (!raw || Number(raw) === 0) return '';
@@ -33,6 +40,21 @@ function formatLegacyCurrency(value: string | number): string {
 
 function eventWithValue(value: string): ChangeEvent<HTMLInputElement> {
   return { target: { value }, currentTarget: { value } } as ChangeEvent<HTMLInputElement>;
+}
+
+function countDigitsAfterCaret(value: string, caret: number | null) {
+  if (caret === null) return 0;
+  return value.slice(caret).replace(/\D/g, '').length;
+}
+
+function caretFromDigitsAfter(value: string, digitsAfter: number) {
+  if (digitsAfter <= 0) return value.length;
+  let remaining = digitsAfter;
+  for (let index = value.length - 1; index >= 0; index -= 1) {
+    if (/\d/.test(value[index] ?? '')) remaining -= 1;
+    if (remaining === 0) return index;
+  }
+  return 0;
 }
 
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'onChange' | 'size' | 'prefix'> {
@@ -80,23 +102,29 @@ export const DInput = forwardRef<HTMLInputElement, InputProps>(function DInput(
     containerClassName,
     className,
     value,
+    defaultValue,
     disabled,
     readOnly,
     id: externalId,
     ...props
   },
-  ref,
+  forwardedRef,
 ) {
   const autoId = useId();
   const id = externalId ?? autoId;
+  const inputRef = useRef<HTMLInputElement>(null);
+  const pendingCaretDigitsAfterRef = useRef<number | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [internalValue, setInternalValue] = useState(() => defaultValue == null ? '' : String(defaultValue));
   const tooltipRef = useRef<HTMLDivElement>(null);
   const s = INPUT_SIZE_STYLES[size];
+  const isControlled = value !== undefined;
+  const currentValue = isControlled ? value : internalValue;
 
   const inputType = type === 'password' && showPassword ? 'text' : type === 'number' ? 'text' : type;
-  const isZero = (type === 'number' || format === 'currency') && value !== '' && value != null && Number(value) === 0;
-  const hasValue = value !== undefined && value !== null && value !== '' && !isZero;
+  const isZero = (type === 'number' || format === 'currency') && currentValue !== '' && currentValue != null && Number(currentValue) === 0;
+  const hasValue = currentValue !== undefined && currentValue !== null && currentValue !== '' && !isZero;
   const showClear = clearable && hasValue && !disabled && !readOnly && !loading;
   const leadingIcon = leftAdornment ?? leftIcon;
   const trailingIcon = rightAdornment ?? rightIcon;
@@ -113,26 +141,44 @@ export const DInput = forwardRef<HTMLInputElement, InputProps>(function DInput(
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const displayValue = (): string => {
-    if (value === undefined || value === null) return '';
-    if (type === 'number' && (value === 0 || value === '0')) return '';
-    if (format === 'currency') return formatLegacyCurrency(value as string | number);
-    return String(value);
-  };
+  const displayValue = (() => {
+    if (currentValue === undefined || currentValue === null) return '';
+    if (type === 'number' && (currentValue === 0 || currentValue === '0')) return '';
+    if (format === 'currency') return formatLegacyCurrency(currentValue as string | number);
+    return String(currentValue);
+  })();
+
+  useLayoutEffect(() => {
+    const pending = pendingCaretDigitsAfterRef.current;
+    const input = inputRef.current;
+    if (pending === null || !input || document.activeElement !== input) return;
+    const nextCaret = caretFromDigitsAfter(input.value, pending);
+    input.setSelectionRange(nextCaret, nextCaret);
+    pendingCaretDigitsAfterRef.current = null;
+  }, [displayValue]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     let next = event.target.value;
-    if (format === 'currency') next = next.replace(/\D/g, '');
-    else if (format !== 'plain') next = next.replace(/[^0-9.,-]/g, '');
+    if (format === 'currency') {
+      pendingCaretDigitsAfterRef.current = countDigitsAfterCaret(event.target.value, event.target.selectionStart);
+      next = next.replace(/\D/g, '');
+    } else if (format !== 'plain') {
+      next = next.replace(/[^0-9.,-]/g, '');
+    }
+
+    if (!isControlled) setInternalValue(next);
     onChange?.(next, event);
     onNativeChange?.(event);
   };
 
   const handleClear = () => {
     const event = eventWithValue('');
+    if (!isControlled) setInternalValue('');
     onClear?.();
     onChange?.('', event);
     onNativeChange?.(event);
+    pendingCaretDigitsAfterRef.current = null;
+    inputRef.current?.focus();
   };
 
   return (
@@ -158,12 +204,15 @@ export const DInput = forwardRef<HTMLInputElement, InputProps>(function DInput(
         {resolvedPrefix ? <span className={cn('pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 font-medium text-[var(--color-text-muted)]', size === 'sm' ? 'text-xs' : 'text-sm')}>{resolvedPrefix}</span> : null}
         <input
           {...props}
-          ref={ref}
+          ref={(node) => {
+            inputRef.current = node;
+            assignRef(forwardedRef, node);
+          }}
           id={id}
           autoComplete={props.autoComplete ?? 'off'}
           type={inputType}
           inputMode={props.inputMode ?? (type === 'number' || format !== 'plain' ? 'numeric' : undefined)}
-          value={displayValue()}
+          value={displayValue}
           onChange={handleChange}
           disabled={disabled || loading}
           readOnly={readOnly}
@@ -182,8 +231,8 @@ export const DInput = forwardRef<HTMLInputElement, InputProps>(function DInput(
         {(showClear || type === 'password' || trailingIcon || loading) ? (
           <div className={cn('absolute top-1/2 flex -translate-y-1/2 items-center text-[var(--color-text-muted)]', size === 'sm' ? 'right-1.5 gap-0.5' : 'right-2 gap-1', resolvedSuffix && 'pointer-events-none opacity-0')}>
             {loading ? <span aria-label="Loading" className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" /> : null}
-            {!loading && showClear && type !== 'password' ? <button type="button" tabIndex={-1} aria-label="Clear input" onMouseDown={(e) => e.preventDefault()} onClick={handleClear} className={cn('rounded-md hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]', size === 'sm' ? 'p-0.5' : 'p-1')}><ClearIcon className={size === 'sm' ? 'size-3' : 'size-3.5'} /></button> : null}
-            {!loading && type === 'password' ? <button type="button" tabIndex={-1} aria-label={showPassword ? 'Hide password' : 'Show password'} onMouseDown={(e) => e.preventDefault()} onClick={() => setShowPassword((v) => !v)} className={cn('rounded-md hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]', size === 'sm' ? 'p-0.5' : 'p-1')}><EyeIcon closed={showPassword} className={size === 'sm' ? 'size-3' : 'size-3.5'} /></button> : null}
+            {!loading && showClear ? <button type="button" tabIndex={-1} aria-label="Clear input" onMouseDown={(event) => event.preventDefault()} onClick={handleClear} className={cn('rounded-md hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]', size === 'sm' ? 'p-0.5' : 'p-1')}><ClearIcon className={size === 'sm' ? 'size-3' : 'size-3.5'} /></button> : null}
+            {!loading && type === 'password' ? <button type="button" tabIndex={-1} aria-label={showPassword ? 'Hide password' : 'Show password'} onMouseDown={(event) => event.preventDefault()} onClick={() => setShowPassword((v) => !v)} className={cn('rounded-md hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]', size === 'sm' ? 'p-0.5' : 'p-1')}><EyeIcon closed={showPassword} className={size === 'sm' ? 'size-3' : 'size-3.5'} /></button> : null}
             {!loading && trailingIcon ? <span className="flex items-center">{trailingIcon}</span> : null}
           </div>
         ) : null}
@@ -193,7 +242,6 @@ export const DInput = forwardRef<HTMLInputElement, InputProps>(function DInput(
     </div>
   );
 });
-
 
 DInput.displayName = 'DInput';
 
@@ -207,25 +255,88 @@ export function normalizeDecimalInput(input: string, { scale = 4, integer = fals
   if (!hasDecimal) return whole;
   return `${whole || '0'}.${rawFraction.slice(0, Math.max(0, scale))}`;
 }
-export interface DecimalInputProps extends Omit<InputProps, 'inputMode' | 'onChange' | 'onNativeChange' | 'type' | 'value' | 'format'> {
-  value: string; onValueChange: (value: string) => void; scale?: number; integer?: boolean;
+
+export interface DecimalInputProps extends Omit<InputProps, 'inputMode' | 'onChange' | 'onNativeChange' | 'type' | 'value' | 'defaultValue' | 'format'> {
+  value: string;
+  onValueChange: (value: string) => void;
+  scale?: number;
+  integer?: boolean;
 }
+
 export const DDecimalInput = forwardRef<HTMLInputElement, DecimalInputProps>(function DDecimalInput({ value, onValueChange, scale = 4, integer = false, ...props }, ref) {
   return <DInput ref={ref} {...props} value={value} type="text" inputMode={integer ? 'numeric' : 'decimal'} onNativeChange={(event) => onValueChange(normalizeDecimalInput(event.target.value, { scale, integer }))} />;
 });
+
 export interface CurrencyFormatOptions { groupSeparator?: string; decimalSeparator?: string; }
 export function formatCurrencyInputValue(value: string, { groupSeparator = '.', decimalSeparator = ',' }: CurrencyFormatOptions = {}): string {
   if (!value) return '';
-  const normalized = normalizeDecimalInput(value); const [whole = '', fraction] = normalized.split('.');
+  const normalized = normalizeDecimalInput(value);
+  const [whole = '', fraction] = normalized.split('.');
   const grouped = (whole || '0').replace(/\B(?=(\d{3})+(?!\d))/g, groupSeparator);
   return fraction === undefined ? grouped : `${grouped}${decimalSeparator}${fraction}`;
 }
-export interface CurrencyInputProps extends Omit<DecimalInputProps, 'integer' | 'onValueChange'> {
-  onValueChange: (value: string) => void; currencySymbol?: ReactNode; groupSeparator?: string; decimalSeparator?: string;
+
+export function parseCurrencyInputValue(value: string, { groupSeparator = '.', decimalSeparator = ',' }: CurrencyFormatOptions = {}): string {
+  const normalized = String(value).trim();
+  if (!normalized) return '';
+  const decimalIndex = normalized.lastIndexOf(decimalSeparator);
+  const hasDecimal = decimalIndex >= 0;
+  const wholeSource = hasDecimal ? normalized.slice(0, decimalIndex) : normalized;
+  const fractionSource = hasDecimal ? normalized.slice(decimalIndex + decimalSeparator.length) : '';
+  const whole = wholeSource.split(groupSeparator).join('').replace(/\D/g, '').replace(/^0+(?=\d)/, '');
+  const fraction = fractionSource.replace(/\D/g, '');
+  if (!hasDecimal) return whole;
+  return `${whole || '0'}.${fraction}`;
 }
-export const DCurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(function DCurrencyInput({ value, onValueChange, currencySymbol = 'Rp', groupSeparator, decimalSeparator, onFocus, onBlur, ...props }, ref) {
-  const [isEditing, setEditing] = useState(false);
-  const displayed = isEditing ? value : formatCurrencyInputValue(value, { ...(groupSeparator === undefined ? {} : { groupSeparator }), ...(decimalSeparator === undefined ? {} : { decimalSeparator }) });
-  return <DDecimalInput ref={ref} {...props} value={displayed} prefix={currencySymbol} onValueChange={onValueChange} onFocus={(event) => { setEditing(true); onFocus?.(event); }} onBlur={(event) => { setEditing(false); onBlur?.(event); }} />;
+
+export interface CurrencyInputProps extends Omit<DecimalInputProps, 'integer' | 'onValueChange'> {
+  onValueChange: (value: string) => void;
+  currencySymbol?: ReactNode;
+  groupSeparator?: string;
+  decimalSeparator?: string;
+}
+
+export const DCurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(function DCurrencyInput(
+  {
+    value,
+    onValueChange,
+    currencySymbol = 'Rp',
+    groupSeparator = '.',
+    decimalSeparator = ',',
+    ...props
+  },
+  forwardedRef,
+) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const pendingCaretDigitsAfterRef = useRef<number | null>(null);
+  const displayed = formatCurrencyInputValue(value, { groupSeparator, decimalSeparator });
+
+  useLayoutEffect(() => {
+    const pending = pendingCaretDigitsAfterRef.current;
+    const input = inputRef.current;
+    if (pending === null || !input || document.activeElement !== input) return;
+    const nextCaret = caretFromDigitsAfter(input.value, pending);
+    input.setSelectionRange(nextCaret, nextCaret);
+    pendingCaretDigitsAfterRef.current = null;
+  }, [displayed]);
+
+  return (
+    <DInput
+      ref={(node) => {
+        inputRef.current = node;
+        assignRef(forwardedRef, node);
+      }}
+      {...props}
+      value={displayed}
+      type="text"
+      inputMode="decimal"
+      prefix={currencySymbol}
+      onNativeChange={(event) => {
+        pendingCaretDigitsAfterRef.current = countDigitsAfterCaret(event.target.value, event.target.selectionStart);
+        onValueChange(parseCurrencyInputValue(event.target.value, { groupSeparator, decimalSeparator }));
+      }}
+    />
+  );
 });
+
 export type { InputSize } from '../shared';

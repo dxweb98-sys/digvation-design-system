@@ -1,7 +1,7 @@
 import { useId, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { cn } from '../cn';
-import { DDropdown } from '../dropdown';
+import { DDropdown, type FloatingScrollBehavior } from '../dropdown';
 import type { SelectOption } from '../select';
 
 function ClearIcon() {
@@ -23,6 +23,7 @@ export interface SelectFilterProps {
   clearable?: boolean;
   searchable?: boolean;
   containerClassName?: string;
+  scrollBehavior?: FloatingScrollBehavior;
 }
 
 /** Filter-specific DSelect from oldUi: label lives inside the trigger, not above it. */
@@ -38,6 +39,7 @@ export function DSelectFilter({
   clearable = true,
   searchable = false,
   containerClassName,
+  scrollBehavior = 'close',
 }: SelectFilterProps) {
   const id = useId();
   const searchRef = useRef<HTMLInputElement>(null);
@@ -53,6 +55,7 @@ export function DSelectFilter({
     <div className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
       <DDropdown
         matchWidth
+        scrollBehavior={scrollBehavior}
         onOpenChange={(open) => {
           if (open && searchable) requestAnimationFrame(() => searchRef.current?.focus());
           if (!open) setSearch('');

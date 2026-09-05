@@ -9,7 +9,7 @@ import {
 } from 'react';
 
 import { cn } from '../cn';
-import { DDropdown } from '../dropdown';
+import { DDropdown, type FloatingScrollBehavior } from '../dropdown';
 import { INPUT_SIZE_STYLES, type InputSize } from '../shared';
 import type { SelectOption } from '../select';
 
@@ -33,6 +33,10 @@ export interface ComboboxProps {
   size?: InputSize;
   onChange?: (value: string | number | null) => void;
   fetchOptions?: (search: string) => Promise<readonly SelectOption[]>;
+  /** Change this key (for example when countryId changes) to request fresh async options. */
+  refetchKey?: string | number | boolean | null;
+  onFetchError?: (error: unknown) => void;
+  asyncErrorMessage?: ReactNode;
   error?: ReactNode;
   hint?: ReactNode;
   disabled?: boolean;
@@ -48,6 +52,7 @@ export interface ComboboxProps {
   idleMessage?: ReactNode;
   ariaLabel?: string;
   debounceMs?: number;
+  scrollBehavior?: FloatingScrollBehavior;
 }
 
 export function DCombobox({
@@ -58,6 +63,9 @@ export function DCombobox({
   size = 'md',
   onChange,
   fetchOptions,
+  refetchKey,
+  onFetchError,
+  asyncErrorMessage = 'Gagal memuat pilihan',
   error,
   hint,
   disabled = false,
@@ -73,44 +81,55 @@ export function DCombobox({
   idleMessage,
   ariaLabel,
   debounceMs = 300,
+  scrollBehavior = 'reposition',
 }: ComboboxProps) {
   const id = useId();
   const inputRef = useRef<HTMLInputElement>(null);
+  const searchRequestIdRef = useRef(0);
+  const resolveRequestIdRef = useRef(0);
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
   const [asyncOptions, setAsyncOptions] = useState<readonly SelectOption[]>([]);
   const [isFetching, setFetching] = useState(false);
+  const [fetchError, setFetchError] = useState<unknown>(null);
   const [resolvedSelection, setResolvedSelection] = useState<SelectOption | null>(null);
   const s = INPUT_SIZE_STYLES[size];
   const isAsync = Boolean(fetchOptions);
 
   useEffect(() => {
     if (!fetchOptions || !open) return;
-    let active = true;
+    const requestId = ++searchRequestIdRef.current;
     const timeout = window.setTimeout(() => {
       setFetching(true);
-      void fetchOptions(inputValue).then((result) => {
-        if (active) setAsyncOptions(result);
-      }).finally(() => {
-        if (active) setFetching(false);
-      });
+      setFetchError(null);
+      void fetchOptions(inputValue)
+        .then((result) => {
+          if (requestId === searchRequestIdRef.current) setAsyncOptions(result);
+        })
+        .catch((nextError: unknown) => {
+          if (requestId !== searchRequestIdRef.current) return;
+          setFetchError(nextError);
+          onFetchError?.(nextError);
+        })
+        .finally(() => {
+          if (requestId === searchRequestIdRef.current) setFetching(false);
+        });
     }, debounceMs);
-    return () => {
-      active = false;
-      window.clearTimeout(timeout);
-    };
-  }, [debounceMs, fetchOptions, inputValue, open]);
+    return () => window.clearTimeout(timeout);
+  }, [debounceMs, fetchOptions, inputValue, onFetchError, open, refetchKey]);
 
   useEffect(() => {
     if (!fetchOptions || value == null || value === '' || sameValue(resolvedSelection?.value, value)) return;
-    let active = true;
-    void fetchOptions('').then((result) => {
-      const found = result.find((option) => sameValue(option.value, value));
-      if (active) setResolvedSelection(found ?? null);
-    });
-    return () => { active = false; };
-  }, [fetchOptions, resolvedSelection?.value, value]);
+    const requestId = ++resolveRequestIdRef.current;
+    void fetchOptions('')
+      .then((result) => {
+        if (requestId !== resolveRequestIdRef.current) return;
+        const found = result.find((option) => sameValue(option.value, value));
+        setResolvedSelection(found ?? null);
+      })
+      .catch((nextError: unknown) => onFetchError?.(nextError));
+  }, [fetchOptions, onFetchError, refetchKey, resolvedSelection?.value, value]);
 
   const selectedOption = options.find((option) => sameValue(option.value, value)) ?? (sameValue(resolvedSelection?.value, value) ? resolvedSelection : null);
   const source = isAsync ? asyncOptions : options;
@@ -159,6 +178,16 @@ export function DCombobox({
       });
       return;
     }
+    if (event.key === 'Home' && open) {
+      event.preventDefault();
+      setActiveIndex(0);
+      return;
+    }
+    if (event.key === 'End' && open) {
+      event.preventDefault();
+      setActiveIndex(Math.max(0, filtered.length - 1));
+      return;
+    }
     if (event.key === 'Enter' && open) {
       const active = filtered[activeIndex];
       if (active && !active.disabled) {
@@ -182,6 +211,7 @@ export function DCombobox({
         onOpenChange={setOpen}
         contentRole="listbox"
         contentClassName="max-h-60 overflow-y-auto p-1"
+        scrollBehavior={scrollBehavior}
         onClose={() => { setOpen(false); setInputValue(''); }}
         trigger={() => (
           <div className="relative">
@@ -190,9 +220,11 @@ export function DCombobox({
               ref={inputRef}
               id={id}
               aria-label={ariaLabel}
+              role="combobox"
               aria-autocomplete="list"
               aria-expanded={open}
               aria-controls={`${id}-listbox`}
+              aria-activedescendant={open && filtered[activeIndex] ? `${id}-option-${activeIndex}` : undefined}
               autoComplete="off"
               type="text"
               disabled={disabled}
@@ -220,13 +252,13 @@ export function DCombobox({
         )}
       >
         <div id={`${id}-listbox`}>
-          {loading || isFetching ? <div className="px-3 py-6 text-center text-sm text-[var(--color-text-muted)]">Mencari...</div> : showIdle ? <div className="px-3 py-6 text-center text-sm text-[var(--color-text-muted)]">{idleMessage}</div> : filtered.length === 0 ? (
+          {loading || isFetching ? <div className="px-3 py-6 text-center text-sm text-[var(--color-text-muted)]">Mencari...</div> : fetchError ? <div className="px-3 py-6 text-center text-sm text-[var(--color-danger)]">{asyncErrorMessage}</div> : showIdle ? <div className="px-3 py-6 text-center text-sm text-[var(--color-text-muted)]">{idleMessage}</div> : filtered.length === 0 ? (
             renderEmpty ? renderEmpty(inputValue) : allowCreate && inputValue.trim() ? (
               renderCreateOption ? renderCreateOption(inputValue, create) : <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.stopPropagation(); create(); }} className="w-full rounded-md px-3 py-2 text-left text-sm font-medium text-[var(--color-brand)] hover:bg-[var(--color-surface-muted)]">Gunakan “{inputValue.trim()}”</button>
             ) : <div className="px-3 py-6 text-center text-sm text-[var(--color-text-muted)]">Tidak ditemukan</div>
           ) : filtered.map((option, index) => {
             const isSelected = sameValue(option.value, value);
-            return <button key={String(option.value)} type="button" role="option" aria-selected={isSelected} disabled={option.disabled} onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.stopPropagation(); choose(option); }} className={cn('w-full rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-[var(--color-surface-muted)] disabled:cursor-not-allowed disabled:opacity-50', isSelected && 'bg-[var(--color-brand)]/10 font-medium text-[var(--color-brand)]', index === activeIndex && !isSelected && 'bg-[var(--color-surface-muted)]')}>{renderOption ? renderOption(option, isSelected) : option.label}</button>;
+            return <button id={`${id}-option-${index}`} key={String(option.value)} type="button" role="option" aria-selected={isSelected} disabled={option.disabled} onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.stopPropagation(); choose(option); }} className={cn('w-full rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-[var(--color-surface-muted)] disabled:cursor-not-allowed disabled:opacity-50', isSelected && 'bg-[var(--color-brand)]/10 font-medium text-[var(--color-brand)]', index === activeIndex && !isSelected && 'bg-[var(--color-surface-muted)]')}>{renderOption ? renderOption(option, isSelected) : option.label}</button>;
           })}
         </div>
       </DDropdown>
@@ -235,4 +267,3 @@ export function DCombobox({
     </div>
   );
 }
-

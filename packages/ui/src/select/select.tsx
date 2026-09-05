@@ -5,6 +5,7 @@ import {
   useEffect,
   useId,
   useMemo,
+  useRef,
   useState,
   type ButtonHTMLAttributes,
   type KeyboardEvent,
@@ -13,7 +14,7 @@ import {
 } from 'react';
 
 import { cn } from '../cn';
-import { DDropdown } from '../dropdown';
+import { DDropdown, type FloatingScrollBehavior } from '../dropdown';
 import { INPUT_SIZE_STYLES, type InputSize } from '../shared';
 
 export interface SelectOption {
@@ -50,14 +51,21 @@ export interface SelectProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   children?: ReactNode;
   placeholder?: ReactNode;
   clearable?: boolean;
+  /** Compatibility search mode. Prefer DCombobox for autocomplete/async-search UX. */
   searchable?: boolean;
   loading?: boolean;
   emptyMessage?: ReactNode;
+  asyncErrorMessage?: ReactNode;
+  /** Compatibility async mode. Prefer DCombobox for new async-search flows. */
   fetchOptions?: (search: string) => Promise<readonly SelectOption[]>;
+  /** Changing this value causes async options to be requested again when the panel is open. */
+  refetchKey?: string | number | boolean | null;
+  onFetchError?: (error: unknown) => void;
   value?: string | number | null;
   defaultValue?: string | number | null;
   size?: InputSize;
   debounceMs?: number;
+  scrollBehavior?: FloatingScrollBehavior;
   onValueChange?: (value: string | number | null) => void;
   onChange?: (value: string | number | null) => void;
 }
@@ -77,7 +85,10 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
     searchable = false,
     loading = false,
     emptyMessage = 'Tidak ditemukan',
+    asyncErrorMessage = 'Gagal memuat pilihan',
     fetchOptions,
+    refetchKey,
+    onFetchError,
     onValueChange,
     onChange,
     value,
@@ -85,6 +96,7 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
     disabled = false,
     size = 'md',
     debounceMs = 300,
+    scrollBehavior = 'reposition',
     ...props
   },
   ref,
@@ -92,6 +104,8 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
   const generatedId = useId();
   const id = providedId ?? generatedId;
   const s = INPUT_SIZE_STYLES[size];
+  const requestIdRef = useRef(0);
+  const resolveRequestIdRef = useRef(0);
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
   const [isOpen, setOpen] = useState(false);
@@ -99,6 +113,7 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
   const [resolvedAsyncSelection, setResolvedAsyncSelection] = useState<SelectOption | null>(null);
   const [asyncOptions, setAsyncOptions] = useState<readonly SelectOption[]>([]);
   const [isFetching, setFetching] = useState(false);
+  const [fetchError, setFetchError] = useState<unknown>(null);
   const selectedValue = value === undefined ? internalValue : value;
   const staticOptions = useMemo(() => options?.slice() ?? selectOptionsFromChildren(children), [children, options]);
   const isAsync = Boolean(fetchOptions);
@@ -113,30 +128,37 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
 
   useEffect(() => {
     if (!isAsync || !fetchOptions || !isOpen) return;
-    let active = true;
+    const requestId = ++requestIdRef.current;
     const timeout = window.setTimeout(() => {
       setFetching(true);
-      void fetchOptions(query).then((result) => {
-        if (active) setAsyncOptions(result);
-      }).finally(() => {
-        if (active) setFetching(false);
-      });
+      setFetchError(null);
+      void fetchOptions(query)
+        .then((result) => {
+          if (requestId === requestIdRef.current) setAsyncOptions(result);
+        })
+        .catch((nextError: unknown) => {
+          if (requestId !== requestIdRef.current) return;
+          setFetchError(nextError);
+          onFetchError?.(nextError);
+        })
+        .finally(() => {
+          if (requestId === requestIdRef.current) setFetching(false);
+        });
     }, debounceMs);
-    return () => {
-      active = false;
-      window.clearTimeout(timeout);
-    };
-  }, [debounceMs, fetchOptions, isAsync, isOpen, query]);
+    return () => window.clearTimeout(timeout);
+  }, [debounceMs, fetchOptions, isAsync, isOpen, onFetchError, query, refetchKey]);
 
   useEffect(() => {
-    if (!isAsync || !fetchOptions || selectedValue == null || selectedValue === '' || resolvedAsyncSelection) return;
-    let active = true;
-    void fetchOptions('').then((result) => {
-      const found = result.find((option) => sameValue(option.value, selectedValue));
-      if (active && found) setResolvedAsyncSelection(found);
-    });
-    return () => { active = false; };
-  }, [fetchOptions, isAsync, resolvedAsyncSelection, selectedValue]);
+    if (!isAsync || !fetchOptions || selectedValue == null || selectedValue === '' || sameValue(resolvedAsyncSelection?.value, selectedValue)) return;
+    const requestId = ++resolveRequestIdRef.current;
+    void fetchOptions('')
+      .then((result) => {
+        if (requestId !== resolveRequestIdRef.current) return;
+        const found = result.find((option) => sameValue(option.value, selectedValue));
+        if (found) setResolvedAsyncSelection(found);
+      })
+      .catch((nextError: unknown) => onFetchError?.(nextError));
+  }, [fetchOptions, isAsync, onFetchError, refetchKey, resolvedAsyncSelection?.value, selectedValue]);
 
   const choose = (option: SelectOption) => {
     if (value === undefined) setInternalValue(option.value);
@@ -188,6 +210,7 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
         open={isOpen}
         onOpenChange={setOpen}
         contentRole="listbox"
+        scrollBehavior={scrollBehavior}
         onClose={() => { setOpen(false); setQuery(''); }}
         trigger={({ open }) => (
           <div className="relative">
@@ -223,7 +246,7 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
         <div id={`${id}-listbox`} className="max-h-60 overflow-hidden">
           {searchable ? <div className="border-b border-[var(--color-border)] p-2"><input autoFocus value={query} onChange={(event) => { setQuery(event.target.value); setActiveIndex(0); }} placeholder="Cari..." className="h-8 w-full rounded-md border border-[var(--color-border)] bg-[var(--color-background)] px-2 text-xs text-[var(--color-text)] outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20" /></div> : null}
           <div className="max-h-48 overflow-y-auto p-1">
-            {loading || isFetching ? <p className="px-3 py-2 text-sm text-[var(--color-text-muted)]">Loading...</p> : filteredOptions.length === 0 ? <p className="px-3 py-2 text-sm text-[var(--color-text-muted)]">{emptyMessage}</p> : filteredOptions.map((option, index) => (
+            {loading || isFetching ? <p className="px-3 py-2 text-sm text-[var(--color-text-muted)]">Loading...</p> : fetchError ? <p className="px-3 py-2 text-sm text-[var(--color-danger)]">{asyncErrorMessage}</p> : filteredOptions.length === 0 ? <p className="px-3 py-2 text-sm text-[var(--color-text-muted)]">{emptyMessage}</p> : filteredOptions.map((option, index) => (
               <button key={String(option.value)} type="button" role="option" aria-selected={sameValue(option.value, selectedValue)} disabled={option.disabled} onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.stopPropagation(); if (!option.disabled) choose(option); }} className={cn('w-full rounded-md px-3 py-2 text-left text-sm text-[var(--color-text)] transition-colors hover:bg-[var(--color-surface-muted)] disabled:cursor-not-allowed disabled:opacity-50', sameValue(option.value, selectedValue) && 'bg-[var(--color-brand)]/10 font-medium text-[var(--color-brand)]', index === activeIndex && !sameValue(option.value, selectedValue) && 'bg-[var(--color-surface-muted)]')}>{option.label}</button>
             ))}
           </div>
@@ -235,3 +258,4 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
   );
 });
 
+DSelect.displayName = 'DSelect';

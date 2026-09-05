@@ -9,7 +9,11 @@ import {
 import { createPortal } from 'react-dom';
 
 import { cn } from '../cn';
-import { useFloatingPosition, type FloatingPlacement } from '../internal/floating/use-floating-position';
+import {
+  useFloatingPosition,
+  type FloatingPlacement,
+  type FloatingScrollBehavior,
+} from '../internal/floating/use-floating-position';
 import { DropdownContext } from './dropdown-context';
 
 export interface DropdownProps {
@@ -27,6 +31,9 @@ export interface DropdownProps {
   contentClassName?: string;
   offset?: number;
   minWidth?: number;
+  viewportPadding?: number;
+  /** Behavior when the page or a scroll ancestor moves while the panel is open. */
+  scrollBehavior?: FloatingScrollBehavior;
 }
 
 export function DDropdown({
@@ -44,6 +51,8 @@ export function DDropdown({
   contentClassName,
   offset = 6,
   minWidth = 140,
+  viewportPadding = 8,
+  scrollBehavior = 'reposition',
 }: DropdownProps) {
   const referenceRef = useRef<HTMLDivElement>(null);
   const floatingRef = useRef<HTMLDivElement>(null);
@@ -73,6 +82,9 @@ export function DDropdown({
     matchWidth,
     offset,
     minWidth,
+    viewportPadding,
+    scrollBehavior,
+    onRequestClose: close,
   });
 
   useEffect(() => {
@@ -125,6 +137,7 @@ export function DDropdown({
               tabIndex={-1}
               style={style}
               data-positioned={positioned ? 'true' : 'false'}
+              data-scroll-behavior={scrollBehavior}
               onClick={(event) => {
                 if (!closeOnItemClick) return;
                 const target = event.target as HTMLElement;
@@ -144,3 +157,5 @@ export function DDropdown({
     </DropdownContext.Provider>
   );
 }
+
+export type { FloatingPlacement, FloatingScrollBehavior } from '../internal/floating/use-floating-position';

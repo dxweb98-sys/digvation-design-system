@@ -1,6 +1,9 @@
-import { useCallback, useLayoutEffect, useState, type CSSProperties, type RefObject } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
+
+import { lockDocumentScroll } from '../scroll-lock';
 
 export type FloatingPlacement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
+export type FloatingScrollBehavior = 'reposition' | 'close' | 'lock';
 
 interface FloatingPositionOptions {
   open: boolean;
@@ -11,6 +14,8 @@ interface FloatingPositionOptions {
   offset?: number;
   minWidth?: number;
   viewportPadding?: number;
+  scrollBehavior?: FloatingScrollBehavior;
+  onRequestClose?: () => void;
 }
 
 interface FloatingPositionResult {
@@ -18,6 +23,13 @@ interface FloatingPositionResult {
   positioned: boolean;
   updatePosition: () => void;
 }
+
+const HIDDEN_STYLE: CSSProperties = {
+  position: 'fixed',
+  visibility: 'hidden',
+  pointerEvents: 'none',
+  zIndex: 9999,
+};
 
 export function useFloatingPosition({
   open,
@@ -28,9 +40,12 @@ export function useFloatingPosition({
   offset = 6,
   minWidth = 140,
   viewportPadding = 8,
+  scrollBehavior = 'reposition',
+  onRequestClose,
 }: FloatingPositionOptions): FloatingPositionResult {
-  const [style, setStyle] = useState<CSSProperties>({ position: 'fixed', visibility: 'hidden', zIndex: 9999 });
+  const [style, setStyle] = useState<CSSProperties>(HIDDEN_STYLE);
   const [positioned, setPositioned] = useState(false);
+  const animationFrameRef = useRef<number | null>(null);
 
   const updatePosition = useCallback(() => {
     if (typeof window === 'undefined') return;
@@ -57,6 +72,7 @@ export function useFloatingPosition({
       zIndex: 9999,
       minWidth,
       visibility: 'visible',
+      pointerEvents: 'auto',
       left,
       maxWidth: `calc(100vw - ${viewportPadding * 2}px)`,
       ...(matchWidth ? { width: rect.width } : {}),
@@ -66,7 +82,10 @@ export function useFloatingPosition({
       next.bottom = Math.max(viewportPadding, window.innerHeight - rect.top + offset);
       next.top = 'auto';
     } else {
-      next.top = Math.max(viewportPadding, Math.min(rect.bottom + offset, window.innerHeight - measuredHeight - viewportPadding));
+      next.top = Math.max(
+        viewportPadding,
+        Math.min(rect.bottom + offset, window.innerHeight - measuredHeight - viewportPadding),
+      );
       next.bottom = 'auto';
     }
 
@@ -74,33 +93,67 @@ export function useFloatingPosition({
     setPositioned(true);
   }, [floatingRef, matchWidth, minWidth, offset, placement, referenceRef, viewportPadding]);
 
+  const schedulePositionUpdate = useCallback(() => {
+    if (typeof window === 'undefined' || animationFrameRef.current !== null) return;
+    animationFrameRef.current = window.requestAnimationFrame(() => {
+      animationFrameRef.current = null;
+      updatePosition();
+    });
+  }, [updatePosition]);
+
   useLayoutEffect(() => {
     if (!open) {
       setPositioned(false);
-      setStyle({ position: 'fixed', visibility: 'hidden', zIndex: 9999 });
+      setStyle(HIDDEN_STYLE);
       return;
     }
 
+    // The panel is mounted hidden, measured in this layout effect, and only then
+    // made visible at its final coordinates. This prevents a first-open teleport.
+    setPositioned(false);
+    setStyle(HIDDEN_STYLE);
     updatePosition();
 
-    const onViewportChange = () => updatePosition();
-    window.addEventListener('resize', onViewportChange);
-    window.addEventListener('scroll', onViewportChange, true);
+    const handleResize = () => schedulePositionUpdate();
+    const handleScroll = (event: Event) => {
+      const target = event.target as Node | null;
+      if (target && floatingRef.current?.contains(target)) return;
+
+      if (scrollBehavior === 'close') {
+        onRequestClose?.();
+        return;
+      }
+
+      // `lock` prevents document scrolling, but nested scroll containers can still
+      // move an anchor; keep positioning current in both persistent modes.
+      schedulePositionUpdate();
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleScroll, true);
 
     const observer = typeof ResizeObserver !== 'undefined'
-      ? new ResizeObserver(onViewportChange)
+      ? new ResizeObserver(schedulePositionUpdate)
       : null;
+
     if (observer) {
       if (referenceRef.current) observer.observe(referenceRef.current);
       if (floatingRef.current) observer.observe(floatingRef.current);
     }
 
+    const unlock = scrollBehavior === 'lock' ? lockDocumentScroll() : () => {};
+
     return () => {
-      window.removeEventListener('resize', onViewportChange);
-      window.removeEventListener('scroll', onViewportChange, true);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleScroll, true);
       observer?.disconnect();
+      unlock();
+      if (animationFrameRef.current !== null) {
+        window.cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
     };
-  }, [floatingRef, open, referenceRef, updatePosition]);
+  }, [floatingRef, onRequestClose, open, referenceRef, schedulePositionUpdate, scrollBehavior, updatePosition]);
 
   return { style, positioned, updatePosition };
 }

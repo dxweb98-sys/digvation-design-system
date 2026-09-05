@@ -3,7 +3,10 @@ import { createPortal } from 'react-dom';
 
 import { cn } from '../cn';
 import { CheckIcon, XIcon } from '../internal/icons';
-import { useFloatingPosition } from '../internal/floating/use-floating-position';
+import {
+  useFloatingPosition,
+  type FloatingScrollBehavior,
+} from '../internal/floating/use-floating-position';
 
 export interface NotificationItem {
   id: string;
@@ -27,6 +30,7 @@ export interface NotificationPanelProps {
   emptyMessage?: string;
   className?: string;
   offset?: number;
+  scrollBehavior?: FloatingScrollBehavior;
 }
 
 const dotClass: Record<NotificationItem['type'], string> = {
@@ -48,6 +52,7 @@ export function DNotificationPanel({
   emptyMessage = 'Tidak ada notifikasi',
   className,
   offset = 8,
+  scrollBehavior = 'reposition',
 }: NotificationPanelProps) {
   const floatingRef = useRef<HTMLDivElement>(null);
   const emptyReference = useRef<HTMLElement | null>(null);
@@ -61,6 +66,8 @@ export function DNotificationPanel({
     matchWidth: false,
     minWidth: 320,
     offset,
+    scrollBehavior,
+    onRequestClose: onClose,
   });
 
   useEffect(() => {
@@ -94,6 +101,7 @@ export function DNotificationPanel({
       role="dialog"
       aria-label={title}
       data-positioned={hasAnchor ? (positioned ? 'true' : 'false') : 'fallback'}
+      data-scroll-behavior={scrollBehavior}
       style={hasAnchor ? style : fallbackStyle}
       className={cn(
         'w-[min(24rem,calc(100vw-16px))] overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)]',
