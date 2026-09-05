@@ -116,11 +116,21 @@ export const DInput = forwardRef<HTMLInputElement, InputProps>(function DInput(
   const pendingCaretDigitsAfterRef = useRef<number | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
-  const [internalValue, setInternalValue] = useState(() => defaultValue == null ? '' : String(defaultValue));
+  const isControlled = value !== undefined && (Boolean(onChange || onNativeChange) || Boolean(readOnly));
+  const [internalValue, setInternalValue] = useState(() => {
+    if (value !== undefined && !isControlled) return String(value);
+    return defaultValue == null ? '' : String(defaultValue);
+  });
   const tooltipRef = useRef<HTMLDivElement>(null);
   const s = INPUT_SIZE_STYLES[size];
-  const isControlled = value !== undefined;
   const currentValue = isControlled ? value : internalValue;
+
+  // A value-only DInput is treated as an editable initial/synchronized value instead
+  // of a permanently locked React controlled field. Consumers that need a truly
+  // controlled input provide onChange/onNativeChange; display-only fields use readOnly.
+  useEffect(() => {
+    if (!isControlled && value !== undefined) setInternalValue(String(value));
+  }, [isControlled, value]);
 
   const inputType = type === 'password' && showPassword ? 'text' : type === 'number' ? 'text' : type;
   const isZero = (type === 'number' || format === 'currency') && currentValue !== '' && currentValue != null && Number(currentValue) === 0;
