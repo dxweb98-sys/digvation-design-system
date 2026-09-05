@@ -89,20 +89,55 @@ export function DSearchInput({
   };
 
   return (
-    <div ref={wrapperRef} className={cn('w-full sm:w-auto', align === 'right' ? 'sm:mr-3' : 'sm:ml-0', className)}>
+    <div
+      ref={wrapperRef}
+      data-ds-component="search-input"
+      className={cn('w-full sm:w-auto', align === 'right' ? 'sm:mr-3' : 'sm:ml-0', className)}
+    >
       <div className="relative block w-full sm:hidden">
         <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"><SearchIcon /></span>
-        <input type="text" value={localValue} onChange={(event) => { setLocalValue(event.target.value); if (event.target.value) setActive(true); }} placeholder={placeholder} className="h-9 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] pl-9 pr-9 text-sm outline-none shadow-sm placeholder:text-[var(--color-text-muted)]/70 focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/20" />
-        {localValue ? <button type="button" aria-label="Clear search" onClick={clearSearch} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]"><ClearIcon /></button> : null}
+        <input
+          type="text"
+          value={localValue}
+          onChange={(event) => {
+            setLocalValue(event.target.value);
+            if (event.target.value) setActive(true);
+          }}
+          placeholder={placeholder}
+          className="h-9 w-full rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-surface)] pl-9 pr-9 text-sm text-[var(--color-text)] outline-none shadow-[var(--shadow-sm)] placeholder:text-[var(--color-text-muted)]/70 focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/20"
+        />
+        {localValue ? <button type="button" aria-label="Clear search" onClick={clearSearch} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-[var(--radius-menu-item)] p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]"><ClearIcon /></button> : null}
       </div>
-      <div className={cn('relative hidden items-center transition-[width] duration-200 ease-out sm:flex', align === 'right' ? 'justify-end' : 'justify-start')} style={{ width: active ? expandedWidth : '44px' }}>
-        <div className={cn('relative h-9 w-full overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-sm transition-all duration-200 ease-out focus-within:border-[var(--color-brand)] focus-within:ring-2 focus-within:ring-[var(--color-brand)]/20', active ? 'cursor-text' : 'cursor-pointer hover:bg-[var(--color-surface-muted)]')} onClick={() => setActive(true)}>
+
+      <div
+        className={cn('relative hidden items-center transition-[width] duration-200 ease-out sm:flex', align === 'right' ? 'justify-end' : 'justify-start')}
+        style={{ width: active ? expandedWidth : '40px' }}
+      >
+        <div
+          className={cn(
+            'relative h-9 w-full overflow-hidden rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-sm)] transition-[border-color,box-shadow,background-color] duration-150 focus-within:border-[var(--color-brand)] focus-within:ring-2 focus-within:ring-[var(--color-brand)]/20',
+            active ? 'cursor-text' : 'cursor-pointer hover:bg-[var(--color-surface-muted)]',
+          )}
+          onClick={() => setActive(true)}
+        >
           <span className={cn('pointer-events-none absolute top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] transition-all duration-200 ease-out', active ? 'left-3' : 'left-1/2 -translate-x-1/2')}><SearchIcon /></span>
-          <input ref={desktopInputRef} type="text" value={localValue} onChange={(event) => { setLocalValue(event.target.value); if (event.target.value) setActive(true); }} onKeyDown={(event) => { if (event.key === 'Escape') clearSearch(); }} placeholder={placeholder} className={cn('h-full w-full bg-transparent pl-9 pr-9 text-sm outline-none placeholder:text-[var(--color-text-muted)]/70 transition-opacity duration-150 ease-out', active ? 'opacity-100' : 'pointer-events-none opacity-0')} />
-          {active && localValue ? <button type="button" aria-label="Clear search" onClick={(event) => { event.preventDefault(); event.stopPropagation(); clearSearch(); }} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]"><ClearIcon /></button> : null}
+          <input
+            ref={desktopInputRef}
+            type="text"
+            value={localValue}
+            onChange={(event) => {
+              setLocalValue(event.target.value);
+              if (event.target.value) setActive(true);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') clearSearch();
+            }}
+            placeholder={placeholder}
+            className={cn('h-full w-full bg-transparent pl-9 pr-9 text-sm text-[var(--color-text)] outline-none placeholder:text-[var(--color-text-muted)]/70 transition-opacity duration-150 ease-out', active ? 'opacity-100' : 'pointer-events-none opacity-0')}
+          />
+          {active && localValue ? <button type="button" aria-label="Clear search" onClick={(event) => { event.preventDefault(); event.stopPropagation(); clearSearch(); }} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-[var(--radius-menu-item)] p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]"><ClearIcon /></button> : null}
         </div>
       </div>
     </div>
   );
 }
-
