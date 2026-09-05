@@ -113,6 +113,7 @@ export function DDropdown({
     <DropdownContext.Provider value={context}>
       <div
         ref={referenceRef}
+        data-ds-component="dropdown-trigger"
         className={cn('inline-block', matchWidth && 'w-full', className)}
         onClick={(event) => {
           if (event.defaultPrevented) return;
@@ -139,6 +140,8 @@ export function DDropdown({
               role={contentRole}
               tabIndex={-1}
               style={style}
+              data-ds-component="dropdown"
+              data-ds-surface="floating"
               data-positioned={positioned ? 'true' : 'false'}
               data-scroll-behavior={scrollBehavior}
               onClick={(event) => {
@@ -147,7 +150,7 @@ export function DDropdown({
                 if (target.closest("button, [role='option'], [role='menuitem'], a")) close();
               }}
               className={cn(
-                'z-[9999] min-w-[140px] overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)]',
+                'z-[9999] min-w-[140px] overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)] outline-none',
                 contentPadding && 'py-1',
                 positioned && 'animate-[dropdown-in_150ms_ease-out]',
                 contentClassName,
