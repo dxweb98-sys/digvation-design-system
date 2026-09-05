@@ -15,6 +15,12 @@ describe('distributed stylesheet isolation', () => {
     expect(css).not.toMatch(/(^|\n)\s*button\s*,\s*\n?\s*input/);
   });
 
+  it('keeps semantic defaults low priority while component utilities stay strong enough to resist generic consumer element styles', () => {
+    expect(css).toContain("@import 'tailwindcss/theme.css' layer(theme);");
+    expect(css).toContain("@import 'tailwindcss/utilities.css';");
+    expect(css).not.toContain("@import 'tailwindcss/utilities.css' layer(utilities);");
+  });
+
   it('ships a complete fallback theme while normalizing only Digvation component boundaries', () => {
     expect(css).toContain('--color-brand:');
     expect(css).toContain('--color-secondary:');
