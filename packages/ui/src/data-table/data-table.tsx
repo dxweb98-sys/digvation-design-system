@@ -9,10 +9,16 @@ import { DSkeleton } from '../skeleton';
 export type SortDirection = 'asc' | 'desc';
 export type CellTransform = 'uppercase' | 'lowercase' | 'capitalize' | 'none' | ((value: unknown) => ReactNode);
 
+/**
+ * Keeps the legacy three-argument render callback assignable without destroying
+ * contextual typing for the canonical `(row, index)` callback.
+ */
+type LegacyTableCellRenderer = Function & { readonly __legacyTableCellRenderer?: never };
+
 export interface TableColumn<T> {
   key: keyof T | string;
   label: ReactNode;
-  render?: ((row: T, index: number) => ReactNode) | ((value: unknown, row: T, index: number) => ReactNode);
+  render?: ((row: T, index: number) => ReactNode) | LegacyTableCellRenderer;
   align?: 'left' | 'center' | 'right';
   width?: string;
   sortable?: boolean;
@@ -104,12 +110,12 @@ function FilterIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="curr
 
 function PageSizeSelect({ value, onChange }: { value: number; onChange?: (value: number) => void }) {
   if (!onChange) return <span className="font-medium text-[var(--color-text)]">{value}</span>;
-  return <DDropdown placement="top-start" closeOnItemClick trigger={({ open }) => <button type="button" className="relative flex h-8 items-center rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-2 pr-6 text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-muted)]">{value}<ChevronDownIcon size={14} className={cn('absolute right-1.5 transition-transform duration-150', open && 'rotate-180')} /></button>}><div className="min-w-[72px] py-1">{[10,25,50,100].map((size) => <button key={size} type="button" onClick={() => onChange(size)} className={cn('w-full px-3 py-1.5 text-left text-sm hover:bg-[var(--color-surface-muted)]', size === value && 'bg-[var(--color-brand)]/10 font-medium text-[var(--color-brand)]')}>{size}</button>)}</div></DDropdown>;
+  return <DDropdown placement="top-start" closeOnItemClick scrollBehavior="close" trigger={({ open }) => <button type="button" className="relative flex h-8 items-center rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-2 pr-6 text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-muted)]">{value}<ChevronDownIcon size={14} className={cn('absolute right-1.5 transition-transform duration-150', open && 'rotate-180')} /></button>}><div className="min-w-[72px] py-1">{[10,25,50,100].map((size) => <button key={size} type="button" onClick={() => onChange(size)} className={cn('w-full px-3 py-1.5 text-left text-sm hover:bg-[var(--color-surface-muted)]', size === value && 'bg-[var(--color-brand)]/10 font-medium text-[var(--color-brand)]')}>{size}</button>)}</div></DDropdown>;
 }
 function ActionMenu<T>({ actions, row }: { actions: readonly TableAction<T>[]; row: T }) {
   const visible = actions.filter((action) => !action.show || action.show(row));
   if (!visible.length) return null;
-  return <DDropdown placement="bottom-end" closeOnItemClick trigger={({ open }) => <span className={cn('inline-flex size-8 items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]', open && 'bg-[var(--color-surface-muted)] text-[var(--color-text)]')}><MoreHorizontalIcon size={16} /></span>}><div className="min-w-[180px] py-1">{visible.map((action, index) => <button key={index} type="button" onClick={() => action.onClick(row)} className={cn('flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm hover:bg-[var(--color-surface-muted)]', action.variant === 'danger' ? 'text-[var(--color-danger)]' : 'text-[var(--color-text)]')}>{action.icon}{action.label}</button>)}</div></DDropdown>;
+  return <DDropdown placement="bottom-end" closeOnItemClick scrollBehavior="close" trigger={({ open }) => <span className={cn('inline-flex size-8 items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]', open && 'bg-[var(--color-surface-muted)] text-[var(--color-text)]')}><MoreHorizontalIcon size={16} /></span>}><div className="min-w-[180px] py-1">{visible.map((action, index) => <button key={index} type="button" onClick={() => action.onClick(row)} className={cn('flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm hover:bg-[var(--color-surface-muted)]', action.variant === 'danger' ? 'text-[var(--color-danger)]' : 'text-[var(--color-text)]')}>{action.icon}{action.label}</button>)}</div></DDropdown>;
 }
 
 export function DDataTable<T>({
@@ -152,7 +158,7 @@ export function DDataTable<T>({
   const renderActions = (row: T, index: number) => actionRenderer ? actionRenderer(row, index) : actionArray ? <ActionMenu actions={actionArray} row={row} /> : null;
 
   return <div className="overflow-visible rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)]">
-    {(searchable || headerActions || filters) ? <div className="space-y-4 border-b border-[var(--color-border)] px-4 py-3"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="flex w-full items-center gap-2 sm:w-auto">{searchable ? <DSearchInput value={searchValue} onChange={(query) => onSearchChange?.(query)} placeholder={searchPlaceholder} debounceMs={500} align="left" expandedWidth="260px"/> : null}{filters ? <button type="button" aria-label="DToggle filters" onClick={() => setShowFilters((value) => !value)} className={cn('inline-flex h-9 w-11 items-center justify-center rounded-xl border text-sm shadow-sm transition-all', showFilters ? 'border-[var(--color-brand)] bg-[var(--color-brand)] text-white' : 'border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]')}><FilterIcon /></button> : null}</div>{headerActions ? <div className="flex w-full shrink-0 items-center justify-end gap-2 sm:w-auto">{headerActions}</div> : null}</div></div> : null}
+    {(searchable || headerActions || filters) ? <div className="space-y-4 border-b border-[var(--color-border)] px-4 py-3"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="flex w-full items-center gap-2 sm:w-auto">{searchable ? <DSearchInput value={searchValue} onChange={(query) => onSearchChange?.(query)} placeholder={searchPlaceholder} debounceMs={500} align="left" expandedWidth="260px"/> : null}{filters ? <button type="button" aria-label="Toggle filters" onClick={() => setShowFilters((value) => !value)} className={cn('inline-flex h-9 w-11 items-center justify-center rounded-xl border text-sm shadow-sm transition-all', showFilters ? 'border-[var(--color-brand)] bg-[var(--color-brand)] text-white' : 'border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]')}><FilterIcon /></button> : null}</div>{headerActions ? <div className="flex w-full shrink-0 items-center justify-end gap-2 sm:w-auto">{headerActions}</div> : null}</div></div> : null}
     {filters ? <div className={cn('overflow-hidden transition-all duration-300', showFilters ? 'max-h-[220px] opacity-100' : 'max-h-0 opacity-0')}><div className="flex flex-wrap items-center gap-2 border-b border-[var(--color-border)] px-4 py-3">{filters}</div></div> : null}
 
     <div className="divide-y divide-[var(--color-border)] sm:hidden">
@@ -167,5 +173,3 @@ export function DDataTable<T>({
     {pagination ? <footer className="flex flex-col items-center justify-between gap-3 border-t border-[var(--color-border)] px-4 py-3 text-xs text-[var(--color-text-muted)] sm:flex-row"><div className="flex items-center gap-2"><span>Menampilkan</span><PageSizeSelect value={pagination.pageSize} onChange={onPageSizeChange}/><span>dari {pagination.total} data</span></div><div className="flex items-center gap-1"><button type="button" aria-label="Previous page" disabled={pagination.page <= 1} onClick={() => onPageChange?.(pagination.page - 1)} className="size-8 rounded-md hover:bg-[var(--color-surface-muted)] disabled:opacity-40"><ChevronLeftIcon size={16} /></button>{getPaginationPages(pagination.page,totalPages).map((page) => <button key={page} type="button" aria-label={`Page ${page}`} onClick={() => onPageChange?.(page)} className={cn('size-8 rounded-md', page === pagination.page ? 'bg-[var(--color-brand)] text-white' : 'hover:bg-[var(--color-surface-muted)]')}>{page}</button>)}<button type="button" aria-label="Next page" disabled={pagination.page >= totalPages} onClick={() => onPageChange?.(pagination.page + 1)} className="size-8 rounded-md hover:bg-[var(--color-surface-muted)] disabled:opacity-40"><ChevronRightIcon size={16} /></button></div></footer> : null}
   </div>;
 }
-
-
