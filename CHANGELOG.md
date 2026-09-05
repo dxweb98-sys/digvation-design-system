@@ -4,7 +4,7 @@
 
 ## 1.0.0 - 2026-09-05
 
-First stable production release of `@digvation/ui`. The `D*` public component API, semantic theming contract, package exports, floating-overlay behavior, and repository/release workflow are now treated as stable consumer contracts.
+First stable production release of `@digvation-labs/ui`. The `D*` public component API, semantic theming contract, package exports, floating-overlay behavior, and repository/release workflow are now treated as stable consumer contracts.
 
 ### Added
 

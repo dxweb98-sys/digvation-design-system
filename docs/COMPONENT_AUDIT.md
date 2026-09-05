@@ -1,6 +1,6 @@
 # Component Audit and Roadmap
 
-This audit compares the current public `@digvation/ui` surface with common needs in reusable business/web applications. It is intentionally conservative: missing components are not automatically added to the package. A component should be promoted into the design system only after its API can be generic, themed, accessible, documented, and tested without application/domain dependencies.
+This audit compares the current public `@digvation-labs/ui` surface with common needs in reusable business/web applications. It is intentionally conservative: missing components are not automatically added to the package. A component should be promoted into the design system only after its API can be generic, themed, accessible, documented, and tested without application/domain dependencies.
 
 ## Current coverage
 

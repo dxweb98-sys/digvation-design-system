@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import '@digvation/ui/styles.css';
+import '@digvation-labs/ui/styles.css';
 import './docs.css';
 import './component-lab.css';
 import { App } from './App';

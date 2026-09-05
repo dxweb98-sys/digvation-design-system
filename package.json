@@ -1,6 +1,5 @@
 {
-  "name": "digvation-design-system-workspace",
-  "private": true,
+  "name": "@digvation-labs/ui",
   "version": "1.0.0",
   "workspaces": [
     "packages/*",
@@ -10,11 +9,11 @@
     "dev": "npm run build:ui && npm run dev -w @digvation/docs",
     "dev:local": "tsup src/index.ts --format esm,cjs --dts --watch --sourcemap --external react --external react-dom",
     "build": "npm run build:ui && npm run build -w @digvation/docs",
-    "build:ui": "npm run build -w @digvation/ui",
-    "typecheck": "npm run typecheck -w @digvation/ui && npm run build:ui && npm run typecheck -w @digvation/docs",
-    "pack:ui": "npm run build:ui && npm pack -w @digvation/ui --pack-destination ./release",
+    "build:ui": "npm run build -w @digvation-labs/ui",
+    "typecheck": "npm run typecheck -w @digvation-labs/ui && npm run build:ui && npm run typecheck -w @digvation/docs",
+    "pack:ui": "npm run build:ui && npm pack -w @digvation-labs/ui --pack-destination ./release",
     "preview": "npm run build && npm run preview -w @digvation/docs",
-    "test": "npm run test -w @digvation/ui",
+    "test": "npm run test -w @digvation-labs/ui",
     "validate": "npm run typecheck && npm test && npm run build",
     "release:verify": "npm ci && npm run validate && npm run pack:ui"
   },

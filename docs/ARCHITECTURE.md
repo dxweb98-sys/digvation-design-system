@@ -54,7 +54,7 @@ It must not own:
 
 ### `apps/docs`
 
-Consumer of `@digvation/ui`, not a second UI implementation. Examples must render real package components. Documentation-specific layout/styles stay here.
+Consumer of `@digvation-labs/ui`, not a second UI implementation. Examples must render real package components. Documentation-specific layout/styles stay here.
 
 ### `internal`
 

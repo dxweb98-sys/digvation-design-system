@@ -15,7 +15,7 @@ import {
   type InputFormat,
   type InputSize,
   type InputType,
-} from '@digvation/ui';
+} from '@digvation-labs/ui';
 import { generatedComponentApi } from './component-api.generated';
 
 type ApiProp = { name: string; type: string; required: boolean; description: string };

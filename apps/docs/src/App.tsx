@@ -61,7 +61,7 @@ import {
   type ThemeMode,
   type ThemeRadius,
   type ThemeTokens,
-} from '@digvation/ui';
+} from '@digvation-labs/ui';
 import { ComponentDocsTabs } from './component-lab';
 
 type NavItem = { id: string; label: string; group: string };
@@ -218,7 +218,7 @@ function ThemePlayground({ tokens, setTokens, mode, setMode, radius, setRadius }
         </div>
         <div className="inline-actions"><DButton variant="outline" size="sm" onClick={()=>setTokens({})}>Reset colors</DButton></div>
       </div>
-      <div><Code>{css}</Code><p className="tiny-note">Documentation dogfoods @digvation/ui. Native color input tetap dipakai hanya karena belum ada DColorPicker.</p></div>
+      <div><Code>{css}</Code><p className="tiny-note">Documentation dogfoods @digvation-labs/ui. Native color input tetap dipakai hanya karena belum ada DColorPicker.</p></div>
     </div>
   );
 }
@@ -322,7 +322,7 @@ export function App() {
   const groups=useMemo(()=>Array.from(new Set(filtered.map((item)=>item.group))),[filtered]);
 
   return <DThemeProvider tokens={tokens} mode={mode} radius={radius}><DToastProvider><div className="docs-app"><aside className="sidebar"><a className="brand" href="#top"><span>D.</span><div><strong>Digvation</strong><small>Design System</small></div></a><DInput containerClassName="nav-search-field" type="search" size="sm" clearable value={query} onChange={setQuery} placeholder="Search docs..."/><nav>{groups.map((group)=><div className="nav-group" key={group}><p>{group}</p>{filtered.filter((item)=>item.group===group).map((item)=><a key={item.id} href={`#${item.id}`}>{item.label}</a>)}</div>)}</nav><div className="sidebar-footer"><DBadge variant="success" dot>v0.2.0</DBadge><span>{navItems.length - 2} documented surfaces</span></div></aside><main><header id="top" className="hero"><div><DBadge variant="primary">Reusable React UI</DBadge><h1>One design system.<br/><span>Different project identities.</span></h1><p>Canonical reusable components with Digvation defaults, project-owned semantic theming, and documentation where Preview, Code, Props and Functions live in the same playground.</p><div className="hero-actions"><a className="hero-button" href="#getting-started">Get started</a><a className="hero-link" href="#theming">Customize theme →</a></div></div><div className="hero-card"><div className="hero-card-top"><span/><span/><span/></div><div className="hero-card-body"><DInput label="Project" value="New Product" onChange={()=>{}}/><DSelect label="Status" value="active" onChange={()=>{}} options={[{label:'Active',value:'active'}]}/><DButton fullWidth>Create project</DButton></div></div></header>
-        <section id="getting-started" className="guide-section"><p className="eyebrow">Guide</p><h2>Getting Started</h2><p className="lead">The repository is an npm workspace: the component package lives in <code>packages/ui</code>, while this documentation app lives in <code>apps/docs</code>.</p><div className="guide-grid"><DCard><DCardHeader><strong>Run documentation</strong></DCardHeader><DCardContent><Code>{`npm install\nnpm run dev`}</Code></DCardContent></DCard><DCard><DCardHeader><strong>Use in another project</strong></DCardHeader><DCardContent><Code>{`npm run pack:ui\nnpm install ../digvation-design-system/release/digvation-ui-0.2.0.tgz`}</Code></DCardContent></DCard></div><h3>Application setup</h3><Code>{`import '@digvation/ui/styles.css';\nimport { DButton } from '@digvation/ui';`}</Code><DAlert title="React requirement">React and React DOM remain peer dependencies.</DAlert></section>
+        <section id="getting-started" className="guide-section"><p className="eyebrow">Guide</p><h2>Getting Started</h2><p className="lead">The repository is an npm workspace: the component package lives in <code>packages/ui</code>, while this documentation app lives in <code>apps/docs</code>.</p><div className="guide-grid"><DCard><DCardHeader><strong>Run documentation</strong></DCardHeader><DCardContent><Code>{`npm install\nnpm run dev`}</Code></DCardContent></DCard><DCard><DCardHeader><strong>Use in another project</strong></DCardHeader><DCardContent><Code>{`npm run pack:ui\nnpm install ../digvation-design-system/release/digvation-ui-0.2.0.tgz`}</Code></DCardContent></DCard></div><h3>Application setup</h3><Code>{`import '@digvation-labs/ui/styles.css';\nimport { DButton } from '@digvation-labs/ui';`}</Code><DAlert title="React requirement">React and React DOM remain peer dependencies.</DAlert></section>
         <section id="theming" className="guide-section"><p className="eyebrow">Guide</p><h2>Theming</h2><p className="lead">Digvation defaults are always present. Projects only override semantic identity tokens such as primary, secondary, surfaces and status colors.</p><ThemePlayground tokens={tokens} setTokens={setTokens} mode={mode} setMode={setMode} radius={radius} setRadius={setRadius}/><DInfoNote variant="info" title="Portal-safe theming">DThemeProvider applies variables to the document root so portal surfaces inherit the same project theme.</DInfoNote></section>
         <ActionExamples/><FormExamples/><DisplayExamples/><ToastExample/><OverlayExamples/>
         <footer className="docs-footer"><strong>Digvation Design System</strong><span>Canonical components · themeable tokens · reusable package</span></footer>

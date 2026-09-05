@@ -4,7 +4,7 @@
 @source './**/*.{ts,tsx}';
 
 /*
- * @digvation/ui always ships a complete visual fallback. Theme defaults stay in
+ * @digvation-labs/ui always ships a complete visual fallback. Theme defaults stay in
  * a low-priority layer so project semantic variables can override them.
  *
  * Tailwind Preflight is intentionally NOT imported: consumers still own html,

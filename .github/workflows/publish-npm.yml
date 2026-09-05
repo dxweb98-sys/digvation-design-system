@@ -1,4 +1,4 @@
-name: Publish @digvation/ui to npm
+name: Publish @digvation-labs/ui to npm
 
 on:
   workflow_dispatch:
@@ -51,7 +51,7 @@ jobs:
           PACKAGE_NAME=$(node -p "require('./packages/ui/package.json').name")
           PACKAGE_VERSION=$(node -p "require('./packages/ui/package.json').version")
           echo "Publishing ${PACKAGE_NAME}@${PACKAGE_VERSION}"
-          test "$PACKAGE_NAME" = "@digvation/ui"
+          test "$PACKAGE_NAME" = "@digvation-labs/ui"
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             test "${GITHUB_REF_NAME}" = "v${PACKAGE_VERSION}"
           fi
@@ -66,4 +66,4 @@ jobs:
           if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" && -n "${MANUAL_ACCESS}" ]]; then
             ACCESS="${MANUAL_ACCESS}"
           fi
-          npm publish --workspace=@digvation/ui --access "${ACCESS}"
+          npm publish --workspace=@digvation-labs/ui --access "${ACCESS}"

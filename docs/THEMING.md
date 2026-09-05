@@ -1,6 +1,6 @@
 # Project-owned theming and style isolation
 
-`@digvation/ui` is a component library, not an application stylesheet. Consumer projects own page layout, body styles, routing shell, brand identity and application-level CSS.
+`@digvation-labs/ui` is a component library, not an application stylesheet. Consumer projects own page layout, body styles, routing shell, brand identity and application-level CSS.
 
 At the same time, the design system must remain visually complete when a consumer does **not** provide a custom theme. The package therefore ships a full Digvation fallback palette, radii, shadows and typography tokens. Project theming is an override, not a requirement.
 
@@ -19,7 +19,7 @@ A consumer should never need to theme the library just to make `DButton`, `DSele
 
 ## Isolation guarantee
 
-The distributed `@digvation/ui/styles.css` intentionally omits Tailwind Preflight. The package must not ship application-wide element resets such as `* { box-sizing }`, `body { ... }`, or `button, input { ... }` that could change a consumer application's layout or shell.
+The distributed `@digvation-labs/ui/styles.css` intentionally omits Tailwind Preflight. The package must not ship application-wide element resets such as `* { box-sizing }`, `body { ... }`, or `button, input { ... }` that could change a consumer application's layout or shell.
 
 Instead, the package uses a **component-scoped normalization boundary** (`data-ds-component`). Inside that boundary only, Digvation controls normalize browser-native button appearance, box sizing and inherited form typography. Portal surfaces such as dropdowns carry the same boundary. This gives components a deterministic baseline without touching unrelated project elements.
 
@@ -82,7 +82,7 @@ Map them once:
 import {
   DThemeProvider,
   createCssVariableTheme,
-} from '@digvation/ui';
+} from '@digvation-labs/ui';
 
 const uiTheme = createCssVariableTheme({
   primary: '--pos-primary',
@@ -111,7 +111,7 @@ The provider defaults to `mode="inherit"` and `radius="inherit"`, so it does not
 Projects without CSS variables can provide CSS values directly:
 
 ```tsx
-import { DThemeProvider, createProjectThemeTokens } from '@digvation/ui';
+import { DThemeProvider, createProjectThemeTokens } from '@digvation-labs/ui';
 
 const uiTheme = createProjectThemeTokens({
   primary: '#2563eb',
@@ -134,7 +134,7 @@ Any omitted value keeps the Digvation default.
 The recommended order is:
 
 ```ts
-import '@digvation/ui/styles.css';
+import '@digvation-labs/ui/styles.css';
 import './app.css';
 ```
 

@@ -4,7 +4,7 @@ Digvation Design System follows Semantic Versioning with an explicit pre-1.0 pol
 
 ## Version policy
 
-Current package: `@digvation/ui`.
+Current package: `@digvation-labs/ui`.
 
 ### Before 1.0
 
@@ -83,7 +83,7 @@ main (production)
 6. Set the final version `X.Y.Z`.
 7. Merge into `main`.
 8. Create annotated tag `vX.Y.Z` on the final release commit.
-9. Publish `@digvation/ui` from the tagged commit/package artifact.
+9. Publish `@digvation-labs/ui` from the tagged commit/package artifact.
 10. Merge the release branch back into `develop`.
 
 ### Hotfix
