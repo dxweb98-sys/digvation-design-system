@@ -160,11 +160,10 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
       .catch((nextError: unknown) => onFetchError?.(nextError));
   }, [fetchOptions, isAsync, onFetchError, refetchKey, resolvedAsyncSelection?.value, selectedValue]);
 
-  useEffect(() => {
-    if (!isOpen || query) return;
-    const selectedIndex = filteredOptions.findIndex((option) => sameValue(option.value, selectedValue));
-    setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0);
-  }, [filteredOptions, isOpen, query, selectedValue]);
+  const selectedIndex = () => {
+    const index = filteredOptions.findIndex((option) => sameValue(option.value, selectedValue));
+    return index >= 0 ? index : 0;
+  };
 
   const choose = (option: SelectOption) => {
     if (value === undefined) setInternalValue(option.value);
@@ -193,18 +192,24 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
     }
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault();
-      setOpen(true);
-      setActiveIndex((index) => {
-        const count = filteredOptions.length || 1;
-        return event.key === 'ArrowDown' ? (index + 1) % count : (index - 1 + count) % count;
-      });
+      const count = filteredOptions.length || 1;
+      if (!isOpen) {
+        const start = selectedIndex();
+        setOpen(true);
+        setActiveIndex(event.key === 'ArrowDown' ? (start + 1) % count : (start - 1 + count) % count);
+        return;
+      }
+      setActiveIndex((index) => event.key === 'ArrowDown' ? (index + 1) % count : (index - 1 + count) % count);
       return;
     }
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       const active = filteredOptions[activeIndex];
       if (isOpen && active && !active.disabled) choose(active);
-      else setOpen(true);
+      else {
+        setActiveIndex(selectedIndex());
+        setOpen(true);
+      }
     }
   };
 
@@ -214,7 +219,10 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
       <DDropdown
         matchWidth
         open={isOpen}
-        onOpenChange={setOpen}
+        onOpenChange={(next) => {
+          setOpen(next);
+          if (next && !query) setActiveIndex(selectedIndex());
+        }}
         contentRole="listbox"
         contentPadding={false}
         contentClassName="overflow-hidden"
