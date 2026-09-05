@@ -69,7 +69,7 @@ describe('shared field controls', () => {
     }
 
     render(<ControlledCombobox />);
-    const input = screen.getByRole('textbox', { name: 'Employee' });
+    const input = screen.getByRole('combobox', { name: 'Employee' });
     act(() => input.focus());
     fireEvent.change(input, { target: { value: 'bim' } });
     expect(document.activeElement).toBe(input);

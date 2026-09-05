@@ -116,8 +116,9 @@ export function useFloatingPosition({
 
     const handleResize = () => schedulePositionUpdate();
     const handleScroll = (event: Event) => {
-      const target = event.target as Node | null;
-      if (target && floatingRef.current?.contains(target)) return;
+      const target = event.target;
+      const isNodeTarget = typeof Node !== 'undefined' && target instanceof Node;
+      if (isNodeTarget && floatingRef.current?.contains(target)) return;
 
       if (scrollBehavior === 'close') {
         onRequestClose?.();

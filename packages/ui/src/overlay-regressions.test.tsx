@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { createRef } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -34,10 +34,11 @@ describe('overlay regressions', () => {
 
   it('repositions an open dropdown when its anchor moves during scroll', async () => {
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
-      callback(0);
-      return 1;
+      return window.setTimeout(() => callback(0), 0) as unknown as number;
     });
-    vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => {});
+    vi.spyOn(window, 'cancelAnimationFrame').mockImplementation((id) => {
+      window.clearTimeout(id);
+    });
 
     let left = 80;
     const { container } = render(
@@ -67,7 +68,7 @@ describe('overlay regressions', () => {
     await waitFor(() => expect(menu.style.left).toBe('160px'));
   });
 
-  it('closes an open dropdown on scroll when requested', () => {
+  it('closes an open dropdown on scroll when requested', async () => {
     render(
       <DDropdown scrollBehavior="close" trigger={() => <button type="button">Close-on-scroll menu</button>}>
         <button type="button">Action</button>
@@ -77,7 +78,7 @@ describe('overlay regressions', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Close-on-scroll menu' }));
     expect(screen.getByRole('menu')).toBeTruthy();
     fireEvent.scroll(window);
-    expect(screen.queryByRole('menu')).toBeNull();
+    await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
   });
 
   it('locks and restores document scrolling when requested by a dropdown', () => {
@@ -137,7 +138,9 @@ describe('overlay regressions', () => {
 
     rerender(<DDialog open={false} onClose={() => {}} title="Stable layout">Content</DDialog>);
     expect(document.body.style.overflow).toBe('hidden');
-    await new Promise((resolve) => window.setTimeout(resolve, 240));
+    await act(async () => {
+      await new Promise((resolve) => window.setTimeout(resolve, 240));
+    });
     expect(document.body.style.overflow).toBe('');
   });
 });
