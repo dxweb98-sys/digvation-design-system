@@ -90,9 +90,8 @@
 
 /*
  * Small Preflight-equivalent rules, but ONLY inside Digvation components.
- * Native browser borders/padding/box sizing were the reason buttons, calendar cells
- * and dropdown options looked different after global Preflight was removed.
- * Utilities are in a later cascade layer and therefore remain authoritative.
+ * This keeps native browser styles from leaking into library controls without
+ * changing unrelated consumer buttons, inputs, tables or page layout.
  */
 @layer components {
   :where([data-ds-component]),
@@ -120,12 +119,21 @@
     font: inherit;
   }
 
+  :where(input[data-ds-component]),
+  :where(textarea[data-ds-component]),
+  :where(select[data-ds-component]),
   :where([data-ds-component] input),
   :where([data-ds-component] textarea),
   :where([data-ds-component] select) {
     margin: 0;
     color: inherit;
     font: inherit;
+  }
+
+  :where([data-ds-component] table) {
+    border-collapse: collapse;
+    border-color: inherit;
+    text-indent: 0;
   }
 }
 
