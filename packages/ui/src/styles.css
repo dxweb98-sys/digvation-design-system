@@ -4,11 +4,10 @@
 @source './**/*.{ts,tsx}';
 
 /*
- * Component-library defaults only.
- * Tailwind Preflight is intentionally NOT imported, so @digvation/ui never resets
- * html/body/buttons/inputs or changes the consumer application's layout.
- * Defaults live in the low-priority `theme` cascade layer: normal unlayered project
- * variables win even if the consumer happens to load its application CSS earlier.
+ * @digvation/ui always ships a complete visual fallback, but the fallback stays in
+ * the low-priority `theme` layer so normal project variables can override it.
+ * Tailwind Preflight is intentionally NOT imported: the consumer still owns html,
+ * body, layout, sidebar, application resets and other page-level styling.
  */
 @layer theme {
   :root,
@@ -42,6 +41,7 @@
     --radius-control: 8px;
     --radius-card: 16px;
     --radius-panel: 16px;
+    --radius-menu-item: max(6px, calc(var(--radius-panel) - 6px));
     --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
     --shadow-md: 0 8px 24px rgb(15 23 42 / 0.10);
     --shadow-lg: 0 18px 50px rgb(15 23 42 / 0.16);
@@ -85,6 +85,47 @@
     --radius-control: 12px;
     --radius-card: 20px;
     --radius-panel: 24px;
+  }
+}
+
+/*
+ * Small Preflight-equivalent rules, but ONLY inside Digvation components.
+ * Native browser borders/padding/box sizing were the reason buttons, calendar cells
+ * and dropdown options looked different after global Preflight was removed.
+ * Utilities are in a later cascade layer and therefore remain authoritative.
+ */
+@layer components {
+  :where([data-ds-component]),
+  :where([data-ds-component] *),
+  :where([data-ds-component]::before),
+  :where([data-ds-component]::after),
+  :where([data-ds-component] *::before),
+  :where([data-ds-component] *::after) {
+    box-sizing: border-box;
+  }
+
+  :where([data-ds-component]) {
+    font-family: var(--font-sans);
+  }
+
+  :where(button[data-ds-component]),
+  :where([data-ds-component] button) {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+    border: 0 solid transparent;
+    background: transparent;
+    padding: 0;
+    color: inherit;
+    font: inherit;
+  }
+
+  :where([data-ds-component] input),
+  :where([data-ds-component] textarea),
+  :where([data-ds-component] select) {
+    margin: 0;
+    color: inherit;
+    font: inherit;
   }
 }
 
