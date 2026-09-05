@@ -1,7 +1,7 @@
 {
   "name": "digvation-design-system-workspace",
   "private": true,
-  "version": "0.2.0",
+  "version": "1.0.0",
   "workspaces": [
     "packages/*",
     "apps/*"
@@ -14,9 +14,18 @@
     "typecheck": "npm run typecheck -w @digvation/ui && npm run build:ui && npm run typecheck -w @digvation/docs",
     "pack:ui": "npm run build:ui && npm pack -w @digvation/ui --pack-destination ./release",
     "preview": "npm run build && npm run preview -w @digvation/docs",
-    "test": "npm run test -w @digvation/ui"
+    "test": "npm run test -w @digvation/ui",
+    "validate": "npm run typecheck && npm test && npm run build",
+    "release:verify": "npm ci && npm run validate && npm run pack:ui"
   },
   "engines": {
     "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dxweb98-sys/digvation-design-system.git"
+  },
+  "publishConfig": {
+    "access": "restricted"
   }
 }

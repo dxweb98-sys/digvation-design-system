@@ -1,37 +1,81 @@
 # Digvation Design System
 
-Reusable React + TypeScript design system for Digvation projects. The package keeps the reusable behavior from the previous Digvation UI, removes duplicate implementations, exposes a `D*` component API, and ships with a local documentation/preview application plus semantic design tokens.
+Reusable React + TypeScript design system for Digvation projects. The package keeps reusable Digvation UI behavior, exposes a canonical `D*` component API, ships a complete fallback theme, and lets consumer projects override semantic identity tokens without letting the library take over the application shell.
+
+## Stable release
+
+Current stable production line:
+
+```text
+@digvation/ui@1.0.0
+```
+
+Starting with `1.0.0`, the public `D*` component API, exported types, semantic theme contract, package exports, and documented interaction behavior are compatibility-sensitive.
 
 ## Repository layout
 
 ```text
 digvation-design-system/
+├─ .github/              # CI + pull request standards
 ├─ apps/
-│  └─ docs/             # Vite documentation + live component preview
+│  └─ docs/              # Vite documentation + integrated component playgrounds
+├─ docs/                 # architecture, usage, release and customization guides
 ├─ packages/
-│  └─ ui/               # @digvation/ui reusable package
-├─ docs/                 # written guides
+│  └─ ui/                # @digvation/ui reusable package
 ├─ release/              # npm pack output (.tgz)
-└─ package.json          # npm workspaces
+├─ CHANGELOG.md
+├─ CONTRIBUTING.md
+└─ package.json
 ```
+
+See:
+
+- `CONTRIBUTING.md` — branch names, code naming, commits, PR rules, source conventions
+- `docs/ARCHITECTURE.md` — repository/component boundaries
+- `docs/RELEASE_PROCESS.md` — SemVer, prerelease, production/hotfix flow
+- `docs/THEMING.md` — project-owned colors, CSS-variable mapping and style isolation
+- `docs/FORM_CONTROLS.md` — input/select/combobox/currency contracts
+- `docs/FLOATING_OVERLAYS.md` — anchored popup behavior and scrolling policy
+- `docs/COMPONENT_AUDIT.md` — prioritized component roadmap
 
 ## Requirements
 
 - Node.js 20+
-- npm 10+
 - React 18.2+ in consuming applications
 
-## Install and run locally
+## Install in a project
+
+After the package is available in the configured Digvation registry:
 
 ```bash
-npm install
-npm run typecheck
-npm test
-npm run build
-npm run dev
+npm install @digvation/ui@^1.0.0
 ```
 
-The docs app runs on `http://localhost:4173` unless that port is already used.
+or:
+
+```bash
+pnpm add @digvation/ui@^1.0.0
+```
+
+Import the stylesheet once at the application entry/root stylesheet boundary:
+
+```ts
+import '@digvation/ui/styles.css';
+import './app.css';
+```
+
+Then import only the components a feature needs:
+
+```tsx
+import {
+  DButton,
+  DInput,
+  DSelect,
+  DDialog,
+} from '@digvation/ui';
+```
+
+A consumer does **not** need a theme provider just to make components look correct. The package always ships the Digvation fallback theme.
 
 ## Public component naming
 
@@ -48,7 +92,7 @@ import {
 } from '@digvation/ui';
 ```
 
-There is only one canonical implementation per component. The package does not export a second unprefixed `Button`, `Input`, `Select`, etc.
+There is one canonical implementation per component. The package does not export duplicate unprefixed `Button`, `Input`, `Select`, etc.
 
 Types and helpers keep normal names:
 
@@ -56,172 +100,154 @@ Types and helpers keep normal names:
 import { DButton, type ButtonProps, type ButtonVariant } from '@digvation/ui';
 ```
 
-## Build the UI package
+## Project-owned theming
+
+`@digvation/ui/styles.css` intentionally omits Tailwind Preflight and application-level global resets. The consuming project owns `html`, `body`, layout, sidebar, base typography, routing shell, and application reset CSS.
+
+The design system owns component structure, spacing, states, accessibility, and behavior. Project identity is mapped through semantic tokens.
+
+Example project variables:
+
+```css
+:root {
+  --app-primary: #7c3aed;
+  --app-primary-hover: #6d28d9;
+  --app-secondary: #f3f0ff;
+  --app-secondary-foreground: #24143f;
+  --app-background: #faf8ff;
+  --app-surface: #ffffff;
+  --app-text: #17121f;
+  --app-muted: #746d7e;
+  --app-border: #e7dff0;
+  --app-success: #16803c;
+  --app-warning: #d97706;
+  --app-danger: #dc2626;
+}
+```
+
+Map them once:
+
+```tsx
+import {
+  DThemeProvider,
+  createCssVariableTheme,
+} from '@digvation/ui';
+
+const uiTheme = createCssVariableTheme({
+  primary: '--app-primary',
+  primaryHover: '--app-primary-hover',
+  secondary: '--app-secondary',
+  onSecondary: '--app-secondary-foreground',
+  background: '--app-background',
+  surface: '--app-surface',
+  text: '--app-text',
+  textMuted: '--app-muted',
+  border: '--app-border',
+  success: '--app-success',
+  warning: '--app-warning',
+  danger: '--app-danger',
+});
+
+<DThemeProvider tokens={uiTheme}>
+  <App />
+</DThemeProvider>
+```
+
+Any omitted token keeps the Digvation default. Portal-based components receive the same semantic mapping.
+
+See `docs/THEMING.md` for the full contract.
+
+## Documentation playground
+
+Every documented component keeps its usage material together in the same section:
+
+```text
+Preview | Code | Props | Functions
+```
+
+Behavior-heavy components expose live prop controls. Code follows the current preview configuration, Props metadata is generated from TypeScript source, and Functions shows exported helpers plus callback/event observations. Documentation controls use public `D*` components wherever an equivalent exists.
+
+## Form-control responsibilities
+
+```text
+DSelect         -> simple/static-first single selection
+DCombobox       -> searchable/autocomplete/async selection
+DInput          -> general scalar field + compatibility format modes
+DCurrencyInput  -> dedicated canonical money value + localized display
+```
+
+`DSelect` retains searchable/async compatibility props, but new API-driven autocomplete work should prefer `DCombobox`.
+
+## Floating popup behavior
+
+Anchored overlays share one positioning engine and may use:
+
+```ts
+scrollBehavior="reposition" // follow anchor while meaningfully visible
+scrollBehavior="close"      // close on ancestor/window scroll
+scrollBehavior="lock"       // lock document scroll
+```
+
+Persistent overlays close automatically when their trigger is effectively gone from the viewport or clipping scroll parent. Large overlays such as `DRangeDatePicker` prefer `close`.
+
+## Local package development
+
+Install dependencies and validate the repository:
+
+```bash
+npm install
+npm run validate
+npm run dev
+```
+
+Build only the reusable package:
 
 ```bash
 npm run build:ui
 ```
 
-Output:
+For direct local development from another project:
 
-```text
-packages/ui/dist/
-├─ index.js
-├─ index.cjs
-├─ index.d.ts
-└─ styles.css
+```bash
+npm install /absolute/path/to/Digvation-Design-System/packages/ui
 ```
 
-## Use the local package in another project
-
-The recommended production-like local workflow is `npm pack`.
-
-From the design-system repository:
+For production-like verification, build a tarball:
 
 ```bash
 npm run pack:ui
 ```
 
-This produces:
+Install the generated `.tgz` from `release/` into representative consumer projects before a production release when packaging, exports, CSS, peers, or public types change.
+
+## Git and release flow
 
 ```text
-release/digvation-ui-0.2.0.tgz
+main                     production-ready tagged releases
+  └─ develop             integration for the next release
+      ├─ feat/*
+      ├─ fix/*
+      ├─ refactor/*
+      └─ release/vX.Y.Z
+
+hotfix/* starts from main and is merged back to main + develop.
 ```
 
-Then from your active project:
-
-```bash
-npm install ../Digvation-Design-System/release/digvation-ui-0.2.0.tgz
-```
-
-Import the stylesheet once, before your project overrides:
-
-```tsx
-import '@digvation/ui/styles.css';
-import './index.css';
-```
-
-Use components normally:
-
-```tsx
-import { DButton, DInput, DSelect } from '@digvation/ui';
-
-export function ProjectForm() {
-  return (
-    <div>
-      <DInput label="Project name" clearable />
-      <DSelect
-        label="Status"
-        options={[
-          { label: 'Active', value: 'active' },
-          { label: 'Draft', value: 'draft' },
-        ]}
-      />
-      <DButton>Save</DButton>
-    </div>
-  );
-}
-```
-
-## Theme a consuming project
-
-Components use semantic CSS variables. Override them after importing the package stylesheet:
-
-```css
-@import '@digvation/ui/styles.css';
-
-:root {
-  --color-brand: #7c3aed;
-  --color-brand-hover: #6d28d9;
-  --color-brand-active: #5b21b6;
-  --color-focus: #7c3aed;
-
-  --color-background: #faf8ff;
-  --color-surface: #ffffff;
-  --color-surface-muted: #f4f0ff;
-  --color-text: #17121f;
-  --color-text-muted: #746d7e;
-  --color-border: #e7dff0;
-
-  --color-info: #0284c7;
-  --color-success: #16803c;
-  --color-warning: #d97706;
-  --color-danger: #dc2626;
-
-  --radius-control: 10px;
-  --radius-card: 18px;
-  --radius-panel: 18px;
-
-  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
-  --shadow-md: 0 8px 24px rgb(15 23 42 / 0.10);
-  --shadow-lg: 0 18px 50px rgb(15 23 42 / 0.16);
-}
-```
-
-Or use `DThemeProvider`:
-
-```tsx
-import { DThemeProvider } from '@digvation/ui';
-
-<DThemeProvider
-  mode="light"
-  radius="rounded"
-  tokens={{
-    brand: '#7c3aed',
-    brandHover: '#6d28d9',
-    brandActive: '#5b21b6',
-    focus: '#7c3aed',
-    background: '#faf8ff',
-    surface: '#ffffff',
-  }}
->
-  <App />
-</DThemeProvider>
-```
-
-Portal components such as `DDropdown`, `DNotificationPanel`, and `DDialog` inherit the same document-root theme.
-
-## Important v0.2.0 fixes
-
-- `DDropdown` now uses one shared floating-position engine and is hidden until its first position is measured, preventing first-open teleport/jump.
-- `DNotificationPanel` renders through a portal and can anchor to `anchorRef`, preventing clipping inside documentation cards or application containers.
-- `DAccordion` uses an SVG chevron and smooth disclosure animation while keeping content mounted for the transition.
-- `DDialog` compensates for the removed browser scrollbar and keeps scroll lock active through the exit animation, preventing horizontal layout shift.
-- Text-symbol arrows/chevrons in the core table/pagination surfaces were replaced with consistent SVG icons.
-- Semantic variants were expanded for buttons, badges, alerts, notes, and cards.
-- All canonical public React components now use the `D` prefix.
-
-## Main semantic variants
-
-`DButton`:
+Stable SemVer policy from `1.0.0` onward:
 
 ```text
-primary · secondary · outline · ghost · soft · info · success · warning · danger · link
+1.0.0 -> 1.0.1   PATCH: backward-compatible fixes
+1.0.0 -> 1.1.0   MINOR: backward-compatible features/components
+1.x   -> 2.0.0   MAJOR: breaking public API/behavior changes
 ```
 
-`DBadge`:
+Prereleases use `alpha.N`, `beta.N`, and `rc.N`, for example:
 
 ```text
-default · primary · secondary · info · success · warning · danger · outline
+1.1.0-alpha.1 -> 1.1.0-beta.1 -> 1.1.0-rc.1 -> 1.1.0
 ```
 
-`DAlert`:
-
-```text
-neutral · info · success · warning · danger
-```
-
-`DInfoNote`:
-
-```text
-neutral · info · success · warning · danger · tip
-```
-
-`DCard`:
-
-```text
-default · outlined · elevated · interactive
-```
+Do not version-bump ordinary feature branches. Version changes happen during release stabilization. See `docs/RELEASE_PROCESS.md`.
 
 ## Design-system rules
 
@@ -230,6 +256,8 @@ default · outlined · elevated · interactive
 3. Shared behavior belongs in internal primitives only when multiple components genuinely use it.
 4. Reusable UI does not import business hooks, application stores, routers, API modules, or project models.
 5. Project identity changes through semantic tokens rather than component-by-component edits.
-6. Reusable oldUi behavior remains the compatibility baseline unless it contained a real bug.
-
-See `apps/docs` for live previews and the files under `docs/` for migration/customization guidance.
+6. Existing reusable behavior remains the compatibility baseline unless it contains a real bug.
+7. Public behavior changes require tests, docs, changelog entries, and `npm run validate`.
+8. The distributed stylesheet must not ship application-level resets or Tailwind Preflight.
+9. Consumer project colors remain the source of truth when mapped; Digvation defaults remain available otherwise.
+10. Documentation dogfoods public design-system controls instead of reimplementing equivalents.

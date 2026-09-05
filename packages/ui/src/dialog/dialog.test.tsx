@@ -30,7 +30,7 @@ describe("DDialog", () => {
     lastAction.focus();
     fireEvent.keyDown(document, { key: "Tab" });
     expect(document.activeElement).toBe(
-      screen.getByRole("button", { name: "First action" }),
+      screen.getByRole("button", { name: "Close dialog" }),
     );
 
     rerender(

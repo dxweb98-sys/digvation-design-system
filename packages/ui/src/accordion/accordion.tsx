@@ -18,7 +18,13 @@ function useAccordion() {
   return context;
 }
 
-export type AccordionVariant = 'default' | 'card' | 'separated';
+/**
+ * default   = borderless disclosure list
+ * separator = borderless list with horizontal separators between items
+ * card      = one bordered surface with separators inside
+ * separated = each item is its own bordered surface
+ */
+export type AccordionVariant = 'default' | 'separator' | 'card' | 'separated';
 
 export interface AccordionProps extends HTMLAttributes<HTMLDivElement> {
   type?: 'single' | 'multiple';
@@ -54,9 +60,10 @@ export function DAccordion({
   return (
     <AccordionContext.Provider value={{ open: current, toggle, baseId, variant }}>
       <div
+        data-ds-component="accordion"
+        data-accordion-variant={variant}
         className={cn(
-          variant === 'default' && 'divide-y divide-[var(--color-border)]',
-          variant === 'card' && 'overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)] divide-y divide-[var(--color-border)]',
+          variant === 'card' && 'overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)]',
           variant === 'separated' && 'space-y-2',
           className,
         )}
@@ -82,8 +89,10 @@ export function DAccordionItem({ value, title, disabled, className, children, ..
   return (
     <div
       className={cn(
-        context.variant === 'separated' && 'rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4',
-        context.variant !== 'separated' && 'px-0',
+        context.variant === 'separator' && 'border-b border-[var(--color-border)] last:border-b-0',
+        context.variant === 'card' && 'border-b border-[var(--color-border)] px-4 last:border-b-0',
+        context.variant === 'separated' && 'overflow-hidden rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4',
+        (context.variant === 'default' || context.variant === 'separator') && 'px-0',
         className,
       )}
       {...props}
@@ -95,7 +104,7 @@ export function DAccordionItem({ value, title, disabled, className, children, ..
         aria-expanded={open}
         aria-controls={contentId}
         onClick={() => context.toggle(value)}
-        className="group flex w-full items-center justify-between gap-4 py-3 text-left text-sm font-medium text-[var(--color-text)] outline-none transition-colors hover:text-[var(--color-brand)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25 disabled:cursor-not-allowed disabled:opacity-40"
+        className="group flex w-full appearance-none items-center justify-between gap-4 border-0 bg-transparent py-3 text-left text-sm font-medium text-[var(--color-text)] outline-none transition-colors duration-150 hover:text-[var(--color-brand)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25 disabled:cursor-not-allowed disabled:opacity-40"
       >
         <span>{title}</span>
         <ChevronDownIcon

@@ -50,5 +50,5 @@ export function DToggle({
     </button>
   );
   const content = labelPosition === 'right' ? <>{toggleEl}{labelEl}</> : labelPosition === 'top' ? <>{labelEl}{toggleEl}</> : labelPosition === 'bottom' ? <>{toggleEl}{labelEl}</> : <>{labelEl}{toggleEl}</>;
-  return <div className={cn(fullWidth ? 'flex w-full items-center justify-between' : 'inline-flex items-center', isVertical && 'flex-col items-start', gap, disabled && 'opacity-50', className)}>{content}</div>;
+  return <div data-ds-component="toggle" className={cn(fullWidth ? 'flex w-full items-center justify-between' : 'inline-flex items-center', isVertical && 'flex-col items-start', gap, disabled && 'opacity-50', className)}>{content}</div>;
 }

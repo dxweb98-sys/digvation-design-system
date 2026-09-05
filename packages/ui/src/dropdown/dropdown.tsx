@@ -9,7 +9,11 @@ import {
 import { createPortal } from 'react-dom';
 
 import { cn } from '../cn';
-import { useFloatingPosition, type FloatingPlacement } from '../internal/floating/use-floating-position';
+import {
+  useFloatingPosition,
+  type FloatingPlacement,
+  type FloatingScrollBehavior,
+} from '../internal/floating/use-floating-position';
 import { DropdownContext } from './dropdown-context';
 
 export interface DropdownProps {
@@ -25,8 +29,13 @@ export interface DropdownProps {
   contentRole?: 'listbox' | 'menu' | 'dialog';
   className?: string;
   contentClassName?: string;
+  /** Disable the generic vertical panel padding when a component owns its inner spacing. */
+  contentPadding?: boolean;
   offset?: number;
   minWidth?: number;
+  viewportPadding?: number;
+  /** Behavior when the page or a scroll ancestor moves while the panel is open. */
+  scrollBehavior?: FloatingScrollBehavior;
 }
 
 export function DDropdown({
@@ -42,8 +51,11 @@ export function DDropdown({
   contentRole = 'menu',
   className,
   contentClassName,
+  contentPadding = true,
   offset = 6,
   minWidth = 140,
+  viewportPadding = 8,
+  scrollBehavior = 'reposition',
 }: DropdownProps) {
   const referenceRef = useRef<HTMLDivElement>(null);
   const floatingRef = useRef<HTMLDivElement>(null);
@@ -73,6 +85,9 @@ export function DDropdown({
     matchWidth,
     offset,
     minWidth,
+    viewportPadding,
+    scrollBehavior,
+    onRequestClose: close,
   });
 
   useEffect(() => {
@@ -98,6 +113,7 @@ export function DDropdown({
     <DropdownContext.Provider value={context}>
       <div
         ref={referenceRef}
+        data-ds-component="dropdown-trigger"
         className={cn('inline-block', matchWidth && 'w-full', className)}
         onClick={(event) => {
           if (event.defaultPrevented) return;
@@ -124,14 +140,18 @@ export function DDropdown({
               role={contentRole}
               tabIndex={-1}
               style={style}
+              data-ds-component="dropdown"
+              data-ds-surface="floating"
               data-positioned={positioned ? 'true' : 'false'}
+              data-scroll-behavior={scrollBehavior}
               onClick={(event) => {
                 if (!closeOnItemClick) return;
                 const target = event.target as HTMLElement;
                 if (target.closest("button, [role='option'], [role='menuitem'], a")) close();
               }}
               className={cn(
-                'z-[9999] min-w-[140px] rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface)] py-1 shadow-[var(--shadow-lg)]',
+                'z-[9999] min-w-[140px] overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)] outline-none',
+                contentPadding && 'py-1',
                 positioned && 'animate-[dropdown-in_150ms_ease-out]',
                 contentClassName,
               )}
@@ -144,3 +164,5 @@ export function DDropdown({
     </DropdownContext.Provider>
   );
 }
+
+export type { FloatingPlacement, FloatingScrollBehavior } from '../internal/floating/use-floating-position';

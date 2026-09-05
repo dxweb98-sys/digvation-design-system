@@ -5,5 +5,5 @@ import { cn } from '../cn';
 export type RadioProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>;
 
 export const DRadio = forwardRef<HTMLInputElement, RadioProps>(function DRadio({ className, ...props }, ref) {
-  return <input ref={ref} type="radio" className={cn('size-4 accent-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/20', className)} {...props} />;
+  return <input data-ds-component="radio" ref={ref} type="radio" className={cn('size-4 accent-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/20', className)} {...props} />;
 });

@@ -52,6 +52,37 @@ describe('shared field controls', () => {
     expect(trigger.textContent).toContain('QRIS');
   });
 
+  it('reopens DSelect with the selected option as the only persistent highlight', () => {
+    function ControlledSelect() {
+      const [value, setValue] = useState<string | number | null>('active');
+      return (
+        <DSelect
+          aria-label="Status"
+          value={value}
+          onChange={setValue}
+          options={[
+            { label: 'Active', value: 'active' },
+            { label: 'Draft', value: 'draft' },
+            { label: 'Archived', value: 'archived' },
+          ]}
+        />
+      );
+    }
+
+    render(<ControlledSelect />);
+    const trigger = screen.getByRole('button', { name: 'Status' });
+    fireEvent.click(trigger);
+    fireEvent.click(screen.getByRole('option', { name: 'Draft' }));
+    fireEvent.click(trigger);
+
+    const active = screen.getByRole('option', { name: 'Active' });
+    const draft = screen.getByRole('option', { name: 'Draft' });
+    expect(draft.getAttribute('aria-selected')).toBe('true');
+    expect(draft.className.split(/\s+/)).toContain('bg-[var(--color-brand)]/10');
+    expect(active.getAttribute('aria-selected')).toBe('false');
+    expect(active.className.split(/\s+/)).not.toContain('bg-[var(--color-surface-muted)]');
+  });
+
   it('filters and selects a combobox option without losing text focus', () => {
     function ControlledCombobox() {
       const [value, setValue] = useState('');
@@ -69,7 +100,7 @@ describe('shared field controls', () => {
     }
 
     render(<ControlledCombobox />);
-    const input = screen.getByRole('textbox', { name: 'Employee' });
+    const input = screen.getByRole('combobox', { name: 'Employee' });
     act(() => input.focus());
     fireEvent.change(input, { target: { value: 'bim' } });
     expect(document.activeElement).toBe(input);
