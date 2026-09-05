@@ -31,6 +31,52 @@ const HIDDEN_STYLE: CSSProperties = {
   zIndex: 9999,
 };
 
+const CLIPPING_OVERFLOW = /(auto|scroll|hidden|clip)/;
+
+function rectIntersects(
+  rect: Pick<DOMRect, 'top' | 'right' | 'bottom' | 'left'>,
+  bounds: { top: number; right: number; bottom: number; left: number },
+) {
+  return rect.bottom > bounds.top && rect.top < bounds.bottom && rect.right > bounds.left && rect.left < bounds.right;
+}
+
+function isReferenceVisible(reference: HTMLElement, viewportPadding: number) {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return true;
+
+  const rect = reference.getBoundingClientRect();
+  // JSDOM and a not-yet-laid-out element may report a zero rect. In that case
+  // there is not enough geometry to prove the reference is hidden, so keep it open.
+  if (rect.width === 0 && rect.height === 0) return true;
+
+  let bounds = {
+    top: viewportPadding,
+    left: viewportPadding,
+    right: window.innerWidth - viewportPadding,
+    bottom: window.innerHeight - viewportPadding,
+  };
+
+  if (!rectIntersects(rect, bounds)) return false;
+
+  let ancestor = reference.parentElement;
+  while (ancestor && ancestor !== document.body && ancestor !== document.documentElement) {
+    const styles = window.getComputedStyle(ancestor);
+    const overflow = `${styles.overflow} ${styles.overflowX} ${styles.overflowY}`;
+    if (CLIPPING_OVERFLOW.test(overflow)) {
+      const ancestorRect = ancestor.getBoundingClientRect();
+      bounds = {
+        top: Math.max(bounds.top, ancestorRect.top),
+        left: Math.max(bounds.left, ancestorRect.left),
+        right: Math.min(bounds.right, ancestorRect.right),
+        bottom: Math.min(bounds.bottom, ancestorRect.bottom),
+      };
+      if (bounds.right <= bounds.left || bounds.bottom <= bounds.top || !rectIntersects(rect, bounds)) return false;
+    }
+    ancestor = ancestor.parentElement;
+  }
+
+  return true;
+}
+
 export function useFloatingPosition({
   open,
   referenceRef,
@@ -52,6 +98,11 @@ export function useFloatingPosition({
     const reference = referenceRef.current;
     const floating = floatingRef.current;
     if (!reference || !floating) return;
+
+    if (!isReferenceVisible(reference, viewportPadding)) {
+      onRequestClose?.();
+      return;
+    }
 
     const rect = reference.getBoundingClientRect();
     const measuredWidth = matchWidth ? rect.width : Math.max(floating.offsetWidth, minWidth);
@@ -91,7 +142,7 @@ export function useFloatingPosition({
 
     setStyle(next);
     setPositioned(true);
-  }, [floatingRef, matchWidth, minWidth, offset, placement, referenceRef, viewportPadding]);
+  }, [floatingRef, matchWidth, minWidth, offset, onRequestClose, placement, referenceRef, viewportPadding]);
 
   const schedulePositionUpdate = useCallback(() => {
     if (typeof window === 'undefined' || animationFrameRef.current !== null) return;
@@ -117,16 +168,16 @@ export function useFloatingPosition({
     const handleResize = () => schedulePositionUpdate();
     const handleScroll = (event: Event) => {
       const target = event.target;
-      const isNodeTarget = typeof Node !== 'undefined' && target instanceof Node;
-      if (isNodeTarget && floatingRef.current?.contains(target)) return;
+      if (typeof Node !== 'undefined' && target instanceof Node && floatingRef.current?.contains(target)) return;
 
       if (scrollBehavior === 'close') {
         onRequestClose?.();
         return;
       }
 
-      // `lock` prevents document scrolling, but nested scroll containers can still
-      // move an anchor; keep positioning current in both persistent modes.
+      // Persistent overlays keep following their anchor while it is still visible.
+      // updatePosition() closes them once the anchor leaves the viewport or a
+      // clipping scroll ancestor, preventing a detached panel from following the view.
       schedulePositionUpdate();
     };
 
