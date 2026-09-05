@@ -104,7 +104,18 @@ function Code({ children }: { children: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <div className="code-block">
-      <button className="copy-button" type="button" onClick={() => { void navigator.clipboard?.writeText(children); setCopied(true); window.setTimeout(() => setCopied(false), 1200); }}>{copied ? 'Copied' : 'Copy'}</button>
+      <DButton
+        className="copy-button"
+        variant="ghost"
+        size="sm"
+        onClick={() => {
+          void navigator.clipboard?.writeText(children);
+          setCopied(true);
+          window.setTimeout(() => setCopied(false), 1200);
+        }}
+      >
+        {copied ? 'Copied' : 'Copy'}
+      </DButton>
       <pre><code>{children}</code></pre>
     </div>
   );
@@ -157,7 +168,59 @@ function ThemePlayground({ tokens, setTokens, mode, setMode, radius, setRadius }
     const map: Record<string,string> = { brand:'--color-brand', brandHover:'--color-brand-hover', brandActive:'--color-brand-active', focus:'--color-focus', background:'--color-background', surface:'--color-surface', surfaceMuted:'--color-surface-muted', text:'--color-text', textMuted:'--color-text-muted', border:'--color-border', info:'--color-info', success:'--color-success', warning:'--color-warning', danger:'--color-danger' };
     return map[key] ? `  ${map[key]}: ${value};` : '';
   }).filter(Boolean).join('\n')}\n}`;
-  return <div className="theme-grid"><div className="theme-controls"><div className="field-row"><label>Mode<select value={mode} onChange={(event)=>setMode(event.target.value as ThemeMode)}><option value="light">Light</option><option value="dark">Dark</option></select></label><label>Radius<select value={radius} onChange={(event)=>setRadius(event.target.value as ThemeRadius)}><option value="compact">Compact</option><option value="default">Default</option><option value="rounded">Rounded</option></select></label></div><div className="color-grid">{colors.map(([key,label]) => <label key={key}><span>{label}</span><div className="color-control"><input type="color" value={String(tokens[key] ?? defaultThemeTokens[key]).startsWith('#') ? String(tokens[key] ?? defaultThemeTokens[key]) : '#2563eb'} onChange={(event)=>setTokens({...tokens,[key]:event.target.value})}/><input value={String(tokens[key] ?? '')} placeholder={String(defaultThemeTokens[key])} onChange={(event)=>setTokens({...tokens,[key]:event.target.value || undefined})}/></div></label>)}</div><div className="inline-actions"><DButton variant="outline" size="sm" onClick={()=>setTokens({})}>Reset colors</DButton></div></div><div><Code>{css}</Code><p className="tiny-note">Default Digvation tetap tersedia. Project cukup override semantic token yang ingin diubah.</p></div></div>;
+
+  return (
+    <div className="theme-grid">
+      <div className="theme-controls">
+        <div className="field-row">
+          <DSelect
+            label="Mode"
+            value={mode}
+            clearable={false}
+            options={[{ label: 'Light', value: 'light' }, { label: 'Dark', value: 'dark' }]}
+            onChange={(value) => setMode((value ?? 'light') as ThemeMode)}
+          />
+          <DSelect
+            label="Radius"
+            value={radius}
+            clearable={false}
+            options={[{ label: 'Compact', value: 'compact' }, { label: 'Default', value: 'default' }, { label: 'Rounded', value: 'rounded' }]}
+            onChange={(value) => setRadius((value ?? 'default') as ThemeRadius)}
+          />
+        </div>
+        <div className="color-grid">
+          {colors.map(([key,label]) => {
+            const resolved = String(tokens[key] ?? defaultThemeTokens[key] ?? '');
+            const pickerValue = resolved.startsWith('#') ? resolved : '#2563eb';
+            return (
+              <div className="theme-token-field" key={key}>
+                <span className="theme-token-label">{label}</span>
+                <div className="color-control">
+                  <input
+                    className="native-color-picker"
+                    aria-label={`${label} color picker`}
+                    type="color"
+                    value={pickerValue}
+                    onChange={(event)=>setTokens({...tokens,[key]:event.target.value})}
+                  />
+                  <DInput
+                    size="sm"
+                    clearable={false}
+                    value={String(tokens[key] ?? '')}
+                    placeholder={String(defaultThemeTokens[key])}
+                    containerClassName="theme-token-input"
+                    onChange={(value)=>setTokens({...tokens,[key]:value || undefined})}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="inline-actions"><DButton variant="outline" size="sm" onClick={()=>setTokens({})}>Reset colors</DButton></div>
+      </div>
+      <div><Code>{css}</Code><p className="tiny-note">Documentation dogfoods @digvation/ui. Native color input tetap dipakai hanya karena belum ada DColorPicker.</p></div>
+    </div>
+  );
 }
 
 function FormExamples() {
@@ -203,11 +266,11 @@ function OverlayExamples() {
     {id:'2',title:'Theme updated',message:'Brand token changed to the current project color.',type:'info' as const,read:true,createdAt:'5m ago'},
   ]);
   return <>
-    <DocSection id="dropdown" title="DDropdown" description="Shared positioning engine untuk menus dan floating surfaces, termasuk placement, matchWidth, Escape/outside close dan scroll behavior." props={['trigger','placement','matchWidth','open','onOpenChange','closeOnItemClick','scrollBehavior']} preview={<DDropdown closeOnItemClick trigger={({open}) => <DButton variant="outline">Menu {open ? 'Open' : 'Closed'}</DButton>}><div className="menu-demo"><button type="button">Edit project</button><button type="button">Duplicate</button><button type="button" className="danger-item">Delete</button></div></DDropdown>} code={`<DDropdown placement="bottom-start" closeOnItemClick trigger={() => <DButton>Menu</DButton>}>...</DDropdown>`}/>
+    <DocSection id="dropdown" title="DDropdown" description="Shared positioning engine untuk menus dan floating surfaces, termasuk placement, matchWidth, Escape/outside close dan scroll behavior." props={['trigger','placement','matchWidth','open','onOpenChange','closeOnItemClick','scrollBehavior']} preview={<DDropdown closeOnItemClick trigger={({open}) => <DButton variant="outline">Menu {open ? 'Open' : 'Closed'}</DButton>}><div className="menu-demo"><DButton variant="ghost" fullWidth>Edit project</DButton><DButton variant="ghost" fullWidth>Duplicate</DButton><DButton variant="ghost" fullWidth className="danger-item">Delete</DButton></div></DDropdown>} code={`<DDropdown placement="bottom-start" closeOnItemClick trigger={() => <DButton>Menu</DButton>}>...</DDropdown>`}/>
     <DocSection id="tooltip" title="DTooltip" description="Accessible hover/focus helper dengan semantic tooltip color dan placement." preview={<div className="row-wrap"><DTooltip content="Helpful contextual information"><DButton variant="outline">Hover or focus me</DButton></DTooltip><DTooltip content="Right placement" placement="right"><DBadge>Info</DBadge></DTooltip></div>} code={`<DTooltip content="Helpful information" placement="top"><DButton>Hover me</DButton></DTooltip>`}/>
     <DocSection id="dialog" title="DDialog & DConfirmDialog" apiName="DialogProps" description="Desktop modal + mobile bottom-sheet dengan body lock, Escape, overlay close, focus containment, footer dan size." preview={<div className="row-wrap"><DButton onClick={()=>setDialog(true)}>Open dialog</DButton><DButton variant="danger" onClick={()=>setConfirm(true)}>Delete item</DButton><DDialog open={dialog} onClose={()=>setDialog(false)} title="Project settings" description="Example reusable dialog." footer={<div className="row-wrap right"><DButton variant="outline" onClick={()=>setDialog(false)}>Cancel</DButton><DButton onClick={()=>setDialog(false)}>Save</DButton></div>}><DInput label="Project" value="Digvation" onChange={()=>{}}/></DDialog><DConfirmDialog open={confirm} onClose={()=>setConfirm(false)} onConfirm={()=>setConfirm(false)} title="Delete component?" message="This preview demonstrates destructive confirmation."/></div>} code={`<DDialog open={open} onClose={() => setOpen(false)} title="Project settings">...</DDialog>`} />
     <DocSection id="notification" title="DNotificationPanel" description="Anchored notification panel dengan unread state, mark-read, mark-all, dismiss, compact rows dan configurable scroll behavior." props={['anchorRef','notifications','open','onClose','onMarkRead','onMarkAllRead','onDismiss','scrollBehavior']} preview={<div className="notification-demo"><DButton ref={notificationAnchorRef} variant="outline" onClick={()=>setPanel(!panel)}>Notifications ({notifications.filter((item)=>!item.read).length})</DButton><DNotificationPanel anchorRef={notificationAnchorRef} open={panel} onClose={()=>setPanel(false)} notifications={notifications} onMarkRead={(id)=>setNotifications((items)=>items.map((item)=>item.id===id?{...item,read:true}:item))} onMarkAllRead={()=>setNotifications((items)=>items.map((item)=>({...item,read:true})))} onDismiss={(id)=>setNotifications((items)=>items.filter((item)=>item.id!==id))}/></div>} code={`<DNotificationPanel anchorRef={notificationButtonRef} open={open} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} onClose={() => setOpen(false)} />`} />
-    <DocSection id="full-screen" title="Full-screen states" apiName="LoadingOverlayProps" description="DConnectionError, DLoadingOverlay dan DSplashScreen untuk application-level states." preview={<div className="row-wrap"><DButton variant="outline" onClick={()=>setOverlay(true)}>Loading overlay</DButton><DButton variant="outline" onClick={()=>setError(true)}>Connection error</DButton><DButton variant="outline" onClick={()=>setSplash(true)}>Splash screen</DButton>{overlay?<><DLoadingOverlay label="Loading preview..."/><button className="overlay-exit" onClick={()=>setOverlay(false)}>Close preview</button></>:null}{error?<DConnectionError onRetry={()=>setError(false)} title="Preview connection error" message="Press retry to close this preview."/>:null}{splash?<DSplashScreen minDuration={700} title="DIGVATION." subtitle="Design System" mark="D." onFinish={()=>setSplash(false)}/>:null}</div>} />
+    <DocSection id="full-screen" title="Full-screen states" apiName="LoadingOverlayProps" description="DConnectionError, DLoadingOverlay dan DSplashScreen untuk application-level states." preview={<div className="row-wrap"><DButton variant="outline" onClick={()=>setOverlay(true)}>Loading overlay</DButton><DButton variant="outline" onClick={()=>setError(true)}>Connection error</DButton><DButton variant="outline" onClick={()=>setSplash(true)}>Splash screen</DButton>{overlay?<><DLoadingOverlay label="Loading preview..."/><DButton className="overlay-exit" variant="danger" onClick={()=>setOverlay(false)}>Close preview</DButton></>:null}{error?<DConnectionError onRetry={()=>setError(false)} title="Preview connection error" message="Press retry to close this preview."/>:null}{splash?<DSplashScreen minDuration={700} title="DIGVATION." subtitle="Design System" mark="D." onFinish={()=>setSplash(false)}/>:null}</div>} />
   </>;
 }
 
@@ -258,7 +321,7 @@ export function App() {
   const filtered=useMemo(()=>navItems.filter((item)=>item.label.toLowerCase().includes(query.toLowerCase())||item.group.toLowerCase().includes(query.toLowerCase())),[query]);
   const groups=useMemo(()=>Array.from(new Set(filtered.map((item)=>item.group))),[filtered]);
 
-  return <DThemeProvider tokens={tokens} mode={mode} radius={radius}><DToastProvider><div className="docs-app"><aside className="sidebar"><a className="brand" href="#top"><span>D.</span><div><strong>Digvation</strong><small>Design System</small></div></a><input className="nav-search" placeholder="Search docs..." value={query} onChange={(event)=>setQuery(event.target.value)}/><nav>{groups.map((group)=><div className="nav-group" key={group}><p>{group}</p>{filtered.filter((item)=>item.group===group).map((item)=><a key={item.id} href={`#${item.id}`}>{item.label}</a>)}</div>)}</nav><div className="sidebar-footer"><DBadge variant="success" dot>v0.2.0</DBadge><span>{navItems.length - 2} documented surfaces</span></div></aside><main><header id="top" className="hero"><div><DBadge variant="primary">Reusable React UI</DBadge><h1>One design system.<br/><span>Different project identities.</span></h1><p>Canonical reusable components with Digvation defaults, project-owned semantic theming, and documentation where Preview, Code, Props and Functions live in the same playground.</p><div className="hero-actions"><a className="hero-button" href="#getting-started">Get started</a><a className="hero-link" href="#theming">Customize theme →</a></div></div><div className="hero-card"><div className="hero-card-top"><span/><span/><span/></div><div className="hero-card-body"><DInput label="Project" value="New Product" onChange={()=>{}}/><DSelect label="Status" value="active" onChange={()=>{}} options={[{label:'Active',value:'active'}]}/><DButton fullWidth>Create project</DButton></div></div></header>
+  return <DThemeProvider tokens={tokens} mode={mode} radius={radius}><DToastProvider><div className="docs-app"><aside className="sidebar"><a className="brand" href="#top"><span>D.</span><div><strong>Digvation</strong><small>Design System</small></div></a><DInput containerClassName="nav-search-field" type="search" size="sm" clearable value={query} onChange={setQuery} placeholder="Search docs..."/><nav>{groups.map((group)=><div className="nav-group" key={group}><p>{group}</p>{filtered.filter((item)=>item.group===group).map((item)=><a key={item.id} href={`#${item.id}`}>{item.label}</a>)}</div>)}</nav><div className="sidebar-footer"><DBadge variant="success" dot>v0.2.0</DBadge><span>{navItems.length - 2} documented surfaces</span></div></aside><main><header id="top" className="hero"><div><DBadge variant="primary">Reusable React UI</DBadge><h1>One design system.<br/><span>Different project identities.</span></h1><p>Canonical reusable components with Digvation defaults, project-owned semantic theming, and documentation where Preview, Code, Props and Functions live in the same playground.</p><div className="hero-actions"><a className="hero-button" href="#getting-started">Get started</a><a className="hero-link" href="#theming">Customize theme →</a></div></div><div className="hero-card"><div className="hero-card-top"><span/><span/><span/></div><div className="hero-card-body"><DInput label="Project" value="New Product" onChange={()=>{}}/><DSelect label="Status" value="active" onChange={()=>{}} options={[{label:'Active',value:'active'}]}/><DButton fullWidth>Create project</DButton></div></div></header>
         <section id="getting-started" className="guide-section"><p className="eyebrow">Guide</p><h2>Getting Started</h2><p className="lead">The repository is an npm workspace: the component package lives in <code>packages/ui</code>, while this documentation app lives in <code>apps/docs</code>.</p><div className="guide-grid"><DCard><DCardHeader><strong>Run documentation</strong></DCardHeader><DCardContent><Code>{`npm install\nnpm run dev`}</Code></DCardContent></DCard><DCard><DCardHeader><strong>Use in another project</strong></DCardHeader><DCardContent><Code>{`npm run pack:ui\nnpm install ../digvation-design-system/release/digvation-ui-0.2.0.tgz`}</Code></DCardContent></DCard></div><h3>Application setup</h3><Code>{`import '@digvation/ui/styles.css';\nimport { DButton } from '@digvation/ui';`}</Code><DAlert title="React requirement">React and React DOM remain peer dependencies.</DAlert></section>
         <section id="theming" className="guide-section"><p className="eyebrow">Guide</p><h2>Theming</h2><p className="lead">Digvation defaults are always present. Projects only override semantic identity tokens such as primary, secondary, surfaces and status colors.</p><ThemePlayground tokens={tokens} setTokens={setTokens} mode={mode} setMode={setMode} radius={radius} setRadius={setRadius}/><DInfoNote variant="info" title="Portal-safe theming">DThemeProvider applies variables to the document root so portal surfaces inherit the same project theme.</DInfoNote></section>
         <ActionExamples/><FormExamples/><DisplayExamples/><ToastExample/><OverlayExamples/>
