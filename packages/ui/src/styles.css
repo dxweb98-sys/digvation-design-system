@@ -1,88 +1,154 @@
-@import 'tailwindcss';
+@layer theme, components;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css';
 @source './**/*.{ts,tsx}';
 
-:root,
-:root[data-ds-mode='light'] {
-  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --color-background: hsl(220 25% 98%);
-  --color-surface: #ffffff;
-  --color-surface-muted: hsl(220 15% 95%);
-  --color-text: hsl(220 20% 12%);
-  --color-text-muted: hsl(220 10% 50%);
-  --color-border: hsl(220 18% 90%);
-  --color-brand: hsl(217 91% 53%);
-  --color-brand-hover: hsl(217 91% 47%);
-  --color-brand-active: hsl(217 91% 41%);
-  --color-focus: hsl(217 91% 53%);
-  --color-info: hsl(200 90% 45%);
-  --color-success: hsl(145 65% 38%);
-  --color-warning: hsl(38 92% 50%);
-  --color-danger: hsl(0 72% 51%);
-  --color-tooltip: #1f2a44;
-  --color-accent-yellow: #f8e85d;
-  --color-accent-mint: #bfe4d2;
-  --color-accent-sky: #b9d8ef;
-  --color-accent-lavender: #cec4f5;
-  --color-accent-coral: #f3a08b;
-  --radius-control: 8px;
-  --radius-card: 16px;
-  --radius-panel: 16px;
-  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
-  --shadow-md: 0 8px 24px rgb(15 23 42 / 0.10);
-  --shadow-lg: 0 18px 50px rgb(15 23 42 / 0.16);
-  --shadow-panel: var(--shadow-md);
+/*
+ * @digvation/ui always ships a complete visual fallback. Theme defaults stay in
+ * a low-priority layer so project semantic variables can override them.
+ *
+ * Tailwind Preflight is intentionally NOT imported: consumers still own html,
+ * body, layout, sidebar, typography reset and other application-level styling.
+ * Structural component utilities are intentionally unlayered, though, so a
+ * generic consumer rule such as `button { border: ... }` cannot turn Digvation
+ * icon buttons, tabs or menu rows back into browser/project chrome. Project
+ * identity should be customized through semantic variables instead.
+ */
+@layer theme {
+  :root,
+  :root[data-ds-mode='light'] {
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --color-background: hsl(220 25% 98%);
+    --color-surface: #ffffff;
+    --color-surface-muted: hsl(220 15% 95%);
+    --color-text: hsl(220 20% 12%);
+    --color-text-muted: hsl(220 10% 50%);
+    --color-border: hsl(220 18% 90%);
+    --color-brand: hsl(217 91% 53%);
+    --color-brand-hover: hsl(217 91% 47%);
+    --color-brand-active: hsl(217 91% 41%);
+    --color-brand-foreground: #ffffff;
+    --color-secondary: hsl(220 15% 95%);
+    --color-secondary-hover: hsl(220 15% 92%);
+    --color-secondary-active: hsl(220 15% 88%);
+    --color-secondary-foreground: hsl(220 20% 12%);
+    --color-focus: hsl(217 91% 53%);
+    --color-info: hsl(200 90% 45%);
+    --color-success: hsl(145 65% 38%);
+    --color-warning: hsl(38 92% 50%);
+    --color-danger: hsl(0 72% 51%);
+    --color-tooltip: #1f2a44;
+    --color-accent-yellow: #f8e85d;
+    --color-accent-mint: #bfe4d2;
+    --color-accent-sky: #b9d8ef;
+    --color-accent-lavender: #cec4f5;
+    --color-accent-coral: #f3a08b;
+    --radius-control: 8px;
+    --radius-card: 16px;
+    --radius-panel: 16px;
+    --radius-menu-item: max(6px, calc(var(--radius-panel) - 6px));
+    --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
+    --shadow-md: 0 8px 24px rgb(15 23 42 / 0.10);
+    --shadow-lg: 0 18px 50px rgb(15 23 42 / 0.16);
+    --shadow-panel: var(--shadow-md);
+  }
+
+  :root[data-ds-mode='dark'] {
+    --color-background: hsl(222 28% 8%);
+    --color-surface: hsl(222 23% 12%);
+    --color-surface-muted: hsl(221 20% 17%);
+    --color-text: hsl(216 25% 94%);
+    --color-text-muted: hsl(216 12% 65%);
+    --color-border: hsl(220 16% 24%);
+    --color-brand: hsl(217 91% 62%);
+    --color-brand-hover: hsl(217 91% 68%);
+    --color-brand-active: hsl(217 91% 72%);
+    --color-brand-foreground: hsl(222 28% 8%);
+    --color-secondary: hsl(221 20% 17%);
+    --color-secondary-hover: hsl(221 20% 21%);
+    --color-secondary-active: hsl(221 20% 25%);
+    --color-secondary-foreground: hsl(216 25% 94%);
+    --color-focus: hsl(217 91% 62%);
+    --color-info: hsl(200 90% 58%);
+    --color-success: hsl(145 58% 48%);
+    --color-warning: hsl(38 92% 58%);
+    --color-danger: hsl(0 78% 62%);
+    --color-tooltip: hsl(220 24% 6%);
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.18);
+    --shadow-md: 0 10px 30px rgb(0 0 0 / 0.24);
+    --shadow-lg: 0 20px 60px rgb(0 0 0 / 0.34);
+    --shadow-panel: var(--shadow-md);
+  }
+
+  :root[data-theme-radius='COMPACT'] {
+    --radius-control: 6px;
+    --radius-card: 10px;
+    --radius-panel: 12px;
+  }
+
+  :root[data-theme-radius='ROUNDED'] {
+    --radius-control: 12px;
+    --radius-card: 20px;
+    --radius-panel: 24px;
+  }
 }
 
-:root[data-ds-mode='dark'] {
-  --color-background: hsl(222 28% 8%);
-  --color-surface: hsl(222 23% 12%);
-  --color-surface-muted: hsl(221 20% 17%);
-  --color-text: hsl(216 25% 94%);
-  --color-text-muted: hsl(216 12% 65%);
-  --color-border: hsl(220 16% 24%);
-  --color-brand: hsl(217 91% 62%);
-  --color-brand-hover: hsl(217 91% 68%);
-  --color-brand-active: hsl(217 91% 72%);
-  --color-focus: hsl(217 91% 62%);
-  --color-info: hsl(200 90% 58%);
-  --color-success: hsl(145 58% 48%);
-  --color-warning: hsl(38 92% 58%);
-  --color-danger: hsl(0 78% 62%);
-  --color-tooltip: hsl(220 24% 6%);
-  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.18);
-  --shadow-md: 0 10px 30px rgb(0 0 0 / 0.24);
-  --shadow-lg: 0 20px 60px rgb(0 0 0 / 0.34);
-  --shadow-panel: var(--shadow-md);
+/*
+ * Small Preflight-equivalent rules, but ONLY inside Digvation components.
+ * These handle UA defaults; explicit component utility classes own actual visuals.
+ */
+@layer components {
+  :where([data-ds-component]),
+  :where([data-ds-component] *),
+  :where([data-ds-component]::before),
+  :where([data-ds-component]::after),
+  :where([data-ds-component] *::before),
+  :where([data-ds-component] *::after) {
+    box-sizing: border-box;
+  }
+
+  :where([data-ds-component]) {
+    font-family: var(--font-sans);
+  }
+
+  :where(button[data-ds-component]),
+  :where([data-ds-component] button) {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+    border: 0 solid transparent;
+    background: transparent;
+    padding: 0;
+    color: inherit;
+    font: inherit;
+  }
+
+  :where(input[data-ds-component]),
+  :where(textarea[data-ds-component]),
+  :where(select[data-ds-component]),
+  :where([data-ds-component] input),
+  :where([data-ds-component] textarea),
+  :where([data-ds-component] select) {
+    margin: 0;
+    color: inherit;
+    font: inherit;
+  }
+
+  :where([data-ds-component] table) {
+    border-collapse: collapse;
+    border-color: inherit;
+    text-indent: 0;
+  }
 }
 
-:root[data-theme-radius='COMPACT'] {
-  --radius-control: 6px;
-  --radius-card: 10px;
-  --radius-panel: 12px;
+/* Keep dropdown list item corners concentric with the outer floating panel. */
+[data-ds-surface='floating'] [role='option'],
+[data-ds-surface='floating'] [role='menuitem'] {
+  border-radius: var(--radius-menu-item);
 }
 
-:root[data-theme-radius='ROUNDED'] {
-  --radius-control: 12px;
-  --radius-card: 20px;
-  --radius-panel: 24px;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
-
-::selection {
-  background: var(--color-accent-sky);
-  color: var(--color-text);
+[data-ds-component='dropdown-trigger'] input[role='combobox'] {
+  border-radius: var(--radius-control);
 }
 
 @keyframes boot-progress {

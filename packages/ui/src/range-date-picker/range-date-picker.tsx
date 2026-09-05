@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useState, type ReactNode } from 'react';
 
 import { cn } from '../cn';
-import { DDropdown, useDropdownClose } from '../dropdown';
+import { DDropdown, useDropdownClose, type FloatingScrollBehavior } from '../dropdown';
 import { INPUT_SIZE_STYLES, type InputSize } from '../shared';
 
 export interface DateRangeValue { start?: string; end?: string; }
@@ -16,6 +16,7 @@ export interface RangeDatePickerProps {
   disabled?: boolean;
   clearable?: boolean;
   containerClassName?: string;
+  scrollBehavior?: FloatingScrollBehavior;
 }
 
 const DAYS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -96,42 +97,47 @@ function RangeDropdownContent({ value, onChange }: { value?: DateRangeValue; onC
   const renderCalendar = (monthDate: Date, side: 'left' | 'right') => {
     const year = monthDate.getFullYear(); const month = monthDate.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate(); const firstDay = new Date(year, month, 1).getDay();
-    return <div className="w-[240px] shrink-0">
-      <div className="mb-3 flex items-center justify-between">
-        {side === 'left' ? <button type="button" aria-label="Previous month" onClick={() => setLeftMonth((prev) => addMonth(prev, -1))} className="flex size-8 items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]"><ChevronIcon direction="left" /></button> : <div className="size-8" />}
-        <span className="text-sm font-semibold text-[var(--color-text)]">{MONTHS[month]} {year}</span>
-        {side === 'right' ? <button type="button" aria-label="Next month" onClick={() => setLeftMonth((prev) => addMonth(prev, 1))} className="flex size-8 items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]"><ChevronIcon direction="right" /></button> : <div className="size-8" />}
+    return <div className="min-w-0 flex-1">
+      <div className="mb-2 flex items-center justify-between">
+        {side === 'left' ? <button type="button" aria-label="Previous month" onClick={() => setLeftMonth((prev) => addMonth(prev, -1))} className="flex size-7 items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]"><ChevronIcon direction="left" /></button> : <div className="size-7" />}
+        <span className="text-xs font-semibold text-[var(--color-text)] sm:text-sm">{MONTHS[month]} {year}</span>
+        {side === 'right' ? <button type="button" aria-label="Next month" onClick={() => setLeftMonth((prev) => addMonth(prev, 1))} className="flex size-7 items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]"><ChevronIcon direction="right" /></button> : <button type="button" aria-label="Next month" onClick={() => setLeftMonth((prev) => addMonth(prev, 1))} className="flex size-7 items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)] sm:invisible"><ChevronIcon direction="right" /></button>}
       </div>
-      <div className="mb-2 grid grid-cols-7 gap-1 text-xs text-[var(--color-text-muted)]">{DAYS.map((day) => <div key={`${side}-${day}`} className="text-center font-medium">{day}</div>)}</div>
-      <div className="grid grid-cols-7 gap-1">
+      <div className="mb-1.5 grid grid-cols-7 gap-0.5 text-[10px] text-[var(--color-text-muted)] sm:text-xs">{DAYS.map((day) => <div key={`${side}-${day}`} className="text-center font-medium">{day}</div>)}</div>
+      <div className="grid grid-cols-7 gap-0.5">
         {Array.from({ length: firstDay }).map((_, index) => <div key={`${side}-empty-${index}`} />)}
         {Array.from({ length: daysInMonth }, (_, index) => {
           const date = new Date(year, month, index + 1); const start = isSameDate(date, tempStart); const end = isSameDate(date, tempEnd); const selected = start || end; const inRange = Boolean(tempStart && tempEnd && date > tempStart && date < tempEnd); const isToday = isSameDate(date, today);
-          return <button key={`${side}-${formatDate(date)}`} type="button" onClick={() => selectDate(date)} className={cn('h-9 rounded-lg text-sm transition-colors', selected && 'bg-[var(--color-brand)] font-semibold text-white', !selected && inRange && 'bg-[var(--color-brand)]/10 text-[var(--color-brand)]', !selected && !inRange && 'hover:bg-[var(--color-surface-muted)]', !selected && isToday && 'ring-1 ring-[var(--color-brand)]/40')}>{index + 1}</button>;
+          return <button key={`${side}-${formatDate(date)}`} type="button" onClick={() => selectDate(date)} className={cn('h-8 rounded-md text-xs transition-colors sm:h-8 sm:text-sm', selected && 'bg-[var(--color-brand)] font-semibold text-white', !selected && inRange && 'bg-[var(--color-brand)]/10 text-[var(--color-brand)]', !selected && !inRange && 'hover:bg-[var(--color-surface-muted)]', !selected && isToday && 'ring-1 ring-[var(--color-brand)]/40')}>{index + 1}</button>;
         })}
       </div>
     </div>;
   };
 
-  return <div className="max-w-[calc(100vw-16px)] overflow-x-auto p-4">
-    <div className="flex min-w-[640px] gap-4">
-      <div className="w-[104px] shrink-0 border-r border-[var(--color-border)] pr-3"><p className="mb-2 text-xs font-semibold text-[var(--color-text-muted)]">Cepat</p><div className="space-y-1">{QUICK_RANGE_OPTIONS.map((option) => <button key={option.value} type="button" onClick={() => selectQuick(option.value)} className={cn('w-full rounded-lg px-3 py-2 text-left text-xs font-medium transition-colors', getQuickActive(option.value, tempStart, tempEnd) ? 'bg-[var(--color-surface-muted)] text-[var(--color-text)]' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]')}>{option.label}</button>)}</div></div>
-      <div className="flex gap-4">{renderCalendar(leftMonth, 'left')}{renderCalendar(rightMonth, 'right')}</div>
+  const summary = tempStart && tempEnd ? `${formatDate(tempStart)} — ${formatDate(tempEnd)}` : quickType === 'all_time' ? 'Semua waktu' : 'Pilih tanggal awal dan akhir';
+
+  return <div className="w-[min(560px,calc(100vw-16px))] p-3">
+    <div className="mb-3">
+      <div className="mb-2 flex items-center justify-between"><p className="text-xs font-semibold text-[var(--color-text)]">Rentang cepat</p><span className="text-[10px] text-[var(--color-text-muted)]">Opsional</span></div>
+      <div className="grid grid-cols-3 gap-1 sm:grid-cols-5">{QUICK_RANGE_OPTIONS.map((option) => <button key={option.value} type="button" onClick={() => selectQuick(option.value)} className={cn('min-h-8 rounded-lg px-2 py-1.5 text-center text-[11px] font-medium leading-tight transition-colors', getQuickActive(option.value, tempStart, tempEnd) ? 'bg-[var(--color-brand)]/10 text-[var(--color-brand)]' : 'bg-[var(--color-surface-muted)]/55 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]')}>{option.label}</button>)}</div>
     </div>
-    <div className="mt-4 flex min-w-[640px] items-center justify-between border-t border-[var(--color-border)] pt-3"><div className="text-xs text-[var(--color-text-muted)]">{tempStart && tempEnd ? `${formatDate(tempStart)} sampai ${formatDate(tempEnd)}` : quickType === 'all_time' ? 'Semua waktu' : 'Pilih tanggal awal dan akhir'}</div><div className="flex items-center gap-2"><button type="button" onClick={() => { syncTempFromValue(); close?.(); }} className="h-9 rounded-lg px-3 text-sm font-medium text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]">Cancel</button><button type="button" disabled={quickType !== 'all_time' && (!tempStart || !tempEnd)} onClick={apply} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[var(--color-brand)] px-4 text-sm font-semibold text-white hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"><CheckIcon />Apply</button></div></div>
+    <div className="grid gap-3 border-t border-[var(--color-border)] pt-3 sm:grid-cols-2">{renderCalendar(leftMonth, 'left')}{renderCalendar(rightMonth, 'right')}</div>
+    <div className="mt-3 flex flex-col gap-2 border-t border-[var(--color-border)] pt-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="min-w-0 truncate text-[11px] text-[var(--color-text-muted)]">{summary}</div>
+      <div className="flex shrink-0 items-center justify-end gap-2"><button type="button" onClick={() => { syncTempFromValue(); close?.(); }} className="h-8 rounded-lg px-3 text-xs font-medium text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]">Cancel</button><button type="button" disabled={quickType !== 'all_time' && (!tempStart || !tempEnd)} onClick={apply} className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--color-brand)] px-3 text-xs font-semibold text-white hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"><CheckIcon />Apply</button></div>
+    </div>
   </div>;
 }
 
-export function DRangeDatePicker({ label, placeholder = 'Pilih periode', value, size = 'md', onChange, error, hint, disabled = false, clearable = true, containerClassName }: RangeDatePickerProps) {
+export function DRangeDatePicker({ label, placeholder = 'Pilih periode', value, size = 'md', onChange, error, hint, disabled = false, clearable = true, containerClassName, scrollBehavior = 'close' }: RangeDatePickerProps) {
   const id = useId(); const s = INPUT_SIZE_STYLES[size];
   const displayValue = useMemo(() => value?.start && value?.end ? `${formatDisplayDate(value.start)} - ${formatDisplayDate(value.end)}` : '', [value?.start, value?.end]);
   return <div className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
     {label ? <label htmlFor={id} className={cn(s.label, 'inline-block w-fit font-medium text-[var(--color-text)]')}>{label}</label> : null}
-    <DDropdown placement="bottom-end" contentRole="dialog" trigger={({ open }) => <div className="relative">
+    <DDropdown placement="bottom-end" contentRole="dialog" contentPadding={false} contentClassName="overflow-hidden" scrollBehavior={scrollBehavior} trigger={({ open }) => <div className="relative">
       <button id={id} type="button" disabled={disabled} className={cn('flex w-full items-center gap-2 rounded-lg border bg-[var(--color-surface)] pr-10 text-left focus:border-[var(--color-brand)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:opacity-50', s.input, error ? 'border-[var(--color-danger)]' : 'border-[var(--color-border)]', displayValue ? 'text-[var(--color-text)]' : 'text-[var(--color-text-muted)]/60')}><span className="shrink-0 text-[var(--color-text-muted)]"><CalendarIcon /></span><span className="min-w-0 flex-1 truncate">{displayValue || placeholder}</span></button>
       <div className={cn('absolute top-1/2 flex -translate-y-1/2 items-center gap-1 text-[var(--color-text-muted)]', s.iconRight)}>{clearable && displayValue && !disabled ? <button type="button" aria-label="Clear date range" onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); onChange?.({ start: undefined, end: undefined }); }} className="rounded-md p-1 hover:bg-[var(--color-surface-muted)]"><ClearIcon /></button> : null}{!disabled ? <ChevronDownIcon open={open} /> : null}</div>
     </div>}><RangeDropdownContent value={value} onChange={onChange} /></DDropdown>
     {error ? <p className="text-xs text-[var(--color-danger)]">{error}</p> : null}{!error && hint ? <p className="text-xs text-[var(--color-text-muted)]">{hint}</p> : null}
   </div>;
 }
-

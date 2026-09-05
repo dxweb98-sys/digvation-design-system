@@ -14,8 +14,8 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: 'bg-[var(--color-brand)] text-white shadow-[var(--shadow-sm)] hover:bg-[var(--color-brand-hover)] active:bg-[var(--color-brand-active)]',
-  secondary: 'bg-[var(--color-surface-muted)] text-[var(--color-text)] hover:brightness-[0.98] active:brightness-95',
+  primary: 'bg-[var(--color-brand)] text-[var(--color-brand-foreground)] shadow-[var(--shadow-sm)] hover:bg-[var(--color-brand-hover)] active:bg-[var(--color-brand-active)]',
+  secondary: 'bg-[var(--color-secondary)] text-[var(--color-secondary-foreground)] hover:bg-[var(--color-secondary-hover)] active:bg-[var(--color-secondary-active)]',
   outline: 'border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] hover:bg-[var(--color-surface-muted)]',
   ghost: 'bg-transparent text-[var(--color-text)] hover:bg-[var(--color-surface-muted)]',
   soft: 'bg-[var(--color-brand)]/10 text-[var(--color-brand)] hover:bg-[var(--color-brand)]/15 active:bg-[var(--color-brand)]/20',
@@ -40,6 +40,7 @@ export const DButton = forwardRef<HTMLButtonElement, ButtonProps>(function DButt
   return (
     <button
       ref={ref}
+      data-ds-component="button"
       type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}

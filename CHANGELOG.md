@@ -1,5 +1,37 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Configurable floating `scrollBehavior`: `reposition`, `close`, or `lock`.
+- Async option refresh/error hooks for `DCombobox` and compatibility async `DSelect` via `refetchKey`, `onFetchError`, and `asyncErrorMessage`.
+- `parseCurrencyInputValue` helper for localized currency presentation.
+- Repository contribution, architecture, release/versioning, Git flow, CI, and pull-request standards.
+- Form-control, floating-overlay, and component-roadmap documentation.
+
+### Changed
+
+- `DCurrencyInput` keeps thousands grouping visible while editing while preserving a canonical raw decimal-text value.
+- `DInput format="currency"` now applies thousands grouping as the user types while preserving its raw-digit callback contract.
+- `DCombobox` protects against stale async responses and exposes stronger combobox ARIA/keyboard semantics.
+- `DSelect`, `DCombobox`, `DDatePicker`, `DRangeDatePicker`, `DNotificationPanel`, and `DSelectFilter` share configurable floating-scroll behavior.
+- New autocomplete/API-driven selection flows should prefer `DCombobox`; `DSelect` keeps searchable/async capabilities for compatibility.
+
+### Fixed
+
+- Uncontrolled `DInput`, including `type="password"`, no longer renders as a permanently controlled empty value and can be typed normally.
+- Password visibility toggling preserves input value/focus instead of remounting the field.
+- Currency formatting keeps caret/focus stable when presentation separators are inserted.
+- Floating reposition work is animation-frame throttled and nested scrolls no longer leave panels detached from their anchors.
+
+### Testing
+
+- Added password controlled/uncontrolled typing and visibility regressions.
+- Added live currency grouping/raw-value regressions.
+- Added async combobox stale-response, refetch, and error-state regressions.
+- Added floating `reposition`, `close`, and `lock` regressions.
+
 ## 0.2.0
 
 Design-system API and overlay reliability release.

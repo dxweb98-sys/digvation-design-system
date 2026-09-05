@@ -1,3 +1,29 @@
 import { DDatePicker } from '../date-picker';
-export interface DateRangeFilterProps { from: string; to: string; onFromChange: (value: string) => void; onToChange: (value: string) => void; onClear?: () => void; }
-export function DDateRangeFilter({ from, to, onFromChange, onToChange, onClear }: DateRangeFilterProps) { return <div className="flex flex-wrap items-center gap-3"><span className="hidden text-xs font-medium text-[var(--color-text-muted)] sm:inline">Periode</span><DDatePicker value={from} onChange={onFromChange} containerClassName="w-[160px]" placeholder="Dari"/><span className="text-sm text-[var(--color-text-muted)]">—</span><DDatePicker value={to} onChange={onToChange} minDate={from || undefined} containerClassName="w-[160px]" placeholder="Sampai"/>{onClear && (from || to) ? <button type="button" onClick={onClear} className="h-9 rounded-lg border border-[var(--color-border)] px-3 text-xs text-[var(--color-text-muted)] hover:bg-[var(--color-danger)]/5 hover:text-[var(--color-danger)]">Reset</button> : null}</div>; }
+
+export interface DateRangeFilterProps {
+  from: string;
+  to: string;
+  onFromChange: (value: string) => void;
+  onToChange: (value: string) => void;
+  onClear?: () => void;
+}
+
+export function DDateRangeFilter({ from, to, onFromChange, onToChange, onClear }: DateRangeFilterProps) {
+  return (
+    <div data-ds-component="date-range-filter" className="flex flex-wrap items-center gap-3">
+      <span className="hidden text-xs font-medium text-[var(--color-text-muted)] sm:inline">Periode</span>
+      <DDatePicker value={from} onChange={onFromChange} containerClassName="w-[160px]" placeholder="Dari" />
+      <span className="text-sm text-[var(--color-text-muted)]">—</span>
+      <DDatePicker value={to} onChange={onToChange} minDate={from || undefined} containerClassName="w-[160px]" placeholder="Sampai" />
+      {onClear && (from || to) ? (
+        <button
+          type="button"
+          onClick={onClear}
+          className="h-9 rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-xs font-medium text-[var(--color-text-muted)] hover:bg-[var(--color-danger)]/5 hover:text-[var(--color-danger)]"
+        >
+          Reset
+        </button>
+      ) : null}
+    </div>
+  );
+}

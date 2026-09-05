@@ -4,8 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "node ./scripts/generate-component-api.mjs",
     "dev": "vite",
+    "prebuild": "node ./scripts/generate-component-api.mjs",
     "build": "tsc --noEmit && vite build",
+    "pretypecheck": "node ./scripts/generate-component-api.mjs",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview"
   },
