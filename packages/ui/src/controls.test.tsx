@@ -78,9 +78,9 @@ describe('shared field controls', () => {
     const active = screen.getByRole('option', { name: 'Active' });
     const draft = screen.getByRole('option', { name: 'Draft' });
     expect(draft.getAttribute('aria-selected')).toBe('true');
-    expect(draft.className).toContain('bg-[var(--color-brand)]/10');
+    expect(draft.className.split(/\s+/)).toContain('bg-[var(--color-brand)]/10');
     expect(active.getAttribute('aria-selected')).toBe('false');
-    expect(active.className).not.toContain('bg-[var(--color-surface-muted)]');
+    expect(active.className.split(/\s+/)).not.toContain('bg-[var(--color-surface-muted)]');
   });
 
   it('filters and selects a combobox option without losing text focus', () => {
