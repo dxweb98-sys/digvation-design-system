@@ -8,7 +8,7 @@ Reusable React + TypeScript design system for Digvation projects. The package ke
 digvation-design-system/
 ├─ .github/              # CI + pull request standards
 ├─ apps/
-│  └─ docs/              # Vite documentation + live component preview
+│  └─ docs/              # Vite documentation + live component preview/API lab
 ├─ docs/                 # architecture, usage, release and customization guides
 ├─ packages/
 │  └─ ui/                # @digvation/ui reusable package
@@ -23,6 +23,7 @@ See:
 - `CONTRIBUTING.md` — branch names, code naming, commits, PR rules, source conventions
 - `docs/ARCHITECTURE.md` — repository/component boundaries
 - `docs/RELEASE_PROCESS.md` — SemVer, prerelease, production/hotfix flow
+- `docs/THEMING.md` — project-owned colors, CSS-variable mapping and style isolation
 - `docs/FORM_CONTROLS.md` — input/select/combobox/currency contracts
 - `docs/FLOATING_OVERLAYS.md` — anchored popup behavior and scrolling policy
 - `docs/COMPONENT_AUDIT.md` — prioritized component roadmap
@@ -110,71 +111,93 @@ npm run pack:ui
 
 Then install the generated file from `release/` in a representative consumer.
 
-## Styles and theming
+## Styles and project-owned theming
 
-If a consumer wants the design-system CSS, import it once at the consumer's chosen style boundary, then override semantic variables in the consumer stylesheet:
+`@digvation/ui/styles.css` is intentionally built **without Tailwind Preflight**. The library must not reset `html`, `body`, `button`, `input`, `*`, or take ownership of the consuming application's page shell. The consumer keeps its own base/reset/layout CSS.
+
+Import the library first and the application stylesheet after it:
+
+```ts
+import '@digvation/ui/styles.css';
+import './app.css';
+```
+
+The recommended setup is to keep project variables as the source of truth and map them once:
 
 ```css
-@import '@digvation/ui/styles.css';
-
+/* app.css */
 :root {
-  --color-brand: #7c3aed;
-  --color-brand-hover: #6d28d9;
-  --color-brand-active: #5b21b6;
-  --color-focus: #7c3aed;
-
-  --color-background: #faf8ff;
-  --color-surface: #ffffff;
-  --color-surface-muted: #f4f0ff;
-  --color-text: #17121f;
-  --color-text-muted: #746d7e;
-  --color-border: #e7dff0;
-
-  --color-info: #0284c7;
-  --color-success: #16803c;
-  --color-warning: #d97706;
-  --color-danger: #dc2626;
-
-  --radius-control: 10px;
-  --radius-card: 18px;
-  --radius-panel: 18px;
+  --pos-primary: #7c3aed;
+  --pos-primary-hover: #6d28d9;
+  --pos-secondary: #f3f0ff;
+  --pos-secondary-foreground: #24143f;
+  --pos-background: #faf8ff;
+  --pos-surface: #ffffff;
+  --pos-text: #17121f;
+  --pos-muted: #746d7e;
+  --pos-border: #e7dff0;
+  --pos-success: #16803c;
+  --pos-warning: #d97706;
+  --pos-danger: #dc2626;
 }
 ```
 
-The UI package must not take ownership of a consuming application's page shell, sidebar, routing, or global layout. Consumer-specific layout styles stay in the consumer.
-
-Or use `DThemeProvider`:
-
 ```tsx
-import { DThemeProvider } from '@digvation/ui';
+import {
+  DThemeProvider,
+  createCssVariableTheme,
+} from '@digvation/ui';
 
-<DThemeProvider
-  mode="light"
-  radius="rounded"
-  tokens={{
-    brand: '#7c3aed',
-    brandHover: '#6d28d9',
-    brandActive: '#5b21b6',
-    focus: '#7c3aed',
-    background: '#faf8ff',
-    surface: '#ffffff',
-  }}
->
+const uiTheme = createCssVariableTheme({
+  primary: '--pos-primary',
+  primaryHover: '--pos-primary-hover',
+  secondary: '--pos-secondary',
+  onSecondary: '--pos-secondary-foreground',
+  background: '--pos-background',
+  surface: '--pos-surface',
+  text: '--pos-text',
+  textMuted: '--pos-muted',
+  border: '--pos-border',
+  success: '--pos-success',
+  warning: '--pos-warning',
+  danger: '--pos-danger',
+});
+
+<DThemeProvider tokens={uiTheme}>
   <App />
 </DThemeProvider>
 ```
 
-Portal components inherit document-root theme tokens.
+`DThemeProvider` defaults to `mode="inherit"` and `radius="inherit"`. It does not force the project into light/dark mode or change the project's radius policy unless explicitly requested. It only maps design-system semantic tokens; portal components inherit the same mapping from the document root.
+
+For projects without an existing CSS-variable system, direct semantic values remain supported through `createProjectThemeTokens()` or the `tokens` prop.
+
+See `docs/THEMING.md` for the full contract.
+
+## Documentation and Component Lab
+
+The docs app still shows component previews and examples. It also mounts **Component Lab**, which generates API metadata directly from the TypeScript source before docs dev/build/typecheck.
+
+Component Lab provides:
+
+- searchable exported `*Props` interfaces
+- prop name, exact TypeScript type, required/optional state, and usage guidance
+- exported helper/function signatures from the same component module
+- live prop controls for behavior-heavy components such as `DButton`, `DInput`, `DSelect`, `DCombobox`, and `DRangeDatePicker`
+- live callback/event logs so consumers can see when `onChange`, `onSearchChange`, `onCreateOption`, etc. actually fire
+- generated usage code that changes together with the live controls
+
+API metadata is generated by `apps/docs/scripts/generate-component-api.mjs`; do not maintain a second handwritten prop list that can drift from the source types.
 
 ## Form-control responsibilities
 
 Keep selection controls explicit:
 
 ```text
-DSelect     -> simple/static-first single selection
-DCombobox   -> searchable/autocomplete/async selection
-DInput      -> general scalar field + oldUi compatibility format modes
-DCurrencyInput -> dedicated canonical money value + localized display
+DSelect         -> simple/static-first single selection
+DCombobox       -> searchable/autocomplete/async selection
+DInput          -> general scalar field + oldUi compatibility format modes
+DCurrencyInput  -> dedicated canonical money value + localized display
 ```
 
 `DSelect` retains existing searchable/async props for compatibility, but new API-driven autocomplete work should use `DCombobox`.
@@ -186,12 +209,12 @@ Async combobox options support debouncing, stale-response protection, external `
 Anchored overlays share one positioning engine and can use:
 
 ```ts
-scrollBehavior="reposition" // keep open and follow anchor
+scrollBehavior="reposition" // follow anchor while it remains meaningfully visible
 scrollBehavior="close"      // close on ancestor/window scroll
 scrollBehavior="lock"       // lock document scroll
 ```
 
-Form dropdowns default to `reposition`; short-lived toolbar/action surfaces can prefer `close`. See `docs/FLOATING_OVERLAYS.md`.
+Persistent overlays close automatically when their trigger is effectively gone from the viewport/clipping scroll parent. `DRangeDatePicker` prefers `close` because its panel is large. See `docs/FLOATING_OVERLAYS.md`.
 
 ## Git and release flow
 
@@ -228,5 +251,7 @@ Do not version-bump ordinary feature branches. Version changes happen during rel
 5. Project identity changes through semantic tokens rather than component-by-component edits.
 6. Reusable oldUi behavior remains the compatibility baseline unless it contains a real bug.
 7. Public behavior changes require tests, docs, changelog entries, and `npm run validate`.
+8. The distributed stylesheet must not ship application-level resets or Tailwind Preflight.
+9. Consumer project colors remain the source of truth; design-system tokens map to them.
 
 See `apps/docs` for live previews and `docs/COMPONENTS.md` for the current catalog.
