@@ -1,5 +1,9 @@
+// @ts-nocheck -- runtime uses Node built-ins; keeping Node types out of the published UI tsconfig is intentional.
+import fs from 'node:fs';
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import css from './styles.css?raw';
+
+const css = fs.readFileSync(path.resolve(process.cwd(), 'src/styles.css'), 'utf8');
 
 describe('distributed stylesheet isolation', () => {
   it('does not import Tailwind Preflight or application-level element resets', () => {
