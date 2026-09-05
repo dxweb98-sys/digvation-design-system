@@ -3,6 +3,7 @@ import {
   DAccordion,
   DAccordionItem,
   DButton,
+  DCheckbox,
   DCombobox,
   DInput,
   DRangeDatePicker,
@@ -33,8 +34,13 @@ const api = generatedComponentApi as unknown as {
   functions: Record<string, ApiFunction>;
 };
 
-function Control({ label, children }: { label: string; children: ReactNode }) {
-  return <label className="playground-control"><span>{label}</span>{children}</label>;
+function BooleanControl({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) {
+  return (
+    <label className="playground-check-control">
+      <DCheckbox checked={checked} onChange={(event) => onChange(event.target.checked)} />
+      <span>{label}</span>
+    </label>
+  );
 }
 
 function useLiveCode(code: string, onCodeChange: (code: string) => void) {
@@ -61,11 +67,11 @@ function ButtonPreview({ onCodeChange, onEvent }: InteractivePreviewProps) {
 
   return (
     <PreviewLayout controls={<>
-      <Control label="variant"><select value={variant} onChange={(event) => setVariant(event.target.value as ButtonVariant)}>{['primary','secondary','outline','ghost','soft','info','success','warning','danger','link'].map((item) => <option key={item}>{item}</option>)}</select></Control>
-      <Control label="size"><select value={size} onChange={(event) => setSize(event.target.value as ButtonSize)}>{['sm','md','lg','icon'].map((item) => <option key={item}>{item}</option>)}</select></Control>
-      <Control label="loading"><input type="checkbox" checked={loading} onChange={(event) => setLoading(event.target.checked)} /></Control>
-      <Control label="disabled"><input type="checkbox" checked={disabled} onChange={(event) => setDisabled(event.target.checked)} /></Control>
-      <Control label="full width"><input type="checkbox" checked={fullWidth} onChange={(event) => setFullWidth(event.target.checked)} /></Control>
+      <DSelect label="Variant" size="sm" clearable={false} value={variant} options={['primary','secondary','outline','ghost','soft','info','success','warning','danger','link'].map((item) => ({ label: item, value: item }))} onChange={(value) => setVariant((value ?? 'primary') as ButtonVariant)} />
+      <DSelect label="Size" size="sm" clearable={false} value={size} options={['sm','md','lg','icon'].map((item) => ({ label: item, value: item }))} onChange={(value) => setSize((value ?? 'md') as ButtonSize)} />
+      <BooleanControl label="Loading" checked={loading} onChange={setLoading} />
+      <BooleanControl label="Disabled" checked={disabled} onChange={setDisabled} />
+      <BooleanControl label="Full width" checked={fullWidth} onChange={setFullWidth} />
     </>}>
       <DButton variant={variant} size={size} loading={loading} disabled={disabled} fullWidth={fullWidth} onClick={() => onEvent('onClick()')}>{size === 'icon' ? 'D' : 'Save'}</DButton>
     </PreviewLayout>
@@ -86,12 +92,12 @@ function InputPreview({ onCodeChange, onEvent }: InteractivePreviewProps) {
 
   return (
     <PreviewLayout controls={<>
-      <Control label="type"><select value={type} disabled={format !== 'plain'} onChange={(event) => setType(event.target.value as InputType)}>{['text','email','password','number','tel','url','search'].map((item) => <option key={item}>{item}</option>)}</select></Control>
-      <Control label="format"><select value={format} onChange={(event) => setFormat(event.target.value as InputFormat)}>{['plain','currency','percentage'].map((item) => <option key={item}>{item}</option>)}</select></Control>
-      <Control label="size"><select value={size} onChange={(event) => setSize(event.target.value as InputSize)}>{['sm','md','lg'].map((item) => <option key={item}>{item}</option>)}</select></Control>
-      <Control label="clearable"><input type="checkbox" checked={clearable} onChange={(event) => setClearable(event.target.checked)} /></Control>
-      <Control label="disabled"><input type="checkbox" checked={disabled} onChange={(event) => setDisabled(event.target.checked)} /></Control>
-      <Control label="read only"><input type="checkbox" checked={readOnly} onChange={(event) => setReadOnly(event.target.checked)} /></Control>
+      <DSelect label="Type" size="sm" clearable={false} disabled={format !== 'plain'} value={type} options={['text','email','password','number','tel','url','search'].map((item) => ({ label: item, value: item }))} onChange={(next) => setType((next ?? 'text') as InputType)} />
+      <DSelect label="Format" size="sm" clearable={false} value={format} options={['plain','currency','percentage'].map((item) => ({ label: item, value: item }))} onChange={(next) => setFormat((next ?? 'plain') as InputFormat)} />
+      <DSelect label="Size" size="sm" clearable={false} value={size} options={['sm','md','lg'].map((item) => ({ label: item, value: item }))} onChange={(next) => setSize((next ?? 'md') as InputSize)} />
+      <BooleanControl label="Clearable" checked={clearable} onChange={setClearable} />
+      <BooleanControl label="Disabled" checked={disabled} onChange={setDisabled} />
+      <BooleanControl label="Read only" checked={readOnly} onChange={setReadOnly} />
     </>}>
       <DInput
         label="Live input"
@@ -129,10 +135,10 @@ function SelectPreview({ onCodeChange, onEvent }: InteractivePreviewProps) {
 
   return (
     <PreviewLayout controls={<>
-      <Control label="searchable"><input type="checkbox" checked={searchable} onChange={(event) => setSearchable(event.target.checked)} /></Control>
-      <Control label="clearable"><input type="checkbox" checked={clearable} onChange={(event) => setClearable(event.target.checked)} /></Control>
-      <Control label="size"><select value={size} onChange={(event) => setSize(event.target.value as InputSize)}>{['sm','md','lg'].map((item) => <option key={item}>{item}</option>)}</select></Control>
-      <Control label="scroll"><select value={scrollBehavior} onChange={(event) => setScrollBehavior(event.target.value as FloatingScrollBehavior)}>{['reposition','close','lock'].map((item) => <option key={item}>{item}</option>)}</select></Control>
+      <BooleanControl label="Searchable" checked={searchable} onChange={setSearchable} />
+      <BooleanControl label="Clearable" checked={clearable} onChange={setClearable} />
+      <DSelect label="Size" size="sm" clearable={false} value={size} options={['sm','md','lg'].map((item) => ({ label: item, value: item }))} onChange={(next) => setSize((next ?? 'md') as InputSize)} />
+      <DSelect label="Scroll" size="sm" clearable={false} value={scrollBehavior} options={['reposition','close','lock'].map((item) => ({ label: item, value: item }))} onChange={(next) => setScrollBehavior((next ?? 'reposition') as FloatingScrollBehavior)} />
     </>}>
       <DSelect label="Status" value={value} options={demoOptions} searchable={searchable} clearable={clearable} size={size} scrollBehavior={scrollBehavior} onChange={(next) => { setValue(next); onEvent(`onChange(${JSON.stringify(next)})`); }} />
     </PreviewLayout>
@@ -149,9 +155,9 @@ function ComboboxPreview({ onCodeChange, onEvent }: InteractivePreviewProps) {
 
   return (
     <PreviewLayout controls={<>
-      <Control label="allow create"><input type="checkbox" checked={allowCreate} onChange={(event) => setAllowCreate(event.target.checked)} /></Control>
-      <Control label="clearable"><input type="checkbox" checked={clearable} onChange={(event) => setClearable(event.target.checked)} /></Control>
-      <Control label="debounce ms"><input type="number" min={0} step={50} value={debounceMs} onChange={(event) => setDebounceMs(Number(event.target.value) || 0)} /></Control>
+      <BooleanControl label="Allow create" checked={allowCreate} onChange={setAllowCreate} />
+      <BooleanControl label="Clearable" checked={clearable} onChange={setClearable} />
+      <DInput label="Debounce ms" type="number" size="sm" clearable={false} value={String(debounceMs)} onChange={(next) => setDebounceMs(Number(next) || 0)} />
     </>}>
       <DCombobox
         label="Technology"
@@ -178,9 +184,9 @@ function RangePreview({ onCodeChange, onEvent }: InteractivePreviewProps) {
 
   return (
     <PreviewLayout controls={<>
-      <Control label="clearable"><input type="checkbox" checked={clearable} onChange={(event) => setClearable(event.target.checked)} /></Control>
-      <Control label="size"><select value={size} onChange={(event) => setSize(event.target.value as InputSize)}>{['sm','md','lg'].map((item) => <option key={item}>{item}</option>)}</select></Control>
-      <Control label="scroll"><select value={scrollBehavior} onChange={(event) => setScrollBehavior(event.target.value as FloatingScrollBehavior)}>{['reposition','close','lock'].map((item) => <option key={item}>{item}</option>)}</select></Control>
+      <BooleanControl label="Clearable" checked={clearable} onChange={setClearable} />
+      <DSelect label="Size" size="sm" clearable={false} value={size} options={['sm','md','lg'].map((item) => ({ label: item, value: item }))} onChange={(next) => setSize((next ?? 'md') as InputSize)} />
+      <DSelect label="Scroll" size="sm" clearable={false} value={scrollBehavior} options={['reposition','close','lock'].map((item) => ({ label: item, value: item }))} onChange={(next) => setScrollBehavior((next ?? 'close') as FloatingScrollBehavior)} />
     </>}>
       <DRangeDatePicker label="Report period" value={value} size={size} clearable={clearable} scrollBehavior={scrollBehavior} onChange={(next) => { setValue(next); onEvent(`onChange(${JSON.stringify(next)})`); }} />
     </PreviewLayout>
@@ -196,8 +202,8 @@ function AccordionPreview({ onCodeChange, onEvent }: InteractivePreviewProps) {
 
   return (
     <PreviewLayout controls={<>
-      <Control label="variant"><select value={variant} onChange={(event) => setVariant(event.target.value as AccordionDemoVariant)}>{['default','separator','card','separated'].map((item) => <option key={item}>{item}</option>)}</select></Control>
-      <Control label="type"><select value={type} onChange={(event) => setType(event.target.value as 'single' | 'multiple')}><option value="single">single</option><option value="multiple">multiple</option></select></Control>
+      <DSelect label="Variant" size="sm" clearable={false} value={variant} options={['default','separator','card','separated'].map((item) => ({ label: item, value: item }))} onChange={(next) => setVariant((next ?? 'default') as AccordionDemoVariant)} />
+      <DSelect label="Type" size="sm" clearable={false} value={type} options={[{ label: 'single', value: 'single' }, { label: 'multiple', value: 'multiple' }]} onChange={(next) => setType((next ?? 'single') as 'single' | 'multiple')} />
     </>}>
       <DAccordion type={type} variant={variant} value={openItems} onValueChange={(next) => { setOpenItems(next); onEvent(`onValueChange(${JSON.stringify(next)})`); }}>
         <DAccordionItem value="one" title="How do I change project colors?">Map semantic project tokens or use DThemeProvider.</DAccordionItem>
@@ -240,7 +246,7 @@ function FunctionsPanel({ functions, events, onClearEvents }: { functions: ApiFu
           : <div className="playground-empty"><p>Tidak ada exported helper function khusus untuk component ini.</p></div>}
       </div>
       <div className="playground-events">
-        <div className="playground-subhead"><strong>Callback / event log</strong><button type="button" onClick={onClearEvents}>Clear</button></div>
+        <div className="playground-subhead"><strong>Callback / event log</strong><DButton variant="ghost" size="sm" onClick={onClearEvents}>Clear</DButton></div>
         {events.length ? <ol>{events.slice(-8).reverse().map((event, index) => <li key={`${event}-${index}`}>{event}</li>)}</ol> : <p>Interaksikan component di tab Preview; callback yang terpanggil akan muncul di sini.</p>}
       </div>
     </div>
@@ -252,7 +258,7 @@ function CodePanel({ code }: { code?: string }) {
   if (!code) return <div className="playground-empty"><p>Contoh code belum tersedia untuk grouped preview ini.</p></div>;
   return (
     <div className="code-block embedded-code">
-      <button className="copy-button" type="button" onClick={() => { void navigator.clipboard?.writeText(code); setCopied(true); window.setTimeout(() => setCopied(false), 1200); }}>{copied ? 'Copied' : 'Copy'}</button>
+      <DButton className="copy-button" variant="ghost" size="sm" onClick={() => { void navigator.clipboard?.writeText(code); setCopied(true); window.setTimeout(() => setCopied(false), 1200); }}>{copied ? 'Copied' : 'Copy'}</DButton>
       <pre><code>{code}</code></pre>
     </div>
   );
@@ -270,10 +276,10 @@ export function ComponentDocsTabs({ interfaceName, preview, code }: { interfaceN
   return (
     <div className="demo-shell component-docs-shell">
       <div className="demo-tabs component-doc-tabs">
-        <button type="button" className={tab === 'preview' ? 'active' : ''} onClick={() => setTab('preview')}>Preview</button>
-        <button type="button" className={tab === 'code' ? 'active' : ''} onClick={() => setTab('code')}>Code</button>
-        <button type="button" className={tab === 'props' ? 'active' : ''} onClick={() => setTab('props')}>Props{selected ? ` (${selected.props.length})` : ''}</button>
-        <button type="button" className={tab === 'functions' ? 'active' : ''} onClick={() => setTab('functions')}>Functions{selected ? ` (${functions.length})` : ''}</button>
+        <DButton variant="ghost" size="sm" className={tab === 'preview' ? 'active' : ''} onClick={() => setTab('preview')}>Preview</DButton>
+        <DButton variant="ghost" size="sm" className={tab === 'code' ? 'active' : ''} onClick={() => setTab('code')}>Code</DButton>
+        <DButton variant="ghost" size="sm" className={tab === 'props' ? 'active' : ''} onClick={() => setTab('props')}>Props{selected ? ` (${selected.props.length})` : ''}</DButton>
+        <DButton variant="ghost" size="sm" className={tab === 'functions' ? 'active' : ''} onClick={() => setTab('functions')}>Functions{selected ? ` (${functions.length})` : ''}</DButton>
       </div>
       {tab === 'preview' ? (
         <div className="demo-preview">
