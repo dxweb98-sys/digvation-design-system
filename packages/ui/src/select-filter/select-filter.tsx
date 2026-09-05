@@ -52,9 +52,11 @@ export function DSelectFilter({
   }, [options, search, searchable]);
 
   return (
-    <div className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
+    <div data-ds-component="select-filter" className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
       <DDropdown
         matchWidth
+        contentPadding={false}
+        contentClassName="overflow-hidden"
         scrollBehavior={scrollBehavior}
         onOpenChange={(open) => {
           if (open && searchable) requestAnimationFrame(() => searchRef.current?.focus());
@@ -63,7 +65,7 @@ export function DSelectFilter({
         trigger={({ open }) => (
           <div
             className={cn(
-              'relative flex h-10 w-full items-center rounded-lg border bg-[var(--color-surface)] px-3 pr-8 text-left text-sm transition-colors focus-within:border-[var(--color-brand)] focus-within:ring-2 focus-within:ring-[var(--color-brand)]/20',
+              'relative flex h-10 w-full items-center rounded-[var(--radius-control)] border bg-[var(--color-surface)] px-3 pr-8 text-left text-sm transition-colors focus-within:border-[var(--color-brand)] focus-within:ring-2 focus-within:ring-[var(--color-brand)]/20',
               error ? 'border-[var(--color-danger)]' : 'border-[var(--color-border)]',
               disabled && 'cursor-not-allowed bg-[var(--color-surface-muted)] opacity-50',
             )}
@@ -107,35 +109,40 @@ export function DSelectFilter({
       >
         <div className="max-h-60 overflow-hidden">
           {searchable ? (
-            <div className="border-b border-[var(--color-border)] p-2">
+            <div className="border-b border-[var(--color-border)] p-1.5">
               <input
                 ref={searchRef}
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Cari..."
-                className="h-8 w-full rounded-md border border-[var(--color-border)] bg-[var(--color-background)] px-2 text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/20"
+                className="h-8 w-full rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/20"
               />
             </div>
           ) : null}
-          <div className="max-h-48 overflow-y-auto p-1">
-            {filtered.map((option) => (
-              <button
-                key={String(option.value)}
-                type="button"
-                disabled={option.disabled}
-                onClick={() => {
-                  if (option.disabled) return;
-                  onChange?.(option.value);
-                  setSearch('');
-                }}
-                className={cn(
-                  'w-full rounded-md px-3 py-2 text-left text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-muted)] disabled:cursor-not-allowed disabled:opacity-50',
-                  String(option.value) === String(value ?? '') && 'bg-[var(--color-brand)]/10 font-medium text-[var(--color-brand)]',
-                )}
-              >
-                {option.label}
-              </button>
-            ))}
+          <div className="max-h-48 space-y-0.5 overflow-y-auto p-1.5">
+            {filtered.map((option) => {
+              const selected = String(option.value) === String(value ?? '');
+              return (
+                <button
+                  key={String(option.value)}
+                  type="button"
+                  role="option"
+                  aria-selected={selected}
+                  disabled={option.disabled}
+                  onClick={() => {
+                    if (option.disabled) return;
+                    onChange?.(option.value);
+                    setSearch('');
+                  }}
+                  className={cn(
+                    'w-full rounded-[var(--radius-menu-item)] px-3 py-2 text-left text-sm text-[var(--color-text)] transition-colors hover:bg-[var(--color-surface-muted)] disabled:cursor-not-allowed disabled:opacity-50',
+                    selected && 'bg-[var(--color-brand)]/10 font-medium text-[var(--color-brand)]',
+                  )}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       </DDropdown>
