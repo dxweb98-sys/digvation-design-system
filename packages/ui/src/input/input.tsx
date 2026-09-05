@@ -182,7 +182,7 @@ export const DInput = forwardRef<HTMLInputElement, InputProps>(function DInput(
   };
 
   return (
-    <div className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
+    <div data-ds-component="input" className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
       {label ? (
         <div className="flex w-fit items-center gap-1.5">
           <label htmlFor={id} className={cn(s.label, 'font-medium text-[var(--color-text)]')}>{label}</label>
@@ -219,7 +219,7 @@ export const DInput = forwardRef<HTMLInputElement, InputProps>(function DInput(
           aria-invalid={Boolean(error) || undefined}
           aria-busy={loading || undefined}
           className={cn(
-            'w-full min-w-0 rounded-lg border bg-[var(--color-surface)] text-[var(--color-text)] transition-colors duration-150 placeholder:text-[var(--color-text-muted)]/60 focus:border-[var(--color-brand)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:opacity-50 read-only:bg-[var(--color-surface-muted)]',
+            'w-full min-w-0 rounded-[var(--radius-control)] border bg-[var(--color-surface)] text-[var(--color-text)] transition-colors duration-150 placeholder:text-[var(--color-text-muted)]/60 focus:border-[var(--color-brand)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:opacity-50 read-only:bg-[var(--color-surface-muted)]',
             s.input,
             error ? 'border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:ring-[var(--color-danger)]/20' : 'border-[var(--color-border)]',
             hasLeading && (size === 'sm' ? 'pl-8' : 'pl-10'),
