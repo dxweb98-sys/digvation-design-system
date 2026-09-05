@@ -129,6 +129,18 @@
   }
 }
 
+/* Keep dropdown list item corners concentric with the outer floating panel. */
+@layer utilities {
+  [data-ds-surface='floating'] [role='option'],
+  [data-ds-surface='floating'] [role='menuitem'] {
+    border-radius: var(--radius-menu-item);
+  }
+
+  [data-ds-component='dropdown-trigger'] input[role='combobox'] {
+    border-radius: var(--radius-control);
+  }
+}
+
 @keyframes boot-progress {
   0% { transform: translateX(-110%); }
   55%, 100% { transform: translateX(220%); }
