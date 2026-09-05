@@ -160,6 +160,12 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
       .catch((nextError: unknown) => onFetchError?.(nextError));
   }, [fetchOptions, isAsync, onFetchError, refetchKey, resolvedAsyncSelection?.value, selectedValue]);
 
+  useEffect(() => {
+    if (!isOpen || query) return;
+    const selectedIndex = filteredOptions.findIndex((option) => sameValue(option.value, selectedValue));
+    setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0);
+  }, [filteredOptions, isOpen, query, selectedValue]);
+
   const choose = (option: SelectOption) => {
     if (value === undefined) setInternalValue(option.value);
     setResolvedAsyncSelection(option);
@@ -210,6 +216,8 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
         open={isOpen}
         onOpenChange={setOpen}
         contentRole="listbox"
+        contentPadding={false}
+        contentClassName="overflow-hidden"
         scrollBehavior={scrollBehavior}
         onClose={() => { setOpen(false); setQuery(''); }}
         trigger={({ open }) => (
@@ -244,11 +252,12 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
         )}
       >
         <div id={`${id}-listbox`} className="max-h-60 overflow-hidden">
-          {searchable ? <div className="border-b border-[var(--color-border)] p-2"><input autoFocus value={query} onChange={(event) => { setQuery(event.target.value); setActiveIndex(0); }} placeholder="Cari..." className="h-8 w-full rounded-md border border-[var(--color-border)] bg-[var(--color-background)] px-2 text-xs text-[var(--color-text)] outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20" /></div> : null}
-          <div className="max-h-48 overflow-y-auto p-1">
-            {loading || isFetching ? <p className="px-3 py-2 text-sm text-[var(--color-text-muted)]">Loading...</p> : fetchError ? <p className="px-3 py-2 text-sm text-[var(--color-danger)]">{asyncErrorMessage}</p> : filteredOptions.length === 0 ? <p className="px-3 py-2 text-sm text-[var(--color-text-muted)]">{emptyMessage}</p> : filteredOptions.map((option, index) => (
-              <button key={String(option.value)} type="button" role="option" aria-selected={sameValue(option.value, selectedValue)} disabled={option.disabled} onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.stopPropagation(); if (!option.disabled) choose(option); }} className={cn('w-full rounded-md px-3 py-2 text-left text-sm text-[var(--color-text)] transition-colors hover:bg-[var(--color-surface-muted)] disabled:cursor-not-allowed disabled:opacity-50', sameValue(option.value, selectedValue) && 'bg-[var(--color-brand)]/10 font-medium text-[var(--color-brand)]', index === activeIndex && !sameValue(option.value, selectedValue) && 'bg-[var(--color-surface-muted)]')}>{option.label}</button>
-            ))}
+          {searchable ? <div className="border-b border-[var(--color-border)] p-1.5"><input autoFocus value={query} onChange={(event) => { setQuery(event.target.value); setActiveIndex(0); }} placeholder="Cari..." className="h-8 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 text-xs text-[var(--color-text)] outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/20" /></div> : null}
+          <div className="max-h-48 space-y-0.5 overflow-y-auto p-1.5">
+            {loading || isFetching ? <p className="px-3 py-2 text-sm text-[var(--color-text-muted)]">Loading...</p> : fetchError ? <p className="px-3 py-2 text-sm text-[var(--color-danger)]">{asyncErrorMessage}</p> : filteredOptions.length === 0 ? <p className="px-3 py-2 text-sm text-[var(--color-text-muted)]">{emptyMessage}</p> : filteredOptions.map((option, index) => {
+              const isSelected = sameValue(option.value, selectedValue);
+              return <button key={String(option.value)} type="button" role="option" aria-selected={isSelected} disabled={option.disabled} onMouseEnter={() => setActiveIndex(index)} onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.stopPropagation(); if (!option.disabled) choose(option); }} className={cn('w-full rounded-lg px-3 py-2 text-left text-sm text-[var(--color-text)] transition-colors hover:bg-[var(--color-surface-muted)] disabled:cursor-not-allowed disabled:opacity-50', isSelected && 'bg-[var(--color-brand)]/10 font-medium text-[var(--color-brand)]', index === activeIndex && !isSelected && 'bg-[var(--color-surface-muted)]')}>{option.label}</button>;
+            })}
           </div>
         </div>
       </DDropdown>

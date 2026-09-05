@@ -68,35 +68,19 @@ describe('overlay regressions', () => {
     await waitFor(() => expect(menu.style.left).toBe('160px'));
   });
 
-  it('closes a repositioning dropdown when parent scrolling clips its anchor away', async () => {
+  it('closes a repositioning dropdown once most of its anchor is clipped away', async () => {
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
       return window.setTimeout(() => callback(0), 0) as unknown as number;
     });
-    vi.spyOn(window, 'cancelAnimationFrame').mockImplementation((id) => {
-      window.clearTimeout(id);
-    });
+    vi.spyOn(window, 'cancelAnimationFrame').mockImplementation((id) => window.clearTimeout(id));
 
     let top = 80;
     const { container } = render(
-      <div data-testid="scroll-parent" style={{ overflow: 'auto', height: 160 }}>
-        <DDropdown scrollBehavior="reposition" trigger={() => <button type="button">Clipped menu</button>}>
-          <button type="button">Action</button>
-        </DDropdown>
-      </div>,
+      <DDropdown scrollBehavior="reposition" trigger={() => <button type="button">Clipped menu</button>}>
+        <button type="button">Action</button>
+      </DDropdown>,
     );
-    const scrollParent = screen.getByTestId('scroll-parent');
-    const reference = scrollParent.firstElementChild as HTMLElement;
-    vi.spyOn(scrollParent, 'getBoundingClientRect').mockReturnValue({
-      x: 0,
-      y: 0,
-      top: 0,
-      left: 0,
-      right: 500,
-      bottom: 160,
-      width: 500,
-      height: 160,
-      toJSON: () => ({}),
-    } as DOMRect);
+    const reference = container.firstElementChild as HTMLElement;
     vi.spyOn(reference, 'getBoundingClientRect').mockImplementation(() => ({
       x: 80,
       y: top,
@@ -112,9 +96,37 @@ describe('overlay regressions', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Clipped menu' }));
     expect(screen.getByRole('menu')).toBeTruthy();
 
-    top = -60;
-    fireEvent.scroll(scrollParent);
+    top = -30;
+    fireEvent.scroll(window);
     await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
+  });
+
+  it('keeps an oversized dropdown on one side of its trigger and constrains its height', async () => {
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      return window.setTimeout(() => callback(0), 0) as unknown as number;
+    });
+    vi.spyOn(window, 'cancelAnimationFrame').mockImplementation((id) => window.clearTimeout(id));
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 768 });
+
+    const { container } = render(
+      <DDropdown trigger={() => <button type="button">Tall menu</button>}>
+        <div>Tall content</div>
+      </DDropdown>,
+    );
+    const reference = container.firstElementChild as HTMLElement;
+    vi.spyOn(reference, 'getBoundingClientRect').mockReturnValue({
+      x: 80, y: 350, top: 350, left: 80, right: 200, bottom: 390, width: 120, height: 40, toJSON: () => ({}),
+    } as DOMRect);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Tall menu' }));
+    const menu = screen.getByRole('menu');
+    Object.defineProperty(menu, 'offsetHeight', { configurable: true, value: 500 });
+    fireEvent(window, new Event('resize'));
+
+    await waitFor(() => {
+      expect(menu.style.top).toBe('396px');
+      expect(menu.style.maxHeight).toBe('364px');
+    });
   });
 
   it('closes an open dropdown on scroll when requested', async () => {

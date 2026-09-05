@@ -19,13 +19,11 @@ Keep the overlay open and follow its anchor while window or nested scroll contai
 <DCombobox scrollBehavior="reposition" ... />
 ```
 
-This is the default for form controls because dismissing a selection/search panel during small, normal scrolling is usually disruptive.
-
-`reposition` does **not** mean that a panel may float independently forever. The shared engine continuously checks the anchor against the viewport and clipping scroll ancestors. When the anchor is no longer visible, the overlay closes automatically. This keeps a select/combobox attached to its field instead of following the viewport after its parent has scrolled far away.
+`reposition` is anchor-aware: the panel follows only while at least half of the trigger is still visible inside the viewport and any clipping scroll ancestor. Once the trigger is mostly gone, the panel closes instead of floating detached from its component.
 
 ### close
 
-Close the overlay on the first page/ancestor scroll event.
+Close the overlay on the first page/ancestor scroll.
 
 ```tsx
 <DDropdown
@@ -36,7 +34,7 @@ Close the overlay on the first page/ancestor scroll event.
 </DDropdown>
 ```
 
-This is useful for short-lived action menus. `DSelectFilter` defaults to `close` because toolbar filters often live in horizontally/vertically moving data surfaces.
+This is useful for short-lived action menus and large anchored surfaces. `DRangeDatePicker` defaults to `close` because moving a large two-month calendar while the page scrolls is visually distracting. `DSelectFilter` also defaults to `close` because toolbar filters often live in moving data surfaces.
 
 ### lock
 
@@ -56,7 +54,7 @@ Use this sparingly. Normal selects/date pickers should not normally lock the pag
 | `DSelect` | `reposition` |
 | `DCombobox` | `reposition` |
 | `DDatePicker` | `reposition` |
-| `DRangeDatePicker` | `reposition` |
+| `DRangeDatePicker` | `close` |
 | `DNotificationPanel` | `reposition` |
 | `DSelectFilter` | `close` |
 
@@ -69,8 +67,12 @@ The shared engine:
 - mounts content hidden before its first measurement
 - makes content visible only after final first coordinates are available
 - uses a portal so parent overflow does not clip panels
+- keeps the panel semantically anchored even though it renders in `document.body`
+- closes repositioning panels when the trigger is mostly clipped by the viewport or a scroll ancestor
 - uses fixed positioning against the viewport
 - supports top/bottom flipping based on available space
+- keeps oversized panels on one side of the trigger instead of sliding them across/over it
+- constrains oversized panel height to the available side and allows internal scrolling
 - supports start/end alignment
 - clamps horizontal placement inside viewport padding
 - supports optional trigger-width matching
@@ -79,10 +81,8 @@ The shared engine:
 - listens to scroll in capture mode so nested scroll containers are handled
 - throttles repeated reposition work with `requestAnimationFrame`
 - ignores scrolling generated inside the floating panel itself
-- closes a persistent overlay when its anchor leaves the viewport
-- closes a persistent overlay when a clipping/scroll ancestor hides its anchor
 - cleans listeners/observers/animation frames on close/unmount
 
 ## Component guidance
 
-Choose `reposition` for interactions where the user's input/search state should survive a small scroll while the field is still visible. Choose `close` for transient action menus where any scroll should dismiss the panel. The shared engine automatically closes `reposition` overlays once the field itself is no longer visible, so consumers do not need custom distance calculations. Use `lock` only when scrolling itself conflicts with the interaction.
+Choose `reposition` for compact interactions where the user's input/search state should survive a small scroll. Choose `close` for transient menus or large overlays where preserving a detached-looking surface is worse than dismissing it. Use `lock` only when scrolling itself conflicts with the interaction.

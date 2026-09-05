@@ -32,20 +32,27 @@ const HIDDEN_STYLE: CSSProperties = {
 };
 
 const CLIPPING_OVERFLOW = /(auto|scroll|hidden|clip)/;
+const MIN_REFERENCE_VISIBLE_RATIO = 0.5;
 
-function rectIntersects(
+function intersectionArea(
   rect: Pick<DOMRect, 'top' | 'right' | 'bottom' | 'left'>,
   bounds: { top: number; right: number; bottom: number; left: number },
 ) {
-  return rect.bottom > bounds.top && rect.top < bounds.bottom && rect.right > bounds.left && rect.left < bounds.right;
+  const width = Math.max(0, Math.min(rect.right, bounds.right) - Math.max(rect.left, bounds.left));
+  const height = Math.max(0, Math.min(rect.bottom, bounds.bottom) - Math.max(rect.top, bounds.top));
+  return width * height;
 }
 
 function isReferenceVisible(reference: HTMLElement, viewportPadding: number) {
   if (typeof window === 'undefined' || typeof document === 'undefined') return true;
+  if (!reference.isConnected) return false;
+
+  const referenceStyle = window.getComputedStyle(reference);
+  if (referenceStyle.display === 'none' || referenceStyle.visibility === 'hidden') return false;
 
   const rect = reference.getBoundingClientRect();
-  // JSDOM and a not-yet-laid-out element may report a zero rect. In that case
-  // there is not enough geometry to prove the reference is hidden, so keep it open.
+  // JSDOM and a not-yet-laid-out element may report a zero rect. There is not
+  // enough geometry to prove it is hidden, so do not close solely for that case.
   if (rect.width === 0 && rect.height === 0) return true;
 
   let bounds = {
@@ -54,8 +61,6 @@ function isReferenceVisible(reference: HTMLElement, viewportPadding: number) {
     right: window.innerWidth - viewportPadding,
     bottom: window.innerHeight - viewportPadding,
   };
-
-  if (!rectIntersects(rect, bounds)) return false;
 
   let ancestor = reference.parentElement;
   while (ancestor && ancestor !== document.body && ancestor !== document.documentElement) {
@@ -69,12 +74,13 @@ function isReferenceVisible(reference: HTMLElement, viewportPadding: number) {
         right: Math.min(bounds.right, ancestorRect.right),
         bottom: Math.min(bounds.bottom, ancestorRect.bottom),
       };
-      if (bounds.right <= bounds.left || bounds.bottom <= bounds.top || !rectIntersects(rect, bounds)) return false;
+      if (bounds.right <= bounds.left || bounds.bottom <= bounds.top) return false;
     }
     ancestor = ancestor.parentElement;
   }
 
-  return true;
+  const referenceArea = Math.max(1, rect.width * rect.height);
+  return intersectionArea(rect, bounds) / referenceArea >= MIN_REFERENCE_VISIBLE_RATIO;
 }
 
 export function useFloatingPosition({
@@ -107,16 +113,17 @@ export function useFloatingPosition({
     const rect = reference.getBoundingClientRect();
     const measuredWidth = matchWidth ? rect.width : Math.max(floating.offsetWidth, minWidth);
     const measuredHeight = floating.offsetHeight;
-    const roomBelow = window.innerHeight - rect.bottom - viewportPadding;
-    const roomAbove = rect.top - viewportPadding;
+    const roomBelow = Math.max(0, window.innerHeight - rect.bottom - offset - viewportPadding);
+    const roomAbove = Math.max(0, rect.top - offset - viewportPadding);
     const wantsTop = placement.startsWith('top');
     const alignEnd = placement.endsWith('end');
     const placeTop = wantsTop
       ? roomAbove >= measuredHeight || roomAbove > roomBelow
       : roomBelow < measuredHeight && roomAbove > roomBelow;
+    const availableHeight = placeTop ? roomAbove : roomBelow;
 
     let left = alignEnd ? rect.right - measuredWidth : rect.left;
-    left = Math.max(viewportPadding, Math.min(left, window.innerWidth - measuredWidth - viewportPadding));
+    left = Math.max(viewportPadding, Math.min(left, window.innerWidth - Math.min(measuredWidth, window.innerWidth - viewportPadding * 2) - viewportPadding));
 
     const next: CSSProperties = {
       position: 'fixed',
@@ -126,17 +133,20 @@ export function useFloatingPosition({
       pointerEvents: 'auto',
       left,
       maxWidth: `calc(100vw - ${viewportPadding * 2}px)`,
+      maxHeight: Math.max(0, availableHeight),
+      overflowY: 'auto',
+      overscrollBehavior: 'contain',
       ...(matchWidth ? { width: rect.width } : {}),
     };
 
+    // Keep the panel attached to one side of the reference. If the panel is
+    // taller than the available room, constrain its height instead of sliding
+    // it across/over the trigger.
     if (placeTop) {
-      next.bottom = Math.max(viewportPadding, window.innerHeight - rect.top + offset);
+      next.bottom = window.innerHeight - rect.top + offset;
       next.top = 'auto';
     } else {
-      next.top = Math.max(
-        viewportPadding,
-        Math.min(rect.bottom + offset, window.innerHeight - measuredHeight - viewportPadding),
-      );
+      next.top = rect.bottom + offset;
       next.bottom = 'auto';
     }
 
@@ -159,8 +169,6 @@ export function useFloatingPosition({
       return;
     }
 
-    // The panel is mounted hidden, measured in this layout effect, and only then
-    // made visible at its final coordinates. This prevents a first-open teleport.
     setPositioned(false);
     setStyle(HIDDEN_STYLE);
     updatePosition();
@@ -175,9 +183,8 @@ export function useFloatingPosition({
         return;
       }
 
-      // Persistent overlays keep following their anchor while it is still visible.
-      // updatePosition() closes them once the anchor leaves the viewport or a
-      // clipping scroll ancestor, preventing a detached panel from following the view.
+      // Persistent overlays follow the anchor only while at least half of the
+      // trigger remains visible inside the viewport and clipping ancestors.
       schedulePositionUpdate();
     };
 

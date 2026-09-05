@@ -138,6 +138,12 @@ export function DCombobox({
     [inputValue, isAsync, source],
   );
 
+  useEffect(() => {
+    if (!open || inputValue) return;
+    const selectedIndex = filtered.findIndex((option) => sameValue(option.value, value));
+    setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0);
+  }, [filtered, inputValue, open, value]);
+
   const choose = (option: SelectOption) => {
     if (option.disabled) return;
     setResolvedSelection(option);
@@ -210,7 +216,8 @@ export function DCombobox({
         open={open}
         onOpenChange={setOpen}
         contentRole="listbox"
-        contentClassName="max-h-60 overflow-y-auto p-1"
+        contentPadding={false}
+        contentClassName="max-h-60 overflow-y-auto p-1.5"
         scrollBehavior={scrollBehavior}
         onClose={() => { setOpen(false); setInputValue(''); }}
         trigger={() => (
@@ -231,7 +238,11 @@ export function DCombobox({
               value={open ? inputValue : String(selectedOption?.label ?? '')}
               placeholder={selectedOption ? String(selectedOption.label) : placeholder}
               onClick={(event) => event.stopPropagation()}
-              onFocus={() => { setOpen(true); setActiveIndex(0); }}
+              onFocus={() => {
+                setOpen(true);
+                const selectedIndex = filtered.findIndex((option) => sameValue(option.value, value));
+                setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0);
+              }}
               onChange={(event) => {
                 const next = event.target.value;
                 setInputValue(next);
@@ -251,14 +262,14 @@ export function DCombobox({
           </div>
         )}
       >
-        <div id={`${id}-listbox`}>
+        <div id={`${id}-listbox`} className="space-y-0.5">
           {loading || isFetching ? <div className="px-3 py-6 text-center text-sm text-[var(--color-text-muted)]">Mencari...</div> : fetchError ? <div className="px-3 py-6 text-center text-sm text-[var(--color-danger)]">{asyncErrorMessage}</div> : showIdle ? <div className="px-3 py-6 text-center text-sm text-[var(--color-text-muted)]">{idleMessage}</div> : filtered.length === 0 ? (
             renderEmpty ? renderEmpty(inputValue) : allowCreate && inputValue.trim() ? (
-              renderCreateOption ? renderCreateOption(inputValue, create) : <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.stopPropagation(); create(); }} className="w-full rounded-md px-3 py-2 text-left text-sm font-medium text-[var(--color-brand)] hover:bg-[var(--color-surface-muted)]">Gunakan “{inputValue.trim()}”</button>
+              renderCreateOption ? renderCreateOption(inputValue, create) : <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.stopPropagation(); create(); }} className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-[var(--color-brand)] hover:bg-[var(--color-surface-muted)]">Gunakan “{inputValue.trim()}”</button>
             ) : <div className="px-3 py-6 text-center text-sm text-[var(--color-text-muted)]">Tidak ditemukan</div>
           ) : filtered.map((option, index) => {
             const isSelected = sameValue(option.value, value);
-            return <button id={`${id}-option-${index}`} key={String(option.value)} type="button" role="option" aria-selected={isSelected} disabled={option.disabled} onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.stopPropagation(); choose(option); }} className={cn('w-full rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-[var(--color-surface-muted)] disabled:cursor-not-allowed disabled:opacity-50', isSelected && 'bg-[var(--color-brand)]/10 font-medium text-[var(--color-brand)]', index === activeIndex && !isSelected && 'bg-[var(--color-surface-muted)]')}>{renderOption ? renderOption(option, isSelected) : option.label}</button>;
+            return <button id={`${id}-option-${index}`} key={String(option.value)} type="button" role="option" aria-selected={isSelected} disabled={option.disabled} onMouseEnter={() => setActiveIndex(index)} onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.stopPropagation(); choose(option); }} className={cn('w-full rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-[var(--color-surface-muted)] disabled:cursor-not-allowed disabled:opacity-50', isSelected && 'bg-[var(--color-brand)]/10 font-medium text-[var(--color-brand)]', index === activeIndex && !isSelected && 'bg-[var(--color-surface-muted)]')}>{renderOption ? renderOption(option, isSelected) : option.label}</button>;
           })}
         </div>
       </DDropdown>
