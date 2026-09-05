@@ -37,10 +37,7 @@ export function DTabsList({ className, onKeyDown, ...props }: HTMLAttributes<HTM
   return (
     <div
       role="tablist"
-      className={cn(
-        'inline-flex items-center gap-1 rounded-[var(--radius-control)] bg-[var(--color-surface-muted)] p-1',
-        className,
-      )}
+      className={cn('inline-flex items-center rounded-xl bg-[var(--color-surface-muted)] p-1', className)}
       onKeyDown={(event) => {
         onKeyDown?.(event);
         if (event.defaultPrevented || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
@@ -81,10 +78,11 @@ export function DTabsTrigger({ value, disabled, className, children, ...props }:
       disabled={disabled}
       onClick={() => ctx.setValue(value)}
       className={cn(
-        'min-h-8 rounded-[max(6px,calc(var(--radius-control)-2px))] px-3 py-1.5 text-sm font-medium transition-[background-color,color,box-shadow] duration-150 outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25 disabled:cursor-not-allowed disabled:opacity-40',
+        'appearance-none rounded-lg border-0 bg-transparent px-3 py-1.5 text-sm font-medium outline-none transition-all duration-150 focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25',
         active
-          ? 'bg-[var(--color-surface)] text-[var(--color-text)] shadow-[var(--shadow-sm)]'
-          : 'text-[var(--color-text-muted)] hover:bg-[var(--color-surface)]/60 hover:text-[var(--color-text)]',
+          ? 'bg-[var(--color-surface)] text-[var(--color-text)] shadow-sm'
+          : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]',
+        disabled && 'cursor-not-allowed opacity-40',
         className,
       )}
       {...props}
