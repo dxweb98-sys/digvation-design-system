@@ -18,7 +18,13 @@ function useAccordion() {
   return context;
 }
 
-export type AccordionVariant = 'default' | 'card' | 'separated';
+/**
+ * default   = borderless disclosure list
+ * separator = borderless list with horizontal separators between items
+ * card      = one bordered surface with separators inside
+ * separated = each item is its own bordered surface
+ */
+export type AccordionVariant = 'default' | 'separator' | 'card' | 'separated';
 
 export interface AccordionProps extends HTMLAttributes<HTMLDivElement> {
   type?: 'single' | 'multiple';
@@ -55,6 +61,7 @@ export function DAccordion({
     <AccordionContext.Provider value={{ open: current, toggle, baseId, variant }}>
       <div
         data-ds-component="accordion"
+        data-accordion-variant={variant}
         className={cn(
           variant === 'card' && 'overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)]',
           variant === 'separated' && 'space-y-2',
@@ -82,9 +89,10 @@ export function DAccordionItem({ value, title, disabled, className, children, ..
   return (
     <div
       className={cn(
-        context.variant === 'card' && 'border-b border-[var(--color-border)] last:border-b-0 px-4',
+        context.variant === 'separator' && 'border-b border-[var(--color-border)] last:border-b-0',
+        context.variant === 'card' && 'border-b border-[var(--color-border)] px-4 last:border-b-0',
         context.variant === 'separated' && 'overflow-hidden rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4',
-        context.variant === 'default' && 'px-0',
+        (context.variant === 'default' || context.variant === 'separator') && 'px-0',
         className,
       )}
       {...props}
