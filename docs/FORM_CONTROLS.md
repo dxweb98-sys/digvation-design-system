@@ -4,7 +4,7 @@ This guide documents the intended responsibilities of Digvation form controls an
 
 ## DInput
 
-`DInput` is the general scalar text-like field. It supports both controlled and uncontrolled usage.
+`DInput` is the general scalar text-like field. It supports controlled, uncontrolled, and value-only preview/default usage.
 
 ### Password
 
@@ -20,6 +20,14 @@ const [password, setPassword] = useState('');
 ```
 
 The visibility button only changes the native `type` between `password` and `text`; it does not replace/remount the input or own the password value. Uncontrolled password input is also supported.
+
+A `value` without `onChange`/`onNativeChange` is intentionally treated as an editable initial/synchronized value instead of a permanently locked React controlled field. This keeps documentation previews and simple defaults editable:
+
+```tsx
+<DInput type="password" value="secret123" />
+```
+
+For a truly controlled field, provide `value` plus a change handler. For a display-only field, use `readOnly` explicitly.
 
 ### Legacy currency format
 
