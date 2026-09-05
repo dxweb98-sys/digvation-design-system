@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import { DAccordion, DAccordionItem } from './accordion';
 import { DDataTable } from './data-table';
+import { DDialog } from './dialog';
 import { DNotificationPanel } from './notification-panel';
 import { DPagination } from './pagination';
 import { DSearchInput } from './search-input';
@@ -139,6 +140,24 @@ describe('component normalization boundaries', () => {
     const panel = screen.getByRole('dialog', { name: 'Notifikasi' });
     expect(panel.getAttribute('data-ds-component')).toBe('notification-panel');
     expect(screen.getByRole('button', { name: 'Mark all read' }).className).toContain('border-0');
+    expect(screen.getByRole('button', { name: 'Mark all read' }).className).toContain('shadow-none');
     expect(screen.getByRole('button', { name: 'Dismiss Build complete' }).className).toContain('border-0');
+    expect(screen.getByRole('button', { name: 'Dismiss Build complete' }).className).toContain('shadow-none');
+  });
+
+  it('scopes dialog portal controls and keeps its close action visually neutral', () => {
+    render(
+      <DDialog open onClose={() => undefined} title="Project settings">
+        Dialog body
+      </DDialog>,
+    );
+
+    const dialog = screen.getByRole('dialog', { name: 'Project settings' });
+    const closeButton = screen.getByRole('button', { name: 'Close dialog' });
+    expect(dialog.getAttribute('data-ds-component')).toBe('dialog');
+    expect(closeButton.className).toContain('appearance-none');
+    expect(closeButton.className).toContain('border-0');
+    expect(closeButton.className).toContain('bg-transparent');
+    expect(closeButton.className).toContain('shadow-none');
   });
 });
