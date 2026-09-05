@@ -40,6 +40,8 @@ const dotClass: Record<NotificationItem['type'], string> = {
   error: 'bg-[var(--color-danger)]',
 };
 
+const iconButtonClass = 'grid size-8 appearance-none place-items-center rounded-lg border-0 bg-transparent p-0 text-[var(--color-text-muted)] outline-none transition-colors hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25';
+
 export function DNotificationPanel({
   notifications,
   open,
@@ -100,6 +102,8 @@ export function DNotificationPanel({
       ref={floatingRef}
       role="dialog"
       aria-label={title}
+      data-ds-component="notification-panel"
+      data-ds-surface="floating"
       data-positioned={hasAnchor ? (positioned ? 'true' : 'false') : 'fallback'}
       data-scroll-behavior={scrollBehavior}
       style={hasAnchor ? style : fallbackStyle}
@@ -109,50 +113,55 @@ export function DNotificationPanel({
         className,
       )}
     >
-      <div className="flex items-center justify-between border-b border-[var(--color-border)] px-4 py-3">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-[var(--color-text)]">{title}</span>
-          {unread > 0 ? <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-brand)] px-1.5 text-[10px] font-bold text-white">{unread}</span> : null}
-        </div>
-        <div className="flex items-center gap-1">
+      <div className="flex min-h-12 items-center justify-between border-b border-[var(--color-border)] px-4 py-2.5">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="truncate text-sm font-semibold text-[var(--color-text)]">{title}</span>
           {unread > 0 ? (
-            <button type="button" aria-label="Mark all read" onClick={onMarkAllRead} className="rounded-lg p-1.5 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]">
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-brand)] px-1.5 text-[10px] font-bold text-[var(--color-brand-foreground)]">
+              {unread}
+            </span>
+          ) : null}
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          {unread > 0 ? (
+            <button type="button" aria-label="Mark all read" onClick={onMarkAllRead} className={iconButtonClass}>
               <CheckIcon size={15} />
             </button>
           ) : null}
-          <button type="button" aria-label="Close notifications" onClick={onClose} className="rounded-lg p-1.5 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]">
+          <button type="button" aria-label="Close notifications" onClick={onClose} className={iconButtonClass}>
             <XIcon size={15} />
           </button>
         </div>
       </div>
-      <div className="max-h-[min(24rem,60vh)] overflow-y-auto">
+
+      <div className="max-h-[min(24rem,60vh)] overflow-y-auto p-1.5">
         {notifications.length === 0 ? (
           <div className="px-4 py-10 text-center text-sm text-[var(--color-text-muted)]">{emptyMessage}</div>
         ) : notifications.map((item) => (
           <div
             key={item.id}
             className={cn(
-              'flex items-start gap-1 border-b border-[var(--color-border)]/50 px-3 py-2 transition-colors last:border-b-0 hover:bg-[var(--color-surface-muted)]/50',
+              'group flex items-start gap-1 rounded-[var(--radius-menu-item)] px-1.5 py-1 transition-colors hover:bg-[var(--color-surface-muted)]/65',
               !item.read && 'bg-[var(--color-brand)]/5',
             )}
           >
             <button
               type="button"
               onClick={() => onMarkRead(item.id)}
-              className="flex min-w-0 flex-1 items-start gap-3 rounded-lg px-1 py-1 text-left outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/30"
+              className="flex min-w-0 flex-1 appearance-none items-start gap-3 rounded-[var(--radius-menu-item)] border-0 bg-transparent px-2 py-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25"
             >
               <span className={cn('mt-1.5 size-2 shrink-0 rounded-full', !item.read ? dotClass[item.type] : 'bg-transparent')} />
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-medium text-[var(--color-text)]">{item.title}</span>
-                <span className="mt-0.5 line-clamp-2 block text-xs text-[var(--color-text-muted)]">{item.message}</span>
+                <span className="block truncate text-sm font-medium text-[var(--color-text)]">{item.title}</span>
+                <span className="mt-0.5 line-clamp-2 block text-xs leading-5 text-[var(--color-text-muted)]">{item.message}</span>
                 <span className="mt-1 block text-[10px] text-[var(--color-text-muted)]/70">{item.createdAt}</span>
               </span>
             </button>
             <button
               type="button"
-              aria-label="Dismiss notification"
+              aria-label={`Dismiss ${item.title}`}
               onClick={() => onDismiss(item.id)}
-              className="mt-0.5 rounded-md p-1 text-[var(--color-text-muted)]/50 hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/30"
+              className="mt-1 grid size-7 shrink-0 appearance-none place-items-center rounded-md border-0 bg-transparent p-0 text-[var(--color-text-muted)]/55 opacity-70 outline-none transition-colors hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25 group-hover:opacity-100"
             >
               <XIcon size={13} />
             </button>
