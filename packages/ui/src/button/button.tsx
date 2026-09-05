@@ -40,6 +40,7 @@ export const DButton = forwardRef<HTMLButtonElement, ButtonProps>(function DButt
   return (
     <button
       ref={ref}
+      data-ds-component="button"
       type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
