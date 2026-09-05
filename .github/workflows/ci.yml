@@ -23,5 +23,14 @@ jobs:
       - name: Install
         run: npm ci
 
+      # npm can omit Rollup's platform package from a lockfile generated on a
+      # different OS (npm/cli#4828). Install the exact native package required by
+      # the already-locked Rollup version without changing package.json/lockfile.
+      - name: Restore Rollup native optional dependency
+        shell: bash
+        run: |
+          ROLLUP_VERSION=$(node -p "require('./node_modules/rollup/package.json').version")
+          npm install --no-save --package-lock=false "@rollup/rollup-linux-x64-gnu@$ROLLUP_VERSION"
+
       - name: Validate
         run: npm run validate
