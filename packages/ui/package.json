@@ -28,6 +28,7 @@
     "directory": "packages/ui"
   },
   "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
     "access": "restricted"
   },
   "engines": {

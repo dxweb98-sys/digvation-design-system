@@ -1,0 +1,69 @@
+name: Publish @digvation/ui to npm
+
+on:
+  workflow_dispatch:
+    inputs:
+      access:
+        description: npm package visibility for this publish
+        required: true
+        default: restricted
+        type: choice
+        options:
+          - restricted
+          - public
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Restore Rollup native optional dependency
+        shell: bash
+        run: |
+          ROLLUP_VERSION=$(node -p "require('./node_modules/rollup/package.json').version")
+          npm install --no-save --package-lock=false "@rollup/rollup-linux-x64-gnu@$ROLLUP_VERSION"
+
+      - name: Validate
+        run: npm run validate
+
+      - name: Verify package metadata
+        shell: bash
+        run: |
+          PACKAGE_NAME=$(node -p "require('./packages/ui/package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./packages/ui/package.json').version")
+          echo "Publishing ${PACKAGE_NAME}@${PACKAGE_VERSION}"
+          test "$PACKAGE_NAME" = "@digvation/ui"
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            test "${GITHUB_REF_NAME}" = "v${PACKAGE_VERSION}"
+          fi
+
+      - name: Publish package
+        shell: bash
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          MANUAL_ACCESS: ${{ inputs.access }}
+        run: |
+          ACCESS="restricted"
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" && -n "${MANUAL_ACCESS}" ]]; then
+            ACCESS="${MANUAL_ACCESS}"
+          fi
+          npm publish --workspace=@digvation/ui --access "${ACCESS}"
