@@ -1,6 +1,15 @@
-@import 'tailwindcss';
+@layer theme, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
 @source './**/*.{ts,tsx}';
 
+/*
+ * Component-library defaults only.
+ * Tailwind Preflight is intentionally NOT imported, so @digvation/ui never resets
+ * html/body/buttons/inputs or changes the consumer application's layout.
+ * Consumer projects can override these semantic variables after importing this file,
+ * or map their own variables with createCssVariableTheme().
+ */
 :root,
 :root[data-ds-mode='light'] {
   --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -13,6 +22,11 @@
   --color-brand: hsl(217 91% 53%);
   --color-brand-hover: hsl(217 91% 47%);
   --color-brand-active: hsl(217 91% 41%);
+  --color-brand-foreground: #ffffff;
+  --color-secondary: hsl(220 15% 95%);
+  --color-secondary-hover: hsl(220 15% 92%);
+  --color-secondary-active: hsl(220 15% 88%);
+  --color-secondary-foreground: hsl(220 20% 12%);
   --color-focus: hsl(217 91% 53%);
   --color-info: hsl(200 90% 45%);
   --color-success: hsl(145 65% 38%);
@@ -43,6 +57,11 @@
   --color-brand: hsl(217 91% 62%);
   --color-brand-hover: hsl(217 91% 68%);
   --color-brand-active: hsl(217 91% 72%);
+  --color-brand-foreground: hsl(222 28% 8%);
+  --color-secondary: hsl(221 20% 17%);
+  --color-secondary-hover: hsl(221 20% 21%);
+  --color-secondary-active: hsl(221 20% 25%);
+  --color-secondary-foreground: hsl(216 25% 94%);
   --color-focus: hsl(217 91% 62%);
   --color-info: hsl(200 90% 58%);
   --color-success: hsl(145 58% 48%);
@@ -65,24 +84,6 @@
   --radius-control: 12px;
   --radius-card: 20px;
   --radius-panel: 24px;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
-
-::selection {
-  background: var(--color-accent-sky);
-  color: var(--color-text);
 }
 
 @keyframes boot-progress {
