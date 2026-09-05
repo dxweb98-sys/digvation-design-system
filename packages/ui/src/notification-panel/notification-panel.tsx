@@ -40,7 +40,7 @@ const dotClass: Record<NotificationItem['type'], string> = {
   error: 'bg-[var(--color-danger)]',
 };
 
-const iconButtonClass = 'grid size-8 appearance-none place-items-center rounded-lg border-0 bg-transparent p-0 text-[var(--color-text-muted)] outline-none transition-colors hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25';
+const iconButtonClass = 'grid size-8 appearance-none place-items-center rounded-lg border-0 bg-transparent p-0 text-[var(--color-text-muted)] shadow-none outline-none transition-colors hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25';
 
 export function DNotificationPanel({
   notifications,
@@ -148,7 +148,7 @@ export function DNotificationPanel({
             <button
               type="button"
               onClick={() => onMarkRead(item.id)}
-              className="flex min-w-0 flex-1 appearance-none items-start gap-3 rounded-[var(--radius-menu-item)] border-0 bg-transparent px-2 py-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25"
+              className="flex min-w-0 flex-1 appearance-none items-start gap-3 rounded-[var(--radius-menu-item)] border-0 bg-transparent px-2 py-2 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25"
             >
               <span className={cn('mt-1.5 size-2 shrink-0 rounded-full', !item.read ? dotClass[item.type] : 'bg-transparent')} />
               <span className="min-w-0 flex-1">
@@ -161,7 +161,7 @@ export function DNotificationPanel({
               type="button"
               aria-label={`Dismiss ${item.title}`}
               onClick={() => onDismiss(item.id)}
-              className="mt-1 grid size-7 shrink-0 appearance-none place-items-center rounded-md border-0 bg-transparent p-0 text-[var(--color-text-muted)]/55 opacity-70 outline-none transition-colors hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25 group-hover:opacity-100"
+              className="mt-1 grid size-7 shrink-0 appearance-none place-items-center rounded-md border-0 bg-transparent p-0 text-[var(--color-text-muted)]/55 opacity-70 shadow-none outline-none transition-colors hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25 group-hover:opacity-100"
             >
               <XIcon size={13} />
             </button>
