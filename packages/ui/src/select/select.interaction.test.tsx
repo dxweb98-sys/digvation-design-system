@@ -2,17 +2,17 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
 import { describe, expect, it } from 'vitest';
 
-import { Select } from './select';
+import { DSelect } from './select';
 
 describe('canonical select interactions', () => {
   it('opens the reference-style custom panel and updates a controlled value', () => {
     function ControlledSelect() {
       const [value, setValue] = useState('CASH');
       return (
-        <Select aria-label="Payment method" value={value} onValueChange={(next) => setValue(String(next ?? ''))}>
+        <DSelect aria-label="Payment method" value={value} onValueChange={(next) => setValue(String(next ?? ''))}>
           <option value="CASH">Cash</option>
           <option value="QRIS">QRIS</option>
-        </Select>
+        </DSelect>
       );
     }
 
@@ -30,10 +30,10 @@ describe('canonical select interactions', () => {
     function ControlledSelect() {
       const [value, setValue] = useState('CASH');
       return (
-        <Select aria-label="Discount type" value={value} onValueChange={(next) => setValue(String(next ?? ''))}>
+        <DSelect aria-label="Discount type" value={value} onValueChange={(next) => setValue(String(next ?? ''))}>
           <option value="CASH">Cash</option>
           <option value="QRIS">QRIS</option>
-        </Select>
+        </DSelect>
       );
     }
 

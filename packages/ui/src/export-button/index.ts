@@ -1,1 +1,1 @@
-export { ExportButton, type ExportFormat, type ExportButtonProps } from './export-button';
+export { DExportButton, type ExportFormat, type ExportButtonProps } from './export-button';

@@ -11,7 +11,7 @@ function clampProgress(value: number): number {
   return Math.min(100, Math.max(0, value));
 }
 
-export function Progress({ value, label, className, ...props }: ProgressProps) {
+export function DProgress({ value, label, className, ...props }: ProgressProps) {
   const isIndeterminate = value === undefined;
   const percentage = isIndeterminate ? undefined : clampProgress(value);
   return (

@@ -1,6 +1,6 @@
 # Digvation Design System
 
-A reusable React design system extracted from the Digvation UI foundation. The project keeps the relevant oldUi behavior and visual language, removes duplicate component implementations, and adds a local documentation playground for future projects.
+Reusable React + TypeScript design system for Digvation projects. The package keeps the reusable behavior from the previous Digvation UI, removes duplicate implementations, exposes a `D*` component API, and ships with a local documentation/preview application plus semantic design tokens.
 
 ## Repository layout
 
@@ -21,100 +21,121 @@ digvation-design-system/
 - npm 10+
 - React 18.2+ in consuming applications
 
-## Run the documentation locally
+## Install and run locally
 
 ```bash
 npm install
-npm run dev
-```
-
-The command first builds `@digvation/ui`, then starts the docs app. Vite uses port `4173` by default and will print the local URL in the terminal.
-
-## Build everything
-
-```bash
-npm run build
-```
-
-Outputs:
-
-- `packages/ui/dist/` — reusable JavaScript, TypeScript declarations, and compiled component CSS
-- `apps/docs/dist/` — static documentation site
-
-## Verify before publishing
-
-```bash
 npm run typecheck
 npm test
 npm run build
+npm run dev
 ```
 
-The package includes regression tests for the canonical input, select, combobox, dialog, toast, DataTable behavior and the added pagination helper.
+The docs app runs on `http://localhost:4173` unless that port is already used.
 
-## Use the UI package in another project
+## Public component naming
 
-### Recommended local workflow
+All public React components use the Digvation prefix:
 
-From this repository:
+```tsx
+import {
+  DButton,
+  DInput,
+  DSelect,
+  DCombobox,
+  DDialog,
+  DDataTable,
+} from '@digvation/ui';
+```
+
+There is only one canonical implementation per component. The package does not export a second unprefixed `Button`, `Input`, `Select`, etc.
+
+Types and helpers keep normal names:
+
+```tsx
+import { DButton, type ButtonProps, type ButtonVariant } from '@digvation/ui';
+```
+
+## Build the UI package
+
+```bash
+npm run build:ui
+```
+
+Output:
+
+```text
+packages/ui/dist/
+├─ index.js
+├─ index.cjs
+├─ index.d.ts
+└─ styles.css
+```
+
+## Use the local package in another project
+
+The recommended production-like local workflow is `npm pack`.
+
+From the design-system repository:
 
 ```bash
 npm run pack:ui
 ```
 
-That creates a tarball inside `release/`, for example:
+This produces:
 
 ```text
-release/digvation-ui-0.1.1.tgz
+release/digvation-ui-0.2.0.tgz
 ```
 
-Then in another React project:
+Then from your active project:
 
 ```bash
-npm install ../digvation-design-system/release/digvation-ui-0.1.1.tgz
+npm install ../Digvation-Design-System/release/digvation-ui-0.2.0.tgz
 ```
 
-Import the styles once in your application entry file:
+Import the stylesheet once, before your project overrides:
 
 ```tsx
 import '@digvation/ui/styles.css';
+import './index.css';
 ```
 
-Then use any component:
+Use components normally:
 
 ```tsx
-import { Button, Input, Select } from '@digvation/ui';
+import { DButton, DInput, DSelect } from '@digvation/ui';
 
 export function ProjectForm() {
   return (
     <div>
-      <Input label="Project name" value="Digvation" onChange={() => {}} />
-      <Button>Save</Button>
+      <DInput label="Project name" clearable />
+      <DSelect
+        label="Status"
+        options={[
+          { label: 'Active', value: 'active' },
+          { label: 'Draft', value: 'draft' },
+        ]}
+      />
+      <DButton>Save</DButton>
     </div>
   );
 }
 ```
 
-### Publish later
+## Theme a consuming project
 
-The package is currently named `@digvation/ui`. Change that name if you want a different npm scope, then publish from `packages/ui` or with npm workspaces.
-
-```bash
-npm run build:ui
-npm publish -w @digvation/ui --access public
-```
-
-For private company use, publish to your private npm registry instead.
-
-## Customize a project theme
-
-All components use semantic CSS variables. The easiest option is to override the variables after importing the package stylesheet:
+Components use semantic CSS variables. Override them after importing the package stylesheet:
 
 ```css
 @import '@digvation/ui/styles.css';
 
 :root {
   --color-brand: #7c3aed;
+  --color-brand-hover: #6d28d9;
+  --color-brand-active: #5b21b6;
   --color-focus: #7c3aed;
+
   --color-background: #faf8ff;
   --color-surface: #ffffff;
   --color-surface-muted: #f4f0ff;
@@ -122,6 +143,7 @@ All components use semantic CSS variables. The easiest option is to override the
   --color-text-muted: #746d7e;
   --color-border: #e7dff0;
 
+  --color-info: #0284c7;
   --color-success: #16803c;
   --color-warning: #d97706;
   --color-danger: #dc2626;
@@ -129,75 +151,85 @@ All components use semantic CSS variables. The easiest option is to override the
   --radius-control: 10px;
   --radius-card: 18px;
   --radius-panel: 18px;
+
+  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
+  --shadow-md: 0 8px 24px rgb(15 23 42 / 0.10);
+  --shadow-lg: 0 18px 50px rgb(15 23 42 / 0.16);
 }
 ```
 
-Or use `ThemeProvider`:
+Or use `DThemeProvider`:
 
 ```tsx
-import { ThemeProvider } from '@digvation/ui';
+import { DThemeProvider } from '@digvation/ui';
 
-<ThemeProvider
+<DThemeProvider
   mode="light"
   radius="rounded"
   tokens={{
     brand: '#7c3aed',
+    brandHover: '#6d28d9',
+    brandActive: '#5b21b6',
     focus: '#7c3aed',
     background: '#faf8ff',
     surface: '#ffffff',
   }}
 >
   <App />
-</ThemeProvider>
+</DThemeProvider>
 ```
 
-`ThemeProvider` applies the variables at the document root so portal components such as `Dialog` and `Dropdown` receive the same theme.
+Portal components such as `DDropdown`, `DNotificationPanel`, and `DDialog` inherit the same document-root theme.
 
-## Semantic token list
+## Important v0.2.0 fixes
 
-Core tokens include:
+- `DDropdown` now uses one shared floating-position engine and is hidden until its first position is measured, preventing first-open teleport/jump.
+- `DNotificationPanel` renders through a portal and can anchor to `anchorRef`, preventing clipping inside documentation cards or application containers.
+- `DAccordion` uses an SVG chevron and smooth disclosure animation while keeping content mounted for the transition.
+- `DDialog` compensates for the removed browser scrollbar and keeps scroll lock active through the exit animation, preventing horizontal layout shift.
+- Text-symbol arrows/chevrons in the core table/pagination surfaces were replaced with consistent SVG icons.
+- Semantic variants were expanded for buttons, badges, alerts, notes, and cards.
+- All canonical public React components now use the `D` prefix.
 
-- `--color-background`
-- `--color-surface`
-- `--color-surface-muted`
-- `--color-text`
-- `--color-text-muted`
-- `--color-border`
-- `--color-brand`
-- `--color-focus`
-- `--color-success`
-- `--color-warning`
-- `--color-danger`
-- `--color-tooltip`
-- `--radius-control`
-- `--radius-card`
-- `--radius-panel`
-- `--shadow-panel`
-- `--font-sans`
+## Main semantic variants
+
+`DButton`:
+
+```text
+primary · secondary · outline · ghost · soft · info · success · warning · danger · link
+```
+
+`DBadge`:
+
+```text
+default · primary · secondary · info · success · warning · danger · outline
+```
+
+`DAlert`:
+
+```text
+neutral · info · success · warning · danger
+```
+
+`DInfoNote`:
+
+```text
+neutral · info · success · warning · danger · tip
+```
+
+`DCard`:
+
+```text
+default · outlined · elevated · interactive
+```
 
 ## Design-system rules
 
-1. One canonical implementation per component.
-2. No `BaseX` + `X` duplicate implementations.
-3. Shared behavior is composed through actual primitives such as `Dropdown` and shared field sizing.
-4. Reusable UI must not import application hooks, router state, API modules, or business models.
-5. Project identity is changed through semantic tokens, not component-by-component class edits.
-6. Keep oldUi behavior when it is reusable UI behavior; keep domain-specific logic outside this package.
+1. One canonical implementation per public component.
+2. No `BaseX + X + DX` duplicate component layers.
+3. Shared behavior belongs in internal primitives only when multiple components genuinely use it.
+4. Reusable UI does not import business hooks, application stores, routers, API modules, or project models.
+5. Project identity changes through semantic tokens rather than component-by-component edits.
+6. Reusable oldUi behavior remains the compatibility baseline unless it contained a real bug.
 
-## Added general-purpose components
-
-In addition to the canonicalized Digvation components, the system adds common primitives that were missing for a reusable project foundation:
-
-- `Avatar`
-- `Tooltip`
-- `Tabs`
-- `Accordion`
-- `Breadcrumb`
-- `Pagination`
-- `Separator`
-- `Spinner`
-- `ThemeProvider`
-
-They use the same tokens and styling conventions as the rest of the library.
-
-See the local documentation site for live examples and copyable usage snippets.
+See `apps/docs` for live previews and the files under `docs/` for migration/customization guidance.

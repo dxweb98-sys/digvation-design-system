@@ -1,1 +1,1 @@
-export { ConnectionError, type ConnectionErrorProps } from './connection-error';
+export { DConnectionError, type ConnectionErrorProps } from './connection-error';

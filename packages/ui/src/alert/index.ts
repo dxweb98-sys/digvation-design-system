@@ -1,1 +1,1 @@
-export { Alert, type AlertProps, type AlertVariant } from './alert';
+export { DAlert, type AlertProps, type AlertVariant } from './alert';

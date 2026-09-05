@@ -1,6 +1,6 @@
 {
   "name": "@digvation/ui",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Reusable Digvation React design system",
   "license": "MIT",
   "type": "module",

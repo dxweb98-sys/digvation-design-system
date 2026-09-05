@@ -27,7 +27,7 @@ export interface TextareaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaE
   containerClassName?: string;
 }
 
-export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
+export const DTextarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function DTextarea(
   {
     label,
     error,

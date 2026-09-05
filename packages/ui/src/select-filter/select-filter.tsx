@@ -1,7 +1,7 @@
 import { useId, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { cn } from '../cn';
-import { Dropdown } from '../dropdown';
+import { DDropdown } from '../dropdown';
 import type { SelectOption } from '../select';
 
 function ClearIcon() {
@@ -25,8 +25,8 @@ export interface SelectFilterProps {
   containerClassName?: string;
 }
 
-/** Filter-specific Select from oldUi: label lives inside the trigger, not above it. */
-export function SelectFilter({
+/** Filter-specific DSelect from oldUi: label lives inside the trigger, not above it. */
+export function DSelectFilter({
   label,
   placeholder = 'Pilih...',
   options,
@@ -51,7 +51,7 @@ export function SelectFilter({
 
   return (
     <div className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
-      <Dropdown
+      <DDropdown
         matchWidth
         onOpenChange={(open) => {
           if (open && searchable) requestAnimationFrame(() => searchRef.current?.focus());
@@ -135,7 +135,7 @@ export function SelectFilter({
             ))}
           </div>
         </div>
-      </Dropdown>
+      </DDropdown>
       {error ? <p className="text-xs text-[var(--color-danger)]">{error}</p> : null}
       {!error && hint ? <p className="text-xs text-[var(--color-text-muted)]">{hint}</p> : null}
     </div>

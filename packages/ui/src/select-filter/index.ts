@@ -1,1 +1,1 @@
-export { SelectFilter, type SelectFilterProps } from './select-filter';
+export { DSelectFilter, type SelectFilterProps } from './select-filter';

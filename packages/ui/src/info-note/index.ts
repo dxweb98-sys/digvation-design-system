@@ -1,1 +1,1 @@
-export { InfoNote, type InfoNoteVariant, type InfoNoteProps } from './info-note';
+export { DInfoNote, type InfoNoteVariant, type InfoNoteProps } from './info-note';

@@ -1,1 +1,1 @@
-export { EmptyState } from './empty-state';
+export { DEmptyState } from './empty-state';

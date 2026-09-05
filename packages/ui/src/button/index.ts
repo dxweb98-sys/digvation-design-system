@@ -1,1 +1,1 @@
-export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from './button';
+export { DButton, type ButtonProps, type ButtonVariant, type ButtonSize } from './button';

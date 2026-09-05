@@ -4,18 +4,18 @@ import {
   useMemo,
   useRef,
   useState,
-  type CSSProperties,
   type ReactNode,
 } from 'react';
 import { createPortal } from 'react-dom';
 
 import { cn } from '../cn';
+import { useFloatingPosition, type FloatingPlacement } from '../internal/floating/use-floating-position';
 import { DropdownContext } from './dropdown-context';
 
 export interface DropdownProps {
   trigger: (context: { open: boolean }) => ReactNode;
   children: ReactNode;
-  placement?: 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
+  placement?: FloatingPlacement;
   matchWidth?: boolean;
   onClose?: () => void;
   closeOnItemClick?: boolean;
@@ -29,7 +29,7 @@ export interface DropdownProps {
   minWidth?: number;
 }
 
-export function Dropdown({
+export function DDropdown({
   trigger,
   children,
   placement = 'bottom-start',
@@ -49,7 +49,6 @@ export function Dropdown({
   const floatingRef = useRef<HTMLDivElement>(null);
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const open = controlledOpen ?? uncontrolledOpen;
-  const [style, setStyle] = useState<CSSProperties>({});
 
   const setOpen = useCallback(
     (next: boolean | ((current: boolean) => boolean)) => {
@@ -66,39 +65,18 @@ export function Dropdown({
     onClose?.();
   }, [onClose, open, setOpen]);
 
-  const updatePosition = useCallback(() => {
-    const reference = referenceRef.current;
-    const floating = floatingRef.current;
-    if (!reference) return;
-
-    const rect = reference.getBoundingClientRect();
-    const floatingHeight = floating?.offsetHeight ?? 0;
-    const floatingWidth = floating?.offsetWidth ?? (matchWidth ? rect.width : minWidth);
-    const viewportPadding = 8;
-    const preferredTop = placement.startsWith('top');
-    const preferredEnd = placement.endsWith('end');
-    const roomBelow = window.innerHeight - rect.bottom - viewportPadding;
-    const roomAbove = rect.top - viewportPadding;
-    const placeTop = preferredTop ? roomAbove >= floatingHeight || roomAbove > roomBelow : roomBelow < floatingHeight && roomAbove > roomBelow;
-
-    let left = preferredEnd ? rect.right - floatingWidth : rect.left;
-    left = Math.max(viewportPadding, Math.min(left, window.innerWidth - floatingWidth - viewportPadding));
-
-    setStyle({
-      position: 'fixed',
-      zIndex: 9999,
-      minWidth,
-      ...(matchWidth ? { width: rect.width } : {}),
-      left,
-      ...(placeTop
-        ? { bottom: Math.max(viewportPadding, window.innerHeight - rect.top + offset) }
-        : { top: Math.min(window.innerHeight - viewportPadding, rect.bottom + offset) }),
-    });
-  }, [matchWidth, minWidth, offset, placement]);
+  const { style, positioned } = useFloatingPosition({
+    open,
+    referenceRef,
+    floatingRef,
+    placement,
+    matchWidth,
+    offset,
+    minWidth,
+  });
 
   useEffect(() => {
     if (!open) return;
-    const frame = requestAnimationFrame(updatePosition);
     const outside = (event: MouseEvent) => {
       const target = event.target as Node;
       if (!referenceRef.current?.contains(target) && !floatingRef.current?.contains(target)) close();
@@ -108,16 +86,11 @@ export function Dropdown({
     };
     document.addEventListener('mousedown', outside);
     document.addEventListener('keydown', escape);
-    window.addEventListener('resize', updatePosition);
-    window.addEventListener('scroll', updatePosition, true);
     return () => {
-      cancelAnimationFrame(frame);
       document.removeEventListener('mousedown', outside);
       document.removeEventListener('keydown', escape);
-      window.removeEventListener('resize', updatePosition);
-      window.removeEventListener('scroll', updatePosition, true);
     };
-  }, [close, closeOnEsc, open, updatePosition]);
+  }, [close, closeOnEsc, open]);
 
   const context = useMemo(() => ({ close, open }), [close, open]);
 
@@ -130,7 +103,6 @@ export function Dropdown({
           if (event.defaultPrevented) return;
           event.stopPropagation();
           setOpen((value) => !value);
-          requestAnimationFrame(updatePosition);
         }}
         onKeyDown={(event) => {
           if (event.defaultPrevented) return;
@@ -140,26 +112,27 @@ export function Dropdown({
             event.preventDefault();
             event.stopPropagation();
             setOpen((value) => !value);
-            requestAnimationFrame(updatePosition);
           }
         }}
       >
         {trigger({ open })}
       </div>
-      {open
+      {open && typeof document !== 'undefined'
         ? createPortal(
             <div
               ref={floatingRef}
               role={contentRole}
               tabIndex={-1}
               style={style}
+              data-positioned={positioned ? 'true' : 'false'}
               onClick={(event) => {
                 if (!closeOnItemClick) return;
                 const target = event.target as HTMLElement;
                 if (target.closest("button, [role='option'], [role='menuitem'], a")) close();
               }}
               className={cn(
-                'z-[9999] min-w-[140px] animate-[dropdown-in_150ms_ease-out] rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] py-1 shadow-xl',
+                'z-[9999] min-w-[140px] rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface)] py-1 shadow-[var(--shadow-lg)]',
+                positioned && 'animate-[dropdown-in_150ms_ease-out]',
                 contentClassName,
               )}
             >
@@ -171,4 +144,3 @@ export function Dropdown({
     </DropdownContext.Provider>
   );
 }
-

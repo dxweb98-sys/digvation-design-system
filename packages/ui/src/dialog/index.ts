@@ -1,1 +1,1 @@
-export { Dialog, type DialogProps, type DialogSize } from './dialog';
+export { DDialog, type DialogProps, type DialogSize } from './dialog';

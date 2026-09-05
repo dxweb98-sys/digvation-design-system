@@ -1,1 +1,1 @@
-export { SplashScreen, type SplashScreenProps } from './splash-screen';
+export { DSplashScreen, type SplashScreenProps } from './splash-screen';

@@ -8,7 +8,7 @@ export interface SplashScreenProps {
   subtitle?: ReactNode;
   mark?: ReactNode;
 }
-export function SplashScreen({ onFinish, minDuration = 1800, title = 'DIGVENT.', subtitle = 'Inventory Management System', mark = 'D.' }: SplashScreenProps) {
+export function DSplashScreen({ onFinish, minDuration = 1800, title = 'DIGVENT.', subtitle = 'Inventory Management System', mark = 'D.' }: SplashScreenProps) {
   const [leaving, setLeaving] = useState(false);
   useEffect(() => {
     if (!onFinish) return;

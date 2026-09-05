@@ -1,7 +1,7 @@
 import { useEffect, useId, useState, type ReactNode } from 'react';
 
 import { cn } from '../cn';
-import { Dropdown, useDropdownClose } from '../dropdown';
+import { DDropdown, useDropdownClose } from '../dropdown';
 import { INPUT_SIZE_STYLES, type InputSize } from '../shared';
 
 const DAYS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -92,7 +92,7 @@ function DatePickerContent({ value, onChange, minDate, maxDate }: Pick<DatePicke
   );
 }
 
-export function DatePicker({
+export function DDatePicker({
   label,
   value,
   onChange,
@@ -118,7 +118,7 @@ export function DatePicker({
   return (
     <div className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
       {label ? <label htmlFor={id} className={cn(s.label, 'w-fit font-medium text-[var(--color-text)]')}>{label}</label> : null}
-      <Dropdown contentRole="dialog" trigger={() => (
+      <DDropdown contentRole="dialog" trigger={() => (
         <div className="relative">
           <button id={id} type="button" disabled={disabled} className={cn('flex w-full items-center gap-2 rounded-lg border bg-[var(--color-surface)] text-left text-[var(--color-text)] transition-colors focus:border-[var(--color-brand)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:opacity-50', s.input, error ? 'border-[var(--color-danger)]' : 'border-[var(--color-border)]', !value && 'text-[var(--color-text-muted)]/60', clearable && value && 'pr-10')}>
             <span className="text-[var(--color-text-muted)]"><CalendarIcon /></span><span className="min-w-0 flex-1 truncate">{display || placeholder}</span>
@@ -127,7 +127,7 @@ export function DatePicker({
         </div>
       )}>
         <DatePickerContent value={value} onChange={onChange} minDate={minDate} maxDate={maxDate} />
-      </Dropdown>
+      </DDropdown>
       {error ? <p className="text-xs text-[var(--color-danger)]">{error}</p> : null}
       {!error && hint ? <p className="text-xs text-[var(--color-text-muted)]">{hint}</p> : null}
     </div>

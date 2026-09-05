@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useEffect, useState } from 'react';
 import { describe, expect, it } from 'vitest';
 
-import { CurrencyInput, DecimalInput, Input } from './input';
+import { DCurrencyInput, DDecimalInput, DInput } from './input';
 
 function assertContinuousTyping(
   input: HTMLInputElement,
@@ -36,7 +36,7 @@ describe('canonical input interactions', () => {
         };
       }, []);
       return (
-        <Input
+        <DInput
           aria-label="Customer name"
           clearable
           value={value}
@@ -66,7 +66,7 @@ describe('canonical input interactions', () => {
           unmountCount += 1;
         };
       }, []);
-      return <DecimalInput aria-label="Quantity" integer value={value} onValueChange={setValue} />;
+      return <DDecimalInput aria-label="Quantity" integer value={value} onValueChange={setValue} />;
     }
 
     render(<ControlledNumericInput />);
@@ -90,7 +90,7 @@ describe('canonical input interactions', () => {
           unmountCount += 1;
         };
       }, []);
-      return <CurrencyInput aria-label="Cash tendered" value={value} onValueChange={setValue} />;
+      return <DCurrencyInput aria-label="Cash tendered" value={value} onValueChange={setValue} />;
     }
 
     render(<ControlledCurrencyInput />);

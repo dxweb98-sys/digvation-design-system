@@ -2,10 +2,10 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { useState } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { Combobox } from './combobox';
-import { Input } from './input';
-import { Select } from './select';
-import { DataTable, getPaginationPages } from './data-table';
+import { DCombobox } from './combobox';
+import { DInput } from './input';
+import { DSelect } from './select';
+import { DDataTable, getPaginationPages } from './data-table';
 
 afterEach(cleanup);
 
@@ -14,7 +14,7 @@ describe('shared field controls', () => {
     function ControlledInput() {
       const [value, setValue] = useState('');
       return (
-        <Input
+        <DInput
           aria-label="Name"
           value={value}
           clearable
@@ -36,10 +36,10 @@ describe('shared field controls', () => {
     function ControlledSelect() {
       const [value, setValue] = useState('CASH');
       return (
-        <Select aria-label="Payment method" value={value} onValueChange={(next) => setValue(String(next ?? ''))}>
+        <DSelect aria-label="Payment method" value={value} onValueChange={(next) => setValue(String(next ?? ''))}>
           <option value="CASH">Cash</option>
           <option value="QRIS">QRIS</option>
-        </Select>
+        </DSelect>
       );
     }
 
@@ -56,7 +56,7 @@ describe('shared field controls', () => {
     function ControlledCombobox() {
       const [value, setValue] = useState('');
       return (
-        <Combobox
+        <DCombobox
           ariaLabel="Employee"
           value={value}
           onChange={(next) => setValue(String(next ?? ''))}
@@ -80,7 +80,7 @@ describe('shared field controls', () => {
   it('renders table pagination and reports generic page changes', () => {
     const pages: number[] = [];
     render(
-      <DataTable
+      <DDataTable
         columns={[{ key: 'name', label: 'Name', render: (row: { name: string }) => row.name }]}
         data={[{ name: 'Alya' }]}
         rowKey={(row) => row.name}

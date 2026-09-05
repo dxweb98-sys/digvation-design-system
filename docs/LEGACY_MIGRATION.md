@@ -6,53 +6,53 @@ OldUi is no longer kept as a second `Base*` API. Its reusable behavior, logic, s
 
 - folder: kebab-case, e.g. `range-date-picker/`
 - implementation: matching kebab-case file, e.g. `range-date-picker.tsx`
-- component/type: PascalCase, e.g. `RangeDatePicker`, `RangeDatePickerProps`
+- component/type: PascalCase, e.g. `DRangeDatePicker`, `RangeDatePickerProps`
 - named exports only
 - one implementation per component
 
 ## OldUi -> canonical NewUi
 
-- `BaseInput` -> `Input`
-- `BaseTextarea` -> `Textarea`
-- `BaseSearchInput` -> `SearchInput`
-- `BaseSelect` -> `Select`
-- `BaseAutocomplete` -> `Combobox`
-- `BaseDropdown` -> `Dropdown`
-- `BaseDatePicker` -> `DatePicker`
-- `BaseRangeDatePicker` -> `RangeDatePicker`
-- `BaseToggle` -> `Toggle`
-- `BaseButton` -> `Button`
-- `BaseBadge` -> `Badge`
-- `BaseSkeleton` -> `Skeleton`
-- `BaseDialog` -> `Dialog`
-- `DataTable` -> `DataTable`
-- `BaseSelectFilter` -> `SelectFilter`
-- `ToastContainer` -> `ToastContainer`
-- `SplashScreen` -> `SplashScreen`
+- `BaseInput` -> `DInput`
+- `BaseTextarea` -> `DTextarea`
+- `BaseSearchInput` -> `DSearchInput`
+- `BaseSelect` -> `DSelect`
+- `BaseAutocomplete` -> `DCombobox`
+- `BaseDropdown` -> `DDropdown`
+- `BaseDatePicker` -> `DDatePicker`
+- `BaseRangeDatePicker` -> `DRangeDatePicker`
+- `BaseToggle` -> `DToggle`
+- `BaseButton` -> `DButton`
+- `BaseBadge` -> `DBadge`
+- `BaseSkeleton` -> `DSkeleton`
+- `BaseDialog` -> `DDialog`
+- `DDataTable` -> `DDataTable`
+- `BaseSelectFilter` -> `DSelectFilter`
+- `DToastContainer` -> `DToastContainer`
+- `DSplashScreen` -> `DSplashScreen`
 
-The other generic old components are available directly as `ConfirmDialog`, `ConnectionError`, `DateRangeFilter`, `ExportButton`, `InfoNote`, `NotificationPanel`, and `StatusFilter`.
+The other generic old components are available directly as `DConfirmDialog`, `DConnectionError`, `DDateRangeFilter`, `DExportButton`, `DInfoNote`, `DNotificationPanel`, and `DStatusFilter`.
 
 ## Important callback compatibility
 
-`Input` intentionally keeps oldUi's value-first callback:
+`DInput` intentionally keeps oldUi's value-first callback:
 
 ```tsx
-<Input onChange={(value, event) => setValue(value)} />
+<DInput onChange={(value, event) => setValue(value)} />
 ```
 
 When a native React change event is specifically needed, use the additive `onNativeChange` prop:
 
 ```tsx
-<Input onNativeChange={(event) => setValue(event.target.value)} />
+<DInput onNativeChange={(event) => setValue(event.target.value)} />
 ```
 
-`Textarea` follows the same rule. `Select` keeps the old `onChange(value)` contract and also exposes `onValueChange(value)` as an additive convenience.
+`DTextarea` follows the same rule. `DSelect` keeps the old `onChange(value)` contract and also exposes `onValueChange(value)` as an additive convenience.
 
 ## Shared foundation
 
 There is no parallel Base component tree. Cross-component foundations are shared directly:
 
-- `dropdown/` — one positioning/open-close/context engine used by Select, Combobox, DatePicker, RangeDatePicker, DataTable menus, ExportButton, and SelectFilter.
+- `dropdown/` — one positioning/open-close/context engine used by DSelect, DCombobox, DDatePicker, DRangeDatePicker, DDataTable menus, DExportButton, and DSelectFilter.
 - `shared/field-size.ts` — one input sizing definition used across field components.
 
 ## Intentionally not moved into reusable UI

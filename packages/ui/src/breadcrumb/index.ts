@@ -1,1 +1,1 @@
-export { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, type BreadcrumbLinkProps } from './breadcrumb';
+export { DBreadcrumb, DBreadcrumbList, DBreadcrumbItem, DBreadcrumbLink, DBreadcrumbSeparator, type BreadcrumbLinkProps } from './breadcrumb';

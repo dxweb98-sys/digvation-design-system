@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import { cn } from '../cn';
 
-export function EmptyState({
+export function DEmptyState({
   title,
   description,
   action,

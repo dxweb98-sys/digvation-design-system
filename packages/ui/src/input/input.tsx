@@ -57,7 +57,7 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   containerClassName?: string;
 }
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
+export const DInput = forwardRef<HTMLInputElement, InputProps>(function DInput(
   {
     label,
     labelInfo,
@@ -195,7 +195,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
 });
 
 
-Input.displayName = 'Input';
+DInput.displayName = 'DInput';
 
 export interface DecimalNormalizationOptions { scale?: number; integer?: boolean; }
 export function normalizeDecimalInput(input: string, { scale = 4, integer = false }: DecimalNormalizationOptions = {}): string {
@@ -210,8 +210,8 @@ export function normalizeDecimalInput(input: string, { scale = 4, integer = fals
 export interface DecimalInputProps extends Omit<InputProps, 'inputMode' | 'onChange' | 'onNativeChange' | 'type' | 'value' | 'format'> {
   value: string; onValueChange: (value: string) => void; scale?: number; integer?: boolean;
 }
-export const DecimalInput = forwardRef<HTMLInputElement, DecimalInputProps>(function DecimalInput({ value, onValueChange, scale = 4, integer = false, ...props }, ref) {
-  return <Input ref={ref} {...props} value={value} type="text" inputMode={integer ? 'numeric' : 'decimal'} onNativeChange={(event) => onValueChange(normalizeDecimalInput(event.target.value, { scale, integer }))} />;
+export const DDecimalInput = forwardRef<HTMLInputElement, DecimalInputProps>(function DDecimalInput({ value, onValueChange, scale = 4, integer = false, ...props }, ref) {
+  return <DInput ref={ref} {...props} value={value} type="text" inputMode={integer ? 'numeric' : 'decimal'} onNativeChange={(event) => onValueChange(normalizeDecimalInput(event.target.value, { scale, integer }))} />;
 });
 export interface CurrencyFormatOptions { groupSeparator?: string; decimalSeparator?: string; }
 export function formatCurrencyInputValue(value: string, { groupSeparator = '.', decimalSeparator = ',' }: CurrencyFormatOptions = {}): string {
@@ -223,9 +223,9 @@ export function formatCurrencyInputValue(value: string, { groupSeparator = '.', 
 export interface CurrencyInputProps extends Omit<DecimalInputProps, 'integer' | 'onValueChange'> {
   onValueChange: (value: string) => void; currencySymbol?: ReactNode; groupSeparator?: string; decimalSeparator?: string;
 }
-export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(function CurrencyInput({ value, onValueChange, currencySymbol = 'Rp', groupSeparator, decimalSeparator, onFocus, onBlur, ...props }, ref) {
+export const DCurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(function DCurrencyInput({ value, onValueChange, currencySymbol = 'Rp', groupSeparator, decimalSeparator, onFocus, onBlur, ...props }, ref) {
   const [isEditing, setEditing] = useState(false);
   const displayed = isEditing ? value : formatCurrencyInputValue(value, { ...(groupSeparator === undefined ? {} : { groupSeparator }), ...(decimalSeparator === undefined ? {} : { decimalSeparator }) });
-  return <DecimalInput ref={ref} {...props} value={displayed} prefix={currencySymbol} onValueChange={onValueChange} onFocus={(event) => { setEditing(true); onFocus?.(event); }} onBlur={(event) => { setEditing(false); onBlur?.(event); }} />;
+  return <DDecimalInput ref={ref} {...props} value={displayed} prefix={currencySymbol} onValueChange={onValueChange} onFocus={(event) => { setEditing(true); onFocus?.(event); }} onBlur={(event) => { setEditing(false); onBlur?.(event); }} />;
 });
 export type { InputSize } from '../shared';

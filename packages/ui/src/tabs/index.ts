@@ -1,1 +1,1 @@
-export { Tabs, TabsList, TabsTrigger, TabsContent, type TabsProps, type TabsTriggerProps, type TabsContentProps } from './tabs';
+export { DTabs, DTabsList, DTabsTrigger, DTabsContent, type TabsProps, type TabsTriggerProps, type TabsContentProps } from './tabs';

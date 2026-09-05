@@ -9,7 +9,7 @@ import {
 } from 'react';
 
 import { cn } from '../cn';
-import { Dropdown } from '../dropdown';
+import { DDropdown } from '../dropdown';
 import { INPUT_SIZE_STYLES, type InputSize } from '../shared';
 import type { SelectOption } from '../select';
 
@@ -50,7 +50,7 @@ export interface ComboboxProps {
   debounceMs?: number;
 }
 
-export function Combobox({
+export function DCombobox({
   label,
   placeholder = 'Ketik untuk mencari...',
   options = [],
@@ -176,7 +176,7 @@ export function Combobox({
   return (
     <div className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
       {label ? <label htmlFor={id} className={cn(s.label, 'w-fit font-medium text-[var(--color-text)]')}>{label}</label> : null}
-      <Dropdown
+      <DDropdown
         matchWidth
         open={open}
         onOpenChange={setOpen}
@@ -229,7 +229,7 @@ export function Combobox({
             return <button key={String(option.value)} type="button" role="option" aria-selected={isSelected} disabled={option.disabled} onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.stopPropagation(); choose(option); }} className={cn('w-full rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-[var(--color-surface-muted)] disabled:cursor-not-allowed disabled:opacity-50', isSelected && 'bg-[var(--color-brand)]/10 font-medium text-[var(--color-brand)]', index === activeIndex && !isSelected && 'bg-[var(--color-surface-muted)]')}>{renderOption ? renderOption(option, isSelected) : option.label}</button>;
           })}
         </div>
-      </Dropdown>
+      </DDropdown>
       {error ? <p className="text-xs text-[var(--color-danger)]">{error}</p> : null}
       {!error && hint ? <p className="text-xs text-[var(--color-text-muted)]">{hint}</p> : null}
     </div>

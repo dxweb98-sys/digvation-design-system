@@ -1,1 +1,1 @@
-export { Pagination, getPaginationItems, type PaginationProps } from './pagination';
+export { DPagination, getPaginationItems, type PaginationProps } from './pagination';

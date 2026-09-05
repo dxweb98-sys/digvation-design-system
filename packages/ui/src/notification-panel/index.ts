@@ -1,1 +1,1 @@
-export { NotificationPanel, type NotificationItem, type NotificationPanelProps } from './notification-panel';
+export { DNotificationPanel, type NotificationItem, type NotificationPanelProps } from './notification-panel';

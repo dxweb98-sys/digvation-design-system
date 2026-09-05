@@ -1,1 +1,1 @@
-export { Card, CardContent, CardFooter, CardHeader } from './card';
+export { DCard, DCardContent, DCardFooter, DCardHeader, type CardProps, type CardVariant } from './card';

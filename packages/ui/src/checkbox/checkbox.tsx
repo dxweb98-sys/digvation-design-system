@@ -4,7 +4,7 @@ import { cn } from '../cn';
 
 export type CheckboxProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>;
 
-export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Checkbox(
+export const DCheckbox = forwardRef<HTMLInputElement, CheckboxProps>(function DCheckbox(
   { className, ...props },
   ref,
 ) {

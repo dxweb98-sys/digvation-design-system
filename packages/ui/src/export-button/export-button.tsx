@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Button } from '../button';
-import { Dropdown, useDropdownClose } from '../dropdown';
+import { DButton } from '../button';
+import { DDropdown, useDropdownClose } from '../dropdown';
 
 export type ExportFormat = 'pdf' | 'excel';
 export interface ExportButtonProps {
@@ -30,7 +30,7 @@ function ExportContent({ onExport, filename, onSuccess, onError, onProcessing, s
   };
   return <div className="min-w-[140px] py-1"><button type="button" onClick={() => void run('pdf')} className="w-full px-3 py-2 text-left text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-muted)]">Export PDF</button><button type="button" onClick={() => void run('excel')} className="w-full px-3 py-2 text-left text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-muted)]">Export Excel</button></div>;
 }
-export function ExportButton({ filename = 'export', disabled, ...props }: ExportButtonProps) {
+export function DExportButton({ filename = 'export', disabled, ...props }: ExportButtonProps) {
   const [loading, setLoading] = useState(false);
-  return <Dropdown placement="bottom-end" trigger={() => <Button variant="outline" size="sm" leftIcon={<DownloadIcon />} loading={loading} disabled={disabled}>Export</Button>}><ExportContent {...props} filename={filename} disabled={disabled} setLoading={setLoading} /></Dropdown>;
+  return <DDropdown placement="bottom-end" trigger={() => <DButton variant="outline" size="sm" leftIcon={<DownloadIcon />} loading={loading} disabled={disabled}>Export</DButton>}><ExportContent {...props} filename={filename} disabled={disabled} setLoading={setLoading} /></DDropdown>;
 }

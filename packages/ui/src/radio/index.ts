@@ -1,1 +1,1 @@
-export { Radio, type RadioProps } from './radio';
+export { DRadio, type RadioProps } from './radio';

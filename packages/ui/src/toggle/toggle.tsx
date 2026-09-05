@@ -14,7 +14,7 @@ export interface ToggleProps {
   ariaLabel?: string;
 }
 
-export function Toggle({
+export function DToggle({
   label,
   checked = false,
   onChange,

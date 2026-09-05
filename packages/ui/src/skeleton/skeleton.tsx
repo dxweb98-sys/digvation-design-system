@@ -19,10 +19,10 @@ function SkeletonBlock({ className, width, height, rounded = 'md', style, ...pro
 }
 
 export interface SkeletonProps extends SkeletonBlockProps { count?: number; }
-export function Skeleton({ height = 16, count = 1, ...props }: SkeletonProps) {
+export function DSkeleton({ height = 16, count = 1, ...props }: SkeletonProps) {
   return <>{Array.from({ length: count }).map((_, index) => <SkeletonBlock key={index} {...props} height={height} />)}</>;
 }
-export function TableSkeleton({ rows = 5, cols = 4 }: { rows?: number; cols?: number }) { return <div className="space-y-3"><div className="flex gap-4">{Array.from({ length: cols }).map((_, i) => <Skeleton key={i} height={14} width={i === 0 ? '30%' : '20%'} />)}</div>{Array.from({ length: rows }).map((_, r) => <div key={r} className="flex gap-4 border-b border-[var(--color-border)]/50 py-3">{Array.from({ length: cols }).map((_, c) => <Skeleton key={c} height={12} width={c === 0 ? '30%' : '20%'} />)}</div>)}</div>; }
-export function CardSkeleton() { return <div className="space-y-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5"><Skeleton height={12} width="40%"/><Skeleton height={28} width="60%"/><Skeleton height={10} width="80%"/></div>; }
-export function FormSkeleton({ fields = 4 }: { fields?: number }) { return <div className="space-y-5">{Array.from({ length: fields }).map((_, i) => <div key={i} className="space-y-2"><Skeleton height={12} width="25%"/><Skeleton height={40} width="100%" rounded="lg"/></div>)}</div>; }
+export function DTableSkeleton({ rows = 5, cols = 4 }: { rows?: number; cols?: number }) { return <div className="space-y-3"><div className="flex gap-4">{Array.from({ length: cols }).map((_, i) => <DSkeleton key={i} height={14} width={i === 0 ? '30%' : '20%'} />)}</div>{Array.from({ length: rows }).map((_, r) => <div key={r} className="flex gap-4 border-b border-[var(--color-border)]/50 py-3">{Array.from({ length: cols }).map((_, c) => <DSkeleton key={c} height={12} width={c === 0 ? '30%' : '20%'} />)}</div>)}</div>; }
+export function DCardSkeleton() { return <div className="space-y-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5"><DSkeleton height={12} width="40%"/><DSkeleton height={28} width="60%"/><DSkeleton height={10} width="80%"/></div>; }
+export function DFormSkeleton({ fields = 4 }: { fields?: number }) { return <div className="space-y-5">{Array.from({ length: fields }).map((_, i) => <div key={i} className="space-y-2"><DSkeleton height={12} width="25%"/><DSkeleton height={40} width="100%" rounded="lg"/></div>)}</div>; }
 

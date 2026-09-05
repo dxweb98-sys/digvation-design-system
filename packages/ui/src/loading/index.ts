@@ -1,1 +1,1 @@
-export { LoadingIndicator, LoadingOverlay } from './loading';
+export { DLoadingIndicator, DLoadingOverlay } from './loading';

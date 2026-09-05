@@ -18,7 +18,7 @@ const placementClass = {
 
 type TooltipTriggerProps = { 'aria-describedby'?: string };
 
-export function Tooltip({ content, children, placement = 'top', className, delayMs = 120 }: TooltipProps) {
+export function DTooltip({ content, children, placement = 'top', className, delayMs = 120 }: TooltipProps) {
   const id = useId();
   const [open, setOpen] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);

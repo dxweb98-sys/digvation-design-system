@@ -1,6 +1,122 @@
-import { createContext, useContext, useId, useState, type HTMLAttributes, type ReactNode } from 'react'; import { cn } from '../cn';
-type Ctx={open:string[];toggle:(v:string)=>void;multiple:boolean;baseId:string}; const AccordionContext=createContext<Ctx|null>(null); function useAccordion(){const ctx=useContext(AccordionContext); if(!ctx)throw new Error('AccordionItem must be inside <Accordion>.'); return ctx;}
-export interface AccordionProps extends HTMLAttributes<HTMLDivElement>{ type?:'single'|'multiple'; value?:string[]; defaultValue?:string[]; onValueChange?:(value:string[])=>void; }
-export function Accordion({type='single',value,defaultValue=[],onValueChange,className,...props}:AccordionProps){const [internal,setInternal]=useState(defaultValue);const current=value??internal;const baseId=useId();const toggle=(v:string)=>{let next:string[];if(current.includes(v))next=current.filter(x=>x!==v);else next=type==='multiple'?[...current,v]:[v];if(value===undefined)setInternal(next);onValueChange?.(next);};return <AccordionContext.Provider value={{open:current,toggle,multiple:type==='multiple',baseId}}><div className={cn('divide-y divide-[var(--color-border)]',className)} {...props}/></AccordionContext.Provider>;}
-export interface AccordionItemProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> { value:string; title:ReactNode; disabled?:boolean; }
-export function AccordionItem({value,title,disabled,className,children,...props}:AccordionItemProps){const ctx=useAccordion();const open=ctx.open.includes(value);const id=`${ctx.baseId}-${value}`;return <div className={className} {...props}><button type="button" disabled={disabled} aria-expanded={open} aria-controls={`${id}-content`} onClick={()=>ctx.toggle(value)} className="flex w-full items-center justify-between gap-4 py-3 text-left text-sm font-medium text-[var(--color-text)] disabled:opacity-40"><span>{title}</span><span className={cn('text-[var(--color-text-muted)] transition-transform',open&&'rotate-180')}>⌄</span></button>{open?<div id={`${id}-content`} className="pb-4 text-sm leading-relaxed text-[var(--color-text-muted)]">{children}</div>:null}</div>;}
+import { createContext, useContext, useId, useState, type HTMLAttributes, type ReactNode } from 'react';
+
+import { cn } from '../cn';
+import { ChevronDownIcon } from '../internal/icons';
+
+type AccordionContextValue = {
+  open: string[];
+  toggle: (value: string) => void;
+  baseId: string;
+  variant: AccordionVariant;
+};
+
+const AccordionContext = createContext<AccordionContextValue | null>(null);
+
+function useAccordion() {
+  const context = useContext(AccordionContext);
+  if (!context) throw new Error('DAccordionItem must be inside <DAccordion>.');
+  return context;
+}
+
+export type AccordionVariant = 'default' | 'card' | 'separated';
+
+export interface AccordionProps extends HTMLAttributes<HTMLDivElement> {
+  type?: 'single' | 'multiple';
+  value?: string[];
+  defaultValue?: string[];
+  onValueChange?: (value: string[]) => void;
+  variant?: AccordionVariant;
+}
+
+export function DAccordion({
+  type = 'single',
+  value,
+  defaultValue = [],
+  onValueChange,
+  variant = 'default',
+  className,
+  ...props
+}: AccordionProps) {
+  const [internal, setInternal] = useState(defaultValue);
+  const current = value ?? internal;
+  const baseId = useId();
+
+  const toggle = (itemValue: string) => {
+    const next = current.includes(itemValue)
+      ? current.filter((item) => item !== itemValue)
+      : type === 'multiple'
+        ? [...current, itemValue]
+        : [itemValue];
+    if (value === undefined) setInternal(next);
+    onValueChange?.(next);
+  };
+
+  return (
+    <AccordionContext.Provider value={{ open: current, toggle, baseId, variant }}>
+      <div
+        className={cn(
+          variant === 'default' && 'divide-y divide-[var(--color-border)]',
+          variant === 'card' && 'overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)] divide-y divide-[var(--color-border)]',
+          variant === 'separated' && 'space-y-2',
+          className,
+        )}
+        {...props}
+      />
+    </AccordionContext.Provider>
+  );
+}
+
+export interface AccordionItemProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
+  value: string;
+  title: ReactNode;
+  disabled?: boolean;
+}
+
+export function DAccordionItem({ value, title, disabled, className, children, ...props }: AccordionItemProps) {
+  const context = useAccordion();
+  const open = context.open.includes(value);
+  const id = `${context.baseId}-${value.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
+  const triggerId = `${id}-trigger`;
+  const contentId = `${id}-content`;
+
+  return (
+    <div
+      className={cn(
+        context.variant === 'separated' && 'rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4',
+        context.variant !== 'separated' && 'px-0',
+        className,
+      )}
+      {...props}
+    >
+      <button
+        id={triggerId}
+        type="button"
+        disabled={disabled}
+        aria-expanded={open}
+        aria-controls={contentId}
+        onClick={() => context.toggle(value)}
+        className="group flex w-full items-center justify-between gap-4 py-3 text-left text-sm font-medium text-[var(--color-text)] outline-none transition-colors hover:text-[var(--color-brand)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        <span>{title}</span>
+        <ChevronDownIcon
+          size={17}
+          className={cn('shrink-0 text-[var(--color-text-muted)] transition-transform duration-200 ease-out group-hover:text-current', open && 'rotate-180')}
+        />
+      </button>
+      <div
+        id={contentId}
+        role="region"
+        aria-labelledby={triggerId}
+        aria-hidden={!open}
+        className={cn(
+          'grid transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none',
+          open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+        )}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="pb-4 text-sm leading-relaxed text-[var(--color-text-muted)]">{children}</div>
+        </div>
+      </div>
+    </div>
+  );
+}

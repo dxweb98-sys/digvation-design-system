@@ -47,7 +47,7 @@ export interface ToastProviderProps {
 }
 
 /** App-scoped feedback queue; feature code owns when and what it announces. */
-export function ToastProvider({
+export function DToastProvider({
   children,
   limit = 3,
   defaultDuration = 4_000,
@@ -95,14 +95,14 @@ export function ToastProvider({
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+      <DToastContainer toasts={toasts} onDismiss={dismissToast} />
     </ToastContext.Provider>
   );
 }
 
 export function useToast(): ToastContextValue {
   const context = useContext(ToastContext);
-  if (!context) throw new Error('useToast must be used within a ToastProvider.');
+  if (!context) throw new Error('useToast must be used within a DToastProvider.');
   return context;
 }
 
@@ -128,8 +128,8 @@ function ToastIcon({ variant }: { variant: ControlledToastVariant }) {
 }
 function ToastCloseIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-3.5"><path d="m18 6-12 12M6 6l12 12"/></svg>; }
 
-/** Controlled viewport matching oldUi ToastContainer visuals without coupling UI to an app store. */
-export function ToastContainer({ toasts, onDismiss, className }: ToastContainerProps) {
+/** Controlled viewport matching oldUi DToastContainer visuals without coupling UI to an app store. */
+export function DToastContainer({ toasts, onDismiss, className }: ToastContainerProps) {
   if (!toasts.length) return null;
   return (
     <div aria-live="polite" aria-relevant="additions" className={cn('pointer-events-none fixed right-4 top-4 z-[9998] flex w-full max-w-sm flex-col gap-2', className)}>

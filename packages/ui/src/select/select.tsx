@@ -13,7 +13,7 @@ import {
 } from 'react';
 
 import { cn } from '../cn';
-import { Dropdown } from '../dropdown';
+import { DDropdown } from '../dropdown';
 import { INPUT_SIZE_STYLES, type InputSize } from '../shared';
 
 export interface SelectOption {
@@ -62,7 +62,7 @@ export interface SelectProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   onChange?: (value: string | number | null) => void;
 }
 
-export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select(
+export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSelect(
   {
     className,
     children,
@@ -183,7 +183,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
   return (
     <div className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
       {label ? <label htmlFor={id} className={cn(s.label, 'inline-block w-fit font-medium text-[var(--color-text)]')}>{label}</label> : null}
-      <Dropdown
+      <DDropdown
         matchWidth
         open={isOpen}
         onOpenChange={setOpen}
@@ -228,7 +228,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
             ))}
           </div>
         </div>
-      </Dropdown>
+      </DDropdown>
       {error ? <p className="text-xs text-[var(--color-danger)]">{error}</p> : null}
       {!error && hint ? <p className="text-xs text-[var(--color-text-muted)]">{hint}</p> : null}
     </div>

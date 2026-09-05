@@ -19,7 +19,7 @@ export interface SearchInputProps {
   expandedWidth?: string;
 }
 
-export function SearchInput({
+export function DSearchInput({
   value,
   onChange,
   placeholder = 'Cari...',

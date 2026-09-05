@@ -11,7 +11,10 @@
   --color-text-muted: hsl(220 10% 50%);
   --color-border: hsl(220 18% 90%);
   --color-brand: hsl(217 91% 53%);
+  --color-brand-hover: hsl(217 91% 47%);
+  --color-brand-active: hsl(217 91% 41%);
   --color-focus: hsl(217 91% 53%);
+  --color-info: hsl(200 90% 45%);
   --color-success: hsl(145 65% 38%);
   --color-warning: hsl(38 92% 50%);
   --color-danger: hsl(0 72% 51%);
@@ -24,7 +27,10 @@
   --radius-control: 8px;
   --radius-card: 16px;
   --radius-panel: 16px;
-  --shadow-panel: 0 1px 3px rgb(15 23 42 / 0.08);
+  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
+  --shadow-md: 0 8px 24px rgb(15 23 42 / 0.10);
+  --shadow-lg: 0 18px 50px rgb(15 23 42 / 0.16);
+  --shadow-panel: var(--shadow-md);
 }
 
 :root[data-ds-mode='dark'] {
@@ -35,12 +41,18 @@
   --color-text-muted: hsl(216 12% 65%);
   --color-border: hsl(220 16% 24%);
   --color-brand: hsl(217 91% 62%);
+  --color-brand-hover: hsl(217 91% 68%);
+  --color-brand-active: hsl(217 91% 72%);
   --color-focus: hsl(217 91% 62%);
+  --color-info: hsl(200 90% 58%);
   --color-success: hsl(145 58% 48%);
   --color-warning: hsl(38 92% 58%);
   --color-danger: hsl(0 78% 62%);
   --color-tooltip: hsl(220 24% 6%);
-  --shadow-panel: 0 16px 48px rgb(0 0 0 / 0.28);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.18);
+  --shadow-md: 0 10px 30px rgb(0 0 0 / 0.24);
+  --shadow-lg: 0 20px 60px rgb(0 0 0 / 0.34);
+  --shadow-panel: var(--shadow-md);
 }
 
 :root[data-theme-radius='COMPACT'] {

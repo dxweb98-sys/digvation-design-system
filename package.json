@@ -1,13 +1,14 @@
 {
   "name": "digvation-design-system-workspace",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.2.0",
   "workspaces": [
     "packages/*",
     "apps/*"
   ],
   "scripts": {
     "dev": "npm run build:ui && npm run dev -w @digvation/docs",
+    "dev:local": "tsup src/index.ts --format esm,cjs --dts --watch --sourcemap --external react --external react-dom",
     "build": "npm run build:ui && npm run build -w @digvation/docs",
     "build:ui": "npm run build -w @digvation/ui",
     "typecheck": "npm run typecheck -w @digvation/ui && npm run build:ui && npm run typecheck -w @digvation/docs",

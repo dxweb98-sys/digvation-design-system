@@ -1,1 +1,1 @@
-export { Select, selectOptionsFromChildren, type SelectOption, type SelectProps } from './select';
+export { DSelect, selectOptionsFromChildren, type SelectOption, type SelectProps } from './select';

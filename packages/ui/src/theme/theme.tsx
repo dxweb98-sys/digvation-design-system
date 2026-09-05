@@ -11,7 +11,10 @@ export interface ThemeTokens {
   textMuted?: string;
   border?: string;
   brand?: string;
+  brandHover?: string;
+  brandActive?: string;
   focus?: string;
+  info?: string;
   success?: string;
   warning?: string;
   danger?: string;
@@ -24,6 +27,10 @@ export interface ThemeTokens {
   radiusControl?: string;
   radiusCard?: string;
   radiusPanel?: string;
+  shadowSm?: string;
+  shadowMd?: string;
+  shadowLg?: string;
+  /** Legacy alias kept for existing themes. */
   shadowPanel?: string;
   fontSans?: string;
 }
@@ -43,7 +50,10 @@ const variableMap: Record<keyof ThemeTokens, string> = {
   textMuted: '--color-text-muted',
   border: '--color-border',
   brand: '--color-brand',
+  brandHover: '--color-brand-hover',
+  brandActive: '--color-brand-active',
   focus: '--color-focus',
+  info: '--color-info',
   success: '--color-success',
   warning: '--color-warning',
   danger: '--color-danger',
@@ -56,6 +66,9 @@ const variableMap: Record<keyof ThemeTokens, string> = {
   radiusControl: '--radius-control',
   radiusCard: '--radius-card',
   radiusPanel: '--radius-panel',
+  shadowSm: '--shadow-sm',
+  shadowMd: '--shadow-md',
+  shadowLg: '--shadow-lg',
   shadowPanel: '--shadow-panel',
   fontSans: '--font-sans',
 };
@@ -68,7 +81,10 @@ export const defaultThemeTokens: Required<ThemeTokens> = {
   textMuted: 'hsl(220 10% 50%)',
   border: 'hsl(220 18% 90%)',
   brand: 'hsl(217 91% 53%)',
+  brandHover: 'hsl(217 91% 47%)',
+  brandActive: 'hsl(217 91% 41%)',
   focus: 'hsl(217 91% 53%)',
+  info: 'hsl(200 90% 45%)',
   success: 'hsl(145 65% 38%)',
   warning: 'hsl(38 92% 50%)',
   danger: 'hsl(0 72% 51%)',
@@ -81,7 +97,10 @@ export const defaultThemeTokens: Required<ThemeTokens> = {
   radiusControl: '8px',
   radiusCard: '16px',
   radiusPanel: '16px',
-  shadowPanel: '0 1px 3px rgb(15 23 42 / 0.08)',
+  shadowSm: '0 1px 2px rgb(15 23 42 / 0.06)',
+  shadowMd: '0 8px 24px rgb(15 23 42 / 0.10)',
+  shadowLg: '0 18px 50px rgb(15 23 42 / 0.16)',
+  shadowPanel: '0 8px 24px rgb(15 23 42 / 0.10)',
   fontSans: "'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
 };
 
@@ -93,10 +112,9 @@ export function themeTokensToCss(tokens: ThemeTokens): string {
 }
 
 /**
- * Applies theme tokens globally so portal-based components (Dialog/Dropdown) inherit them too.
- * Existing values are restored when the provider unmounts.
+ * Applies semantic theme tokens globally so portal-based components inherit the same project theme.
  */
-export function ThemeProvider({ children, tokens = {}, radius = 'default', mode = 'light' }: ThemeProviderProps) {
+export function DThemeProvider({ children, tokens = {}, radius = 'default', mode = 'light' }: ThemeProviderProps) {
   useEffect(() => {
     if (typeof document === 'undefined') return;
     const root = document.documentElement;

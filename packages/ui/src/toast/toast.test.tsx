@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { ToastProvider, useToast } from './toast';
+import { DToastProvider, useToast } from './toast';
 
 afterEach(cleanup);
 
@@ -19,12 +19,12 @@ function ToastTrigger() {
   );
 }
 
-describe('ToastProvider', () => {
+describe('DToastProvider', () => {
   it('shows and dismisses app-scoped feedback', () => {
     render(
-      <ToastProvider>
+      <DToastProvider>
         <ToastTrigger />
-      </ToastProvider>,
+      </DToastProvider>,
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Notify' }));

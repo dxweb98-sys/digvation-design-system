@@ -31,14 +31,14 @@ Do not change component source files to rebrand a project. Override semantic tok
 
 ## Radius presets
 
-`ThemeProvider` supports `compact`, `default`, and `rounded`. The same values can be set through the root attribute `data-theme-radius` with `COMPACT`, `DEFAULT`, or `ROUNDED`.
+`DThemeProvider` supports `compact`, `default`, and `rounded`. The same values can be set through the root attribute `data-theme-radius` with `COMPACT`, `DEFAULT`, or `ROUNDED`.
 
 ## Dark mode
 
 ```tsx
-<ThemeProvider mode="dark">
+<DThemeProvider mode="dark">
   <App />
-</ThemeProvider>
+</DThemeProvider>
 ```
 
 You can still override individual dark tokens after the package stylesheet if a project needs a different palette.
