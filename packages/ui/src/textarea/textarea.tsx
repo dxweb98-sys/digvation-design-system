@@ -58,7 +58,7 @@ export const DTextarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function
   };
 
   return (
-    <div className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
+    <div data-ds-component="textarea" className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
       {label ? <label htmlFor={id} className="inline-block w-fit text-sm font-medium text-[var(--color-text)]">{label}</label> : null}
       <div className="relative">
         <textarea
@@ -74,7 +74,7 @@ export const DTextarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function
             onNativeChange?.(event);
           }}
           className={cn(
-            'min-h-[80px] w-full resize-y rounded-lg border bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] transition-colors duration-150 placeholder:text-[var(--color-text-muted)]/60 focus:border-[var(--color-brand)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:opacity-50 read-only:bg-[var(--color-surface-muted)]',
+            'min-h-[80px] w-full resize-y rounded-[var(--radius-control)] border bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] transition-colors duration-150 placeholder:text-[var(--color-text-muted)]/60 focus:border-[var(--color-brand)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:opacity-50 read-only:bg-[var(--color-surface-muted)]',
             error ? 'border-[var(--color-danger)] focus:ring-[var(--color-danger)]/20' : 'border-[var(--color-border)]',
             clearable && hasValue && !disabled && !readOnly && 'pr-10',
             className,
@@ -87,4 +87,3 @@ export const DTextarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function
     </div>
   );
 });
-
