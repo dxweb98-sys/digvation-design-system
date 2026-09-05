@@ -127,6 +127,8 @@ function DialogRoot({
         aria-modal="true"
         aria-label={ariaLabelledBy ? undefined : ariaLabel}
         aria-labelledby={ariaLabelledBy}
+        data-ds-component="dialog"
+        data-ds-surface="modal"
         tabIndex={-1}
         className={className}
       >
@@ -206,8 +208,13 @@ export function DDialog({
             {description ? <p className="mt-0.5 text-sm text-[var(--color-text-muted)]">{description}</p> : null}
           </div>
           {showClose ? (
-            <button type="button" aria-label="Close dialog" onClick={onClose} className="rounded-lg p-2 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-muted)]">
-              <XIcon />
+            <button
+              type="button"
+              aria-label="Close dialog"
+              onClick={onClose}
+              className="grid size-8 shrink-0 appearance-none place-items-center rounded-lg border-0 bg-transparent p-0 text-[var(--color-text-muted)] outline-none shadow-none transition-colors hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25"
+            >
+              <XIcon size={16} />
             </button>
           ) : null}
         </div>
