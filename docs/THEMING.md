@@ -1,12 +1,49 @@
 # Project-owned theming and style isolation
 
-`@digvation/ui` is a component library, not an application stylesheet. Consumer projects own page layout, body styles, fonts, brand colors, and application-level CSS.
+`@digvation/ui` is a component library, not an application stylesheet. Consumer projects own page layout, body styles, routing shell, brand identity and application-level CSS.
+
+At the same time, the design system must remain visually complete when a consumer does **not** provide a custom theme. The package therefore ships a full Digvation fallback palette, radii, shadows and typography tokens. Project theming is an override, not a requirement.
+
+## The contract
+
+```text
+consumer project has no theme mapping
+→ component uses Digvation default tokens
+
+consumer project maps primary / secondary / surface / status colors
+→ component keeps the same Digvation structure and behavior
+→ only semantic identity follows the project
+```
+
+A consumer should never need to theme the library just to make `DButton`, `DSelect`, calendar cells or menu items look correct.
 
 ## Isolation guarantee
 
-The distributed `@digvation/ui/styles.css` intentionally omits Tailwind Preflight. The package must not ship global element resets such as `* { box-sizing }`, `body { ... }`, or `button, input { font: ... }` that could change a consumer application's layout or shell.
+The distributed `@digvation/ui/styles.css` intentionally omits Tailwind Preflight. The package must not ship application-wide element resets such as `* { box-sizing }`, `body { ... }`, or `button, input { ... }` that could change a consumer application's layout or shell.
 
-The stylesheet provides component utility rules and semantic CSS variables only. Existing projects can keep their own reset/base layer.
+Instead, the package uses a **component-scoped normalization boundary** (`data-ds-component`). Inside that boundary only, Digvation controls normalize browser-native button appearance, box sizing and inherited form typography. Portal surfaces such as dropdowns carry the same boundary. This gives components a deterministic baseline without touching unrelated project elements.
+
+## Default theme
+
+Without `DThemeProvider`, components use the built-in fallback values from `styles.css`, including:
+
+- primary / primary hover / active / foreground
+- secondary / secondary hover / active / foreground
+- background, surface and muted surface
+- text, muted text and border
+- info, success, warning and danger
+- control, card and panel radii
+- shadows
+- Digvation fallback font stack
+
+Panel item radius is derived from the panel radius so menus remain concentric:
+
+```css
+--radius-panel: 16px;
+--radius-menu-item: max(6px, calc(var(--radius-panel) - 6px));
+```
+
+When a project overrides `--radius-panel`, dropdown item rounding follows automatically.
 
 ## Recommended integration: project variables are the source of truth
 
@@ -80,22 +117,24 @@ const uiTheme = createProjectThemeTokens({
 });
 ```
 
+Any omitted value keeps the Digvation default.
+
 ## Import order
 
-When the project has its own CSS entry, load the library first and project CSS second:
+The recommended order is:
 
 ```ts
 import '@digvation/ui/styles.css';
 import './app.css';
 ```
 
-This lets explicit project-level semantic overrides win naturally while keeping the component package free of application resets.
+The design-system fallback tokens live in a low-priority theme layer, so normal project token declarations can override them. Component utility styling remains explicit and component-scoped; project identity should be changed through semantic tokens rather than broad rules such as `button { ... }`.
 
 ## Token semantics
 
-- `primary` maps to the main Digvation brand/action color.
+- `primary` maps to the main project action color.
 - `secondary` maps to secondary buttons and quiet actions.
-- `background` is used for focus ring offsets and component-level page-aware surfaces, not to style `body`.
+- `background` is used for focus ring offsets and component-aware background states; it does not style `body`.
 - `surface` / `surfaceMuted` are component panels and muted controls.
 - `text` / `textMuted` are component foreground colors.
 - `border` is the neutral component border.
