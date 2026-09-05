@@ -1,13 +1,18 @@
-@layer theme, components, utilities;
+@layer theme, components;
 @import 'tailwindcss/theme.css' layer(theme);
-@import 'tailwindcss/utilities.css' layer(utilities);
+@import 'tailwindcss/utilities.css';
 @source './**/*.{ts,tsx}';
 
 /*
- * @digvation/ui always ships a complete visual fallback, but the fallback stays in
- * the low-priority `theme` layer so normal project variables can override it.
- * Tailwind Preflight is intentionally NOT imported: the consumer still owns html,
- * body, layout, sidebar, application resets and other page-level styling.
+ * @digvation/ui always ships a complete visual fallback. Theme defaults stay in
+ * a low-priority layer so project semantic variables can override them.
+ *
+ * Tailwind Preflight is intentionally NOT imported: consumers still own html,
+ * body, layout, sidebar, typography reset and other application-level styling.
+ * Structural component utilities are intentionally unlayered, though, so a
+ * generic consumer rule such as `button { border: ... }` cannot turn Digvation
+ * icon buttons, tabs or menu rows back into browser/project chrome. Project
+ * identity should be customized through semantic variables instead.
  */
 @layer theme {
   :root,
@@ -90,8 +95,7 @@
 
 /*
  * Small Preflight-equivalent rules, but ONLY inside Digvation components.
- * This keeps native browser styles from leaking into library controls without
- * changing unrelated consumer buttons, inputs, tables or page layout.
+ * These handle UA defaults; explicit component utility classes own actual visuals.
  */
 @layer components {
   :where([data-ds-component]),
@@ -138,15 +142,13 @@
 }
 
 /* Keep dropdown list item corners concentric with the outer floating panel. */
-@layer utilities {
-  [data-ds-surface='floating'] [role='option'],
-  [data-ds-surface='floating'] [role='menuitem'] {
-    border-radius: var(--radius-menu-item);
-  }
+[data-ds-surface='floating'] [role='option'],
+[data-ds-surface='floating'] [role='menuitem'] {
+  border-radius: var(--radius-menu-item);
+}
 
-  [data-ds-component='dropdown-trigger'] input[role='combobox'] {
-    border-radius: var(--radius-control);
-  }
+[data-ds-component='dropdown-trigger'] input[role='combobox'] {
+  border-radius: var(--radius-control);
 }
 
 @keyframes boot-progress {
