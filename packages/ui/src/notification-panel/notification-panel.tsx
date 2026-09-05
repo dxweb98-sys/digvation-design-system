@@ -40,7 +40,7 @@ const dotClass: Record<NotificationItem['type'], string> = {
   error: 'bg-[var(--color-danger)]',
 };
 
-const iconButtonClass = 'grid size-8 appearance-none place-items-center rounded-lg border-0 bg-transparent p-0 text-[var(--color-text-muted)] shadow-none outline-none transition-colors hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25';
+const iconButtonClass = 'grid size-8 appearance-none place-items-center rounded-lg border-0 bg-transparent p-0 text-[var(--color-text-muted)] shadow-none outline-none transition-colors hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-focus)]/25';
 
 export function DNotificationPanel({
   notifications,
@@ -113,7 +113,7 @@ export function DNotificationPanel({
         className,
       )}
     >
-      <div className="flex min-h-12 items-center justify-between border-b border-[var(--color-border)] px-4 py-2.5">
+      <div className="flex min-h-12 items-center justify-between border-b border-[var(--color-border)] px-4 py-2">
         <div className="flex min-w-0 items-center gap-2">
           <span className="truncate text-sm font-semibold text-[var(--color-text)]">{title}</span>
           {unread > 0 ? (
@@ -122,7 +122,7 @@ export function DNotificationPanel({
             </span>
           ) : null}
         </div>
-        <div className="flex shrink-0 items-center gap-1">
+        <div className="flex shrink-0 items-center gap-0.5">
           {unread > 0 ? (
             <button type="button" aria-label="Mark all read" onClick={onMarkAllRead} className={iconButtonClass}>
               <CheckIcon size={15} />
@@ -134,21 +134,21 @@ export function DNotificationPanel({
         </div>
       </div>
 
-      <div className="max-h-[min(24rem,60vh)] overflow-y-auto p-1.5">
+      <div className="flex max-h-[min(24rem,60vh)] flex-col gap-1.5 overflow-y-auto p-2">
         {notifications.length === 0 ? (
           <div className="px-4 py-10 text-center text-sm text-[var(--color-text-muted)]">{emptyMessage}</div>
         ) : notifications.map((item) => (
           <div
             key={item.id}
             className={cn(
-              'group flex items-start gap-1 rounded-[var(--radius-menu-item)] px-1.5 py-1 transition-colors hover:bg-[var(--color-surface-muted)]/65',
+              'group flex items-start gap-1 rounded-[var(--radius-menu-item)] px-1 py-0.5 transition-colors hover:bg-[var(--color-surface-muted)]/65',
               !item.read && 'bg-[var(--color-brand)]/5',
             )}
           >
             <button
               type="button"
               onClick={() => onMarkRead(item.id)}
-              className="flex min-w-0 flex-1 appearance-none items-start gap-3 rounded-[var(--radius-menu-item)] border-0 bg-transparent px-2 py-2 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25"
+              className="flex min-w-0 flex-1 appearance-none items-start gap-3 rounded-[var(--radius-menu-item)] border-0 bg-transparent px-2 py-2 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-focus)]/25"
             >
               <span className={cn('mt-1.5 size-2 shrink-0 rounded-full', !item.read ? dotClass[item.type] : 'bg-transparent')} />
               <span className="min-w-0 flex-1">
@@ -161,7 +161,7 @@ export function DNotificationPanel({
               type="button"
               aria-label={`Dismiss ${item.title}`}
               onClick={() => onDismiss(item.id)}
-              className="mt-1 grid size-7 shrink-0 appearance-none place-items-center rounded-md border-0 bg-transparent p-0 text-[var(--color-text-muted)]/55 opacity-70 shadow-none outline-none transition-colors hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25 group-hover:opacity-100"
+              className="mt-1 grid size-7 shrink-0 appearance-none place-items-center rounded-md border-0 bg-transparent p-0 text-[var(--color-text-muted)]/55 opacity-65 shadow-none outline-none transition-colors hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-focus)]/25 group-hover:opacity-100"
             >
               <XIcon size={13} />
             </button>
