@@ -41,6 +41,19 @@ describe('canonical input interactions', () => {
     expect(input.value).toBe('secret123');
   });
 
+  it('keeps a value-only password editable and clearable', () => {
+    render(<DInput aria-label="Preview password" type="password" value="secret123" />);
+
+    const input = screen.getByLabelText('Preview password') as HTMLInputElement;
+    expect(input.value).toBe('secret123');
+    fireEvent.change(input, { target: { value: 'secret' } });
+    expect(input.value).toBe('secret');
+    fireEvent.change(input, { target: { value: '' } });
+    expect(input.value).toBe('');
+    fireEvent.change(input, { target: { value: 'new-password' } });
+    expect(input.value).toBe('new-password');
+  });
+
   it('keeps a controlled password mounted and editable', () => {
     function PasswordField() {
       const [value, setValue] = useState('');
