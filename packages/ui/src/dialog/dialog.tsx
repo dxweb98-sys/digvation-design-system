@@ -202,10 +202,10 @@ export function DDialog({
     >
       <div className="flex justify-center pb-1 pt-3 sm:hidden"><div className="h-1 w-10 rounded-full bg-[var(--color-border)]" /></div>
       {(title || description || showClose) ? (
-        <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 py-3 sm:px-6 sm:py-4">
-          <div className="min-w-0">
-            {title ? <h3 className="text-lg font-semibold text-[var(--color-text)]">{title}</h3> : null}
-            {description ? <p className="mt-0.5 text-sm text-[var(--color-text-muted)]">{description}</p> : null}
+        <div className="flex min-h-16 items-start justify-between gap-4 border-b border-[var(--color-border)] px-5 py-3 sm:px-5 sm:py-3">
+          <div className="min-w-0 flex-1 self-center">
+            {title ? <h3 className="m-0 text-base font-semibold leading-6 text-[var(--color-text)]">{title}</h3> : null}
+            {description ? <p className="mb-0 mt-1 text-xs leading-5 text-[var(--color-text-muted)]">{description}</p> : null}
           </div>
           {showClose ? (
             <button
@@ -219,8 +219,8 @@ export function DDialog({
           ) : null}
         </div>
       ) : null}
-      <div className={cn('flex-1 overflow-y-auto', !noPadding && 'px-5 py-4 sm:px-6')}>{children}</div>
-      {footer ? <div className="border-t border-[var(--color-border)] bg-[var(--color-surface-muted)]/30 px-5 py-3 sm:rounded-b-[var(--radius-panel)] sm:px-6">{footer}</div> : null}
+      <div className={cn('flex-1 overflow-y-auto', !noPadding && 'px-5 py-4 sm:px-5')}>{children}</div>
+      {footer ? <div className="border-t border-[var(--color-border)] bg-[var(--color-surface-muted)]/30 px-5 py-3 sm:rounded-b-[var(--radius-panel)]">{footer}</div> : null}
     </DialogRoot>
   );
 }
