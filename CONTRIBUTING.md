@@ -118,6 +118,14 @@ Supported scroll policies are:
 
 Each component chooses a sensible default and may expose the policy to consumers.
 
+## Documentation conventions
+
+The docs application is itself a consumer of `@digvation/ui`. Whenever a public `D*` component already exists for an interaction, use that component in documentation controls instead of recreating it with raw HTML. Raw native elements are allowed only when no equivalent design-system primitive exists yet or when the native element is the subject under test.
+
+Component documentation stays inline in each component section using the shared `Preview / Code / Props / Functions` playground. Do not reintroduce a separate global Component Lab window.
+
+See `docs/DOCUMENTATION_STANDARDS.md` for the detailed dogfooding and playground rules.
+
 ## Tests and release gate
 
 Before a PR is mergeable:
