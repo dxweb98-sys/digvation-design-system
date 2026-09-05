@@ -7,83 +7,85 @@
  * Component-library defaults only.
  * Tailwind Preflight is intentionally NOT imported, so @digvation/ui never resets
  * html/body/buttons/inputs or changes the consumer application's layout.
- * Consumer projects can override these semantic variables after importing this file,
- * or map their own variables with createCssVariableTheme().
+ * Defaults live in the low-priority `theme` cascade layer: normal unlayered project
+ * variables win even if the consumer happens to load its application CSS earlier.
  */
-:root,
-:root[data-ds-mode='light'] {
-  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --color-background: hsl(220 25% 98%);
-  --color-surface: #ffffff;
-  --color-surface-muted: hsl(220 15% 95%);
-  --color-text: hsl(220 20% 12%);
-  --color-text-muted: hsl(220 10% 50%);
-  --color-border: hsl(220 18% 90%);
-  --color-brand: hsl(217 91% 53%);
-  --color-brand-hover: hsl(217 91% 47%);
-  --color-brand-active: hsl(217 91% 41%);
-  --color-brand-foreground: #ffffff;
-  --color-secondary: hsl(220 15% 95%);
-  --color-secondary-hover: hsl(220 15% 92%);
-  --color-secondary-active: hsl(220 15% 88%);
-  --color-secondary-foreground: hsl(220 20% 12%);
-  --color-focus: hsl(217 91% 53%);
-  --color-info: hsl(200 90% 45%);
-  --color-success: hsl(145 65% 38%);
-  --color-warning: hsl(38 92% 50%);
-  --color-danger: hsl(0 72% 51%);
-  --color-tooltip: #1f2a44;
-  --color-accent-yellow: #f8e85d;
-  --color-accent-mint: #bfe4d2;
-  --color-accent-sky: #b9d8ef;
-  --color-accent-lavender: #cec4f5;
-  --color-accent-coral: #f3a08b;
-  --radius-control: 8px;
-  --radius-card: 16px;
-  --radius-panel: 16px;
-  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
-  --shadow-md: 0 8px 24px rgb(15 23 42 / 0.10);
-  --shadow-lg: 0 18px 50px rgb(15 23 42 / 0.16);
-  --shadow-panel: var(--shadow-md);
-}
+@layer theme {
+  :root,
+  :root[data-ds-mode='light'] {
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --color-background: hsl(220 25% 98%);
+    --color-surface: #ffffff;
+    --color-surface-muted: hsl(220 15% 95%);
+    --color-text: hsl(220 20% 12%);
+    --color-text-muted: hsl(220 10% 50%);
+    --color-border: hsl(220 18% 90%);
+    --color-brand: hsl(217 91% 53%);
+    --color-brand-hover: hsl(217 91% 47%);
+    --color-brand-active: hsl(217 91% 41%);
+    --color-brand-foreground: #ffffff;
+    --color-secondary: hsl(220 15% 95%);
+    --color-secondary-hover: hsl(220 15% 92%);
+    --color-secondary-active: hsl(220 15% 88%);
+    --color-secondary-foreground: hsl(220 20% 12%);
+    --color-focus: hsl(217 91% 53%);
+    --color-info: hsl(200 90% 45%);
+    --color-success: hsl(145 65% 38%);
+    --color-warning: hsl(38 92% 50%);
+    --color-danger: hsl(0 72% 51%);
+    --color-tooltip: #1f2a44;
+    --color-accent-yellow: #f8e85d;
+    --color-accent-mint: #bfe4d2;
+    --color-accent-sky: #b9d8ef;
+    --color-accent-lavender: #cec4f5;
+    --color-accent-coral: #f3a08b;
+    --radius-control: 8px;
+    --radius-card: 16px;
+    --radius-panel: 16px;
+    --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
+    --shadow-md: 0 8px 24px rgb(15 23 42 / 0.10);
+    --shadow-lg: 0 18px 50px rgb(15 23 42 / 0.16);
+    --shadow-panel: var(--shadow-md);
+  }
 
-:root[data-ds-mode='dark'] {
-  --color-background: hsl(222 28% 8%);
-  --color-surface: hsl(222 23% 12%);
-  --color-surface-muted: hsl(221 20% 17%);
-  --color-text: hsl(216 25% 94%);
-  --color-text-muted: hsl(216 12% 65%);
-  --color-border: hsl(220 16% 24%);
-  --color-brand: hsl(217 91% 62%);
-  --color-brand-hover: hsl(217 91% 68%);
-  --color-brand-active: hsl(217 91% 72%);
-  --color-brand-foreground: hsl(222 28% 8%);
-  --color-secondary: hsl(221 20% 17%);
-  --color-secondary-hover: hsl(221 20% 21%);
-  --color-secondary-active: hsl(221 20% 25%);
-  --color-secondary-foreground: hsl(216 25% 94%);
-  --color-focus: hsl(217 91% 62%);
-  --color-info: hsl(200 90% 58%);
-  --color-success: hsl(145 58% 48%);
-  --color-warning: hsl(38 92% 58%);
-  --color-danger: hsl(0 78% 62%);
-  --color-tooltip: hsl(220 24% 6%);
-  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.18);
-  --shadow-md: 0 10px 30px rgb(0 0 0 / 0.24);
-  --shadow-lg: 0 20px 60px rgb(0 0 0 / 0.34);
-  --shadow-panel: var(--shadow-md);
-}
+  :root[data-ds-mode='dark'] {
+    --color-background: hsl(222 28% 8%);
+    --color-surface: hsl(222 23% 12%);
+    --color-surface-muted: hsl(221 20% 17%);
+    --color-text: hsl(216 25% 94%);
+    --color-text-muted: hsl(216 12% 65%);
+    --color-border: hsl(220 16% 24%);
+    --color-brand: hsl(217 91% 62%);
+    --color-brand-hover: hsl(217 91% 68%);
+    --color-brand-active: hsl(217 91% 72%);
+    --color-brand-foreground: hsl(222 28% 8%);
+    --color-secondary: hsl(221 20% 17%);
+    --color-secondary-hover: hsl(221 20% 21%);
+    --color-secondary-active: hsl(221 20% 25%);
+    --color-secondary-foreground: hsl(216 25% 94%);
+    --color-focus: hsl(217 91% 62%);
+    --color-info: hsl(200 90% 58%);
+    --color-success: hsl(145 58% 48%);
+    --color-warning: hsl(38 92% 58%);
+    --color-danger: hsl(0 78% 62%);
+    --color-tooltip: hsl(220 24% 6%);
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.18);
+    --shadow-md: 0 10px 30px rgb(0 0 0 / 0.24);
+    --shadow-lg: 0 20px 60px rgb(0 0 0 / 0.34);
+    --shadow-panel: var(--shadow-md);
+  }
 
-:root[data-theme-radius='COMPACT'] {
-  --radius-control: 6px;
-  --radius-card: 10px;
-  --radius-panel: 12px;
-}
+  :root[data-theme-radius='COMPACT'] {
+    --radius-control: 6px;
+    --radius-card: 10px;
+    --radius-panel: 12px;
+  }
 
-:root[data-theme-radius='ROUNDED'] {
-  --radius-control: 12px;
-  --radius-card: 20px;
-  --radius-panel: 24px;
+  :root[data-theme-radius='ROUNDED'] {
+    --radius-control: 12px;
+    --radius-card: 20px;
+    --radius-panel: 24px;
+  }
 }
 
 @keyframes boot-progress {
