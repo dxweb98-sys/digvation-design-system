@@ -1,7 +1,7 @@
 {
   "name": "digvation-design-system-workspace",
   "private": true,
-  "version": "0.2.0",
+  "version": "1.0.0-rc.1",
   "workspaces": [
     "packages/*",
     "apps/*"
@@ -20,5 +20,12 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dxweb98-sys/digvation-design-system.git"
+  },
+  "publishConfig": {
+    "access": "restricted"
   }
 }
