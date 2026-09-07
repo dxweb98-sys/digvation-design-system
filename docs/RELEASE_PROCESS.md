@@ -118,7 +118,7 @@ Manual smoke pass:
 - DSelect: open/select/clear/keyboard
 - DCombobox: local search, async search, stale response protection, refetch
 - floating overlays: first open, scroll down/up, nested scrolling, resize, collision/flip
-- DDatePicker / DRangeDatePicker
+- DDatePicker / DTimePicker / DRangeDatePicker
 - DNotificationPanel
 - DDialog focus/scroll locking
 - light/dark/custom token themes
