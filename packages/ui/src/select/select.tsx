@@ -130,6 +130,7 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
     [isAsync, query, searchable, sourceOptions],
   );
   const selected = staticOptions.find((option) => sameValue(option.value, selectedValue)) ?? (sameValue(resolvedAsyncSelection?.value, selectedValue) ? resolvedAsyncSelection : null);
+  const showClear = Boolean(clearable && selected && !disabled);
 
   useEffect(() => {
     if (!isAsync || !fetchOptions || !isOpen) return;
@@ -212,11 +213,11 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
       {label ? <label htmlFor={id} className={cn(s.label, 'inline-block w-fit font-medium text-[var(--color-text)]')}>{label}</label> : null}
       <DDropdown matchWidth open={isOpen} onOpenChange={(next) => { setOpen(next); if (next && !query) setActiveIndex(selectedIndex()); }} contentRole="listbox" contentPadding={false} contentClassName="overflow-hidden" scrollBehavior={scrollBehavior} onClose={() => { setOpen(false); setQuery(''); }} trigger={({ open }) => (
         <div className="relative">
-          <button {...props} ref={ref} id={id} type="button" disabled={disabled} aria-invalid={Boolean(error) || undefined} aria-haspopup="listbox" aria-expanded={open} aria-controls={`${id}-listbox`} onKeyDown={handleTriggerKeyDown} className={cn('flex w-full items-center rounded-[var(--radius-control)] border bg-[var(--color-surface)] text-left transition-colors duration-150 focus:border-[var(--color-brand)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:opacity-50', s.input, error ? 'border-[var(--color-danger)]' : 'border-[var(--color-border)]', selected ? 'text-[var(--color-text)]' : 'text-[var(--color-text-muted)]/60', 'pr-10', className)}>
+          <button {...props} ref={ref} id={id} type="button" disabled={disabled} aria-invalid={Boolean(error) || undefined} aria-haspopup="listbox" aria-expanded={open} aria-controls={`${id}-listbox`} onKeyDown={handleTriggerKeyDown} className={cn('flex w-full items-center rounded-[var(--radius-control)] border bg-[var(--color-surface)] text-left transition-colors duration-150 focus:border-[var(--color-brand)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:opacity-50', s.input, error ? 'border-[var(--color-danger)]' : 'border-[var(--color-border)]', selected ? 'text-[var(--color-text)]' : 'text-[var(--color-text-muted)]/60', showClear ? (size === 'sm' ? 'pr-14' : 'pr-16') : 'pr-10', className)}>
             <span className="min-w-0 flex-1 truncate">{selected ? selected.label : resolvedPlaceholder}</span>
           </button>
-          <div className={cn('absolute top-1/2 flex -translate-y-1/2 items-center gap-1 text-[var(--color-text-muted)]', size === 'sm' ? 'right-1.5' : 'right-2')}>
-            {clearable && selected && !disabled ? <button type="button" tabIndex={-1} aria-label={t('select.clear')} onMouseDown={(event) => event.preventDefault()} onClick={clear} className="rounded-md p-0.5 hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]"><ClearIcon /></button> : null}
+          <div className={cn('absolute top-1/2 flex -translate-y-1/2 items-center gap-1.5 text-[var(--color-text-muted)]', size === 'sm' ? 'right-2' : 'right-2.5')}>
+            {showClear ? <button type="button" tabIndex={-1} aria-label={t('select.clear')} onMouseDown={(event) => event.preventDefault()} onClick={clear} className="appearance-none rounded-md border-0 bg-transparent p-1 shadow-none hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]"><ClearIcon /></button> : null}
             {!disabled ? <ChevronDownIcon open={open} /> : null}
           </div>
         </div>

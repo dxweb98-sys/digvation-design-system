@@ -108,13 +108,13 @@ function ValidationDemo() {
 
         <DFormField name="schedule" label="Jadwal" value={schedule} rules={[required(), date()]}>
           {({ error }) => (
-            <DDatePicker label="Jadwal" variant="date-time" minuteStep={15} value={schedule} error={error} onChange={setSchedule} />
+            <DDatePicker label="Jadwal" variant="date-time" value={schedule} error={error} onChange={setSchedule} />
           )}
         </DFormField>
 
         <DFormField name="startTime" label="Jam mulai" value={startTime} rules={[required(), time()]}>
           {({ error }) => (
-            <DTimePicker label="Jam mulai" minuteStep={15} value={startTime} error={error} onChange={setStartTime} />
+            <DTimePicker label="Jam mulai" value={startTime} error={error} onChange={setStartTime} />
           )}
         </DFormField>
       </div>
@@ -163,7 +163,7 @@ function LocalizationDemo() {
         <div className="preview-grid">
           <DSelect label="Select / Pilihan" value={selectValue} onChange={setSelectValue} searchable options={[{ label: 'Alpha', value: 'alpha' }, { label: 'Beta', value: 'beta' }]} />
           <DDatePicker label="Date / Tanggal" value={dateValue} onChange={setDateValue} />
-          <DTimePicker label="Time / Waktu" value={timeValue} onChange={setTimeValue} minuteStep={15} />
+          <DTimePicker label="Time / Waktu" value={timeValue} onChange={setTimeValue} />
         </div>
       </DLocalizationProvider>
     </div>

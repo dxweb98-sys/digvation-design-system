@@ -63,7 +63,7 @@ function TimePickerContent({
   };
 
   return (
-    <div className="w-[min(320px,calc(100vw-16px))] p-3">
+    <div className={cn('p-3', variant === 'hour' ? 'w-[min(232px,calc(100vw-16px))]' : 'w-[min(320px,calc(100vw-16px))]')}>
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold text-[var(--color-text)]">{t('timePicker.title')}</p>
