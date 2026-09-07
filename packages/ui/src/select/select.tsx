@@ -15,6 +15,7 @@ import {
 
 import { cn } from '../cn';
 import { DDropdown, type FloatingScrollBehavior } from '../dropdown';
+import { useDLocalization } from '../localization';
 import { INPUT_SIZE_STYLES, type InputSize } from '../shared';
 
 export interface SelectOption {
@@ -80,12 +81,12 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
     containerClassName,
     id: providedId,
     options,
-    placeholder = 'Pilih...',
+    placeholder,
     clearable = true,
     searchable = false,
     loading = false,
-    emptyMessage = 'Tidak ditemukan',
-    asyncErrorMessage = 'Gagal memuat pilihan',
+    emptyMessage,
+    asyncErrorMessage,
     fetchOptions,
     refetchKey,
     onFetchError,
@@ -103,6 +104,7 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
 ) {
   const generatedId = useId();
   const id = providedId ?? generatedId;
+  const { t } = useDLocalization();
   const s = INPUT_SIZE_STYLES[size];
   const requestIdRef = useRef(0);
   const resolveRequestIdRef = useRef(0);
@@ -115,6 +117,9 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
   const [isFetching, setFetching] = useState(false);
   const [fetchError, setFetchError] = useState<unknown>(null);
   const selectedValue = value === undefined ? internalValue : value;
+  const resolvedPlaceholder = placeholder ?? t('select.placeholder');
+  const resolvedEmptyMessage = emptyMessage ?? t('select.empty');
+  const resolvedAsyncErrorMessage = asyncErrorMessage ?? t('select.asyncError');
   const staticOptions = useMemo(() => options?.slice() ?? selectOptionsFromChildren(children), [children, options]);
   const isAsync = Boolean(fetchOptions);
   const sourceOptions = isAsync ? asyncOptions : staticOptions;
@@ -133,17 +138,13 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
       setFetching(true);
       setFetchError(null);
       void fetchOptions(query)
-        .then((result) => {
-          if (requestId === requestIdRef.current) setAsyncOptions(result);
-        })
+        .then((result) => { if (requestId === requestIdRef.current) setAsyncOptions(result); })
         .catch((nextError: unknown) => {
           if (requestId !== requestIdRef.current) return;
           setFetchError(nextError);
           onFetchError?.(nextError);
         })
-        .finally(() => {
-          if (requestId === requestIdRef.current) setFetching(false);
-        });
+        .finally(() => { if (requestId === requestIdRef.current) setFetching(false); });
     }, debounceMs);
     return () => window.clearTimeout(timeout);
   }, [debounceMs, fetchOptions, isAsync, isOpen, onFetchError, query, refetchKey]);
@@ -185,11 +186,7 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
   };
 
   const handleTriggerKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
-    if (event.key === 'Escape') {
-      setOpen(false);
-      setQuery('');
-      return;
-    }
+    if (event.key === 'Escape') { setOpen(false); setQuery(''); return; }
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault();
       const count = filteredOptions.length || 1;
@@ -206,63 +203,28 @@ export const DSelect = forwardRef<HTMLButtonElement, SelectProps>(function DSele
       event.preventDefault();
       const active = filteredOptions[activeIndex];
       if (isOpen && active && !active.disabled) choose(active);
-      else {
-        setActiveIndex(selectedIndex());
-        setOpen(true);
-      }
+      else { setActiveIndex(selectedIndex()); setOpen(true); }
     }
   };
 
   return (
     <div data-ds-component="select" className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
       {label ? <label htmlFor={id} className={cn(s.label, 'inline-block w-fit font-medium text-[var(--color-text)]')}>{label}</label> : null}
-      <DDropdown
-        matchWidth
-        open={isOpen}
-        onOpenChange={(next) => {
-          setOpen(next);
-          if (next && !query) setActiveIndex(selectedIndex());
-        }}
-        contentRole="listbox"
-        contentPadding={false}
-        contentClassName="overflow-hidden"
-        scrollBehavior={scrollBehavior}
-        onClose={() => { setOpen(false); setQuery(''); }}
-        trigger={({ open }) => (
-          <div className="relative">
-            <button
-              {...props}
-              ref={ref}
-              id={id}
-              type="button"
-              disabled={disabled}
-              aria-invalid={Boolean(error) || undefined}
-              aria-haspopup="listbox"
-              aria-expanded={open}
-              aria-controls={`${id}-listbox`}
-              onKeyDown={handleTriggerKeyDown}
-              className={cn(
-                'flex w-full items-center rounded-[var(--radius-control)] border bg-[var(--color-surface)] text-left transition-colors duration-150 focus:border-[var(--color-brand)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:opacity-50',
-                s.input,
-                error ? 'border-[var(--color-danger)]' : 'border-[var(--color-border)]',
-                selected ? 'text-[var(--color-text)]' : 'text-[var(--color-text-muted)]/60',
-                'pr-10',
-                className,
-              )}
-            >
-              <span className="min-w-0 flex-1 truncate">{selected ? selected.label : placeholder}</span>
-            </button>
-            <div className={cn('absolute top-1/2 flex -translate-y-1/2 items-center gap-1 text-[var(--color-text-muted)]', size === 'sm' ? 'right-1.5' : 'right-2')}>
-              {clearable && selected && !disabled ? <button type="button" tabIndex={-1} aria-label="Clear selection" onMouseDown={(event) => event.preventDefault()} onClick={clear} className="rounded-md p-0.5 hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]"><ClearIcon /></button> : null}
-              {!disabled ? <ChevronDownIcon open={open} /> : null}
-            </div>
+      <DDropdown matchWidth open={isOpen} onOpenChange={(next) => { setOpen(next); if (next && !query) setActiveIndex(selectedIndex()); }} contentRole="listbox" contentPadding={false} contentClassName="overflow-hidden" scrollBehavior={scrollBehavior} onClose={() => { setOpen(false); setQuery(''); }} trigger={({ open }) => (
+        <div className="relative">
+          <button {...props} ref={ref} id={id} type="button" disabled={disabled} aria-invalid={Boolean(error) || undefined} aria-haspopup="listbox" aria-expanded={open} aria-controls={`${id}-listbox`} onKeyDown={handleTriggerKeyDown} className={cn('flex w-full items-center rounded-[var(--radius-control)] border bg-[var(--color-surface)] text-left transition-colors duration-150 focus:border-[var(--color-brand)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:opacity-50', s.input, error ? 'border-[var(--color-danger)]' : 'border-[var(--color-border)]', selected ? 'text-[var(--color-text)]' : 'text-[var(--color-text-muted)]/60', 'pr-10', className)}>
+            <span className="min-w-0 flex-1 truncate">{selected ? selected.label : resolvedPlaceholder}</span>
+          </button>
+          <div className={cn('absolute top-1/2 flex -translate-y-1/2 items-center gap-1 text-[var(--color-text-muted)]', size === 'sm' ? 'right-1.5' : 'right-2')}>
+            {clearable && selected && !disabled ? <button type="button" tabIndex={-1} aria-label={t('select.clear')} onMouseDown={(event) => event.preventDefault()} onClick={clear} className="rounded-md p-0.5 hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]"><ClearIcon /></button> : null}
+            {!disabled ? <ChevronDownIcon open={open} /> : null}
           </div>
-        )}
-      >
+        </div>
+      )}>
         <div id={`${id}-listbox`} className="max-h-60 overflow-hidden">
-          {searchable ? <div className="border-b border-[var(--color-border)] p-1.5"><input autoFocus value={query} onChange={(event) => { setQuery(event.target.value); setActiveIndex(0); }} placeholder="Cari..." className="h-8 w-full rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 text-xs text-[var(--color-text)] outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/20" /></div> : null}
+          {searchable ? <div className="border-b border-[var(--color-border)] p-1.5"><input autoFocus value={query} onChange={(event) => { setQuery(event.target.value); setActiveIndex(0); }} placeholder={t('select.searchPlaceholder')} className="h-8 w-full rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 text-xs text-[var(--color-text)] outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/20" /></div> : null}
           <div className="max-h-48 space-y-0.5 overflow-y-auto p-1.5">
-            {loading || isFetching ? <p className="px-3 py-2 text-sm text-[var(--color-text-muted)]">Loading...</p> : fetchError ? <p className="px-3 py-2 text-sm text-[var(--color-danger)]">{asyncErrorMessage}</p> : filteredOptions.length === 0 ? <p className="px-3 py-2 text-sm text-[var(--color-text-muted)]">{emptyMessage}</p> : filteredOptions.map((option, index) => {
+            {loading || isFetching ? <p className="px-3 py-2 text-sm text-[var(--color-text-muted)]">{t('select.loading')}</p> : fetchError ? <p className="px-3 py-2 text-sm text-[var(--color-danger)]">{resolvedAsyncErrorMessage}</p> : filteredOptions.length === 0 ? <p className="px-3 py-2 text-sm text-[var(--color-text-muted)]">{resolvedEmptyMessage}</p> : filteredOptions.map((option, index) => {
               const isSelected = sameValue(option.value, selectedValue);
               return <button key={String(option.value)} type="button" role="option" aria-selected={isSelected} disabled={option.disabled} onMouseEnter={() => setActiveIndex(index)} onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.stopPropagation(); if (!option.disabled) choose(option); }} className={cn('w-full rounded-[var(--radius-menu-item)] px-3 py-2 text-left text-sm text-[var(--color-text)] transition-colors hover:bg-[var(--color-surface-muted)] disabled:cursor-not-allowed disabled:opacity-50', isSelected && 'bg-[var(--color-brand)]/10 font-medium text-[var(--color-brand)]', index === activeIndex && !isSelected && 'bg-[var(--color-surface-muted)]')}>{option.label}</button>;
             })}

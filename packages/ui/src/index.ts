@@ -15,8 +15,61 @@ export { DDateRangeFilter, type DateRangeFilterProps } from './date-range-filter
 export { DDropdown, DropdownContext, useDropdown, useDropdownClose, type DropdownProps, type DropdownContextValue, type FloatingPlacement, type FloatingScrollBehavior } from './dropdown';
 export { DEmptyState } from './empty-state';
 export { DExportButton, type ExportButtonProps, type ExportFormat } from './export-button';
+export {
+  DForm,
+  DFormField,
+  DValidationMessage,
+  useDFormField,
+  accepted,
+  customValidation,
+  date,
+  email,
+  integer,
+  maxLength,
+  maxValue,
+  minLength,
+  minValue,
+  oneOf,
+  pattern,
+  required,
+  sameAs,
+  time,
+  url,
+  validateValue,
+  type DFormFieldProps,
+  type DFormFieldState,
+  type DFormProps,
+  type DValidationMessageProps,
+  type FormErrors,
+  type FormRenderProps,
+  type FormValidateOn,
+  type FormValues,
+  type UseDFormFieldOptions,
+  type ValidationContext,
+  type ValidationIssue,
+  type ValidationParams,
+  type ValidationResult,
+  type ValidationRule,
+  type ValidationSchema,
+  type ValidationValue,
+} from './form-validation';
 export { DInfoNote, type InfoNoteProps, type InfoNoteVariant } from './info-note';
 export { DInput, DDecimalInput, DCurrencyInput, normalizeDecimalInput, formatCurrencyInputValue, parseCurrencyInputValue, type InputProps, type InputType, type InputFormat, type DecimalInputProps, type CurrencyInputProps, type DecimalNormalizationOptions, type CurrencyFormatOptions, type InputSize } from './input';
+export {
+  DLocalizationProvider,
+  createDTranslator,
+  useDLocalization,
+  idMessages,
+  enMessages,
+  getLocalizedMonthNames,
+  getLocalizedWeekdayNames,
+  type BuiltInLocalizationKey,
+  type LocalizationContextValue,
+  type LocalizationMessages,
+  type LocalizationParams,
+  type LocalizationProviderProps,
+  type LocalizationTranslator,
+} from './localization';
 export { DLoadingIndicator, DLoadingOverlay } from './loading';
 export { DNotificationPanel, type NotificationPanelProps, type NotificationItem } from './notification-panel';
 export { DProgress, type ProgressProps } from './progress';

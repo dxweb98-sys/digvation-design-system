@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { cn } from '../../cn';
+import { useDLocalization } from '../../localization';
 import {
   formatTimeValue,
   getMinuteOptions,
@@ -19,7 +20,7 @@ interface TimePickerPanelProps {
 
 interface WheelColumnProps {
   label: string;
-  valueLabel: (value: number) => string;
+  optionAriaLabel: (text: string) => string;
   options: readonly number[];
   selected: number;
   onSelect: (value: number) => void;
@@ -30,7 +31,7 @@ const ITEM_HEIGHT = 44;
 const VISIBLE_ITEMS = 5;
 const WHEEL_PADDING = ITEM_HEIGHT * Math.floor(VISIBLE_ITEMS / 2);
 
-function WheelColumn({ label, valueLabel, options, selected, onSelect }: WheelColumnProps) {
+function WheelColumn({ label, optionAriaLabel, options, selected, onSelect }: WheelColumnProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const settleTimerRef = useRef<number | null>(null);
   const selectedIndex = Math.max(0, options.indexOf(selected));
@@ -72,11 +73,12 @@ function WheelColumn({ label, valueLabel, options, selected, onSelect }: WheelCo
         {options.map((option, index) => {
           const active = option === selected;
           const distance = Math.abs(index - selectedIndex);
+          const text = String(option).padStart(2, '0');
           return (
             <button
               key={option}
               type="button"
-              aria-label={`${label} ${valueLabel(option)}`}
+              aria-label={optionAriaLabel(text)}
               aria-pressed={active}
               tabIndex={active ? 0 : -1}
               onClick={() => onSelect(option)}
@@ -91,7 +93,7 @@ function WheelColumn({ label, valueLabel, options, selected, onSelect }: WheelCo
                       : 'text-sm text-[var(--color-text-muted)] opacity-20',
               )}
             >
-              {valueLabel(option)}
+              {text}
             </button>
           );
         })}
@@ -101,8 +103,11 @@ function WheelColumn({ label, valueLabel, options, selected, onSelect }: WheelCo
 }
 
 export function TimePickerPanel({ value, variant, minuteStep, onChange, className }: TimePickerPanelProps) {
+  const { t } = useDLocalization();
   const parsed = parseTimeValue(value) ?? { hour: 0, minute: 0 };
   const minuteOptions = getMinuteOptions(minuteStep, parsed.minute);
+  const hourLabel = t('timePicker.hour');
+  const minuteLabel = t('timePicker.minute');
 
   const selectHour = (hour: number) => {
     onChange(formatTimeValue(hour, variant === 'hour' ? 0 : parsed.minute));
@@ -127,8 +132,8 @@ export function TimePickerPanel({ value, variant, minuteStep, onChange, classNam
 
       <div className="relative z-10 flex items-center gap-2">
         <WheelColumn
-          label="Jam"
-          valueLabel={(hour) => String(hour).padStart(2, '0')}
+          label={hourLabel}
+          optionAriaLabel={(text) => t('timePicker.hourOption', { value: text })}
           options={HOURS}
           selected={parsed.hour}
           onSelect={selectHour}
@@ -138,8 +143,8 @@ export function TimePickerPanel({ value, variant, minuteStep, onChange, classNam
           <>
             <span aria-hidden="true" className="relative z-10 -mx-1 text-xl font-semibold text-[var(--color-text-muted)]">:</span>
             <WheelColumn
-              label="Menit"
-              valueLabel={(minute) => String(minute).padStart(2, '0')}
+              label={minuteLabel}
+              optionAriaLabel={(text) => t('timePicker.minuteOption', { value: text })}
               options={minuteOptions}
               selected={parsed.minute}
               onSelect={selectMinute}

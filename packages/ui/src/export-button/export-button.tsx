@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { DButton } from '../button';
 import { DDropdown, useDropdownClose } from '../dropdown';
+import { useDLocalization } from '../localization';
 
 export type ExportFormat = 'pdf' | 'excel';
 export interface ExportButtonProps {
@@ -14,6 +15,7 @@ export interface ExportButtonProps {
 function DownloadIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-3.5"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" /></svg>; }
 function ExportContent({ onExport, filename, onSuccess, onError, onProcessing, setLoading }: ExportButtonProps & { filename: string; setLoading: (value: boolean) => void }) {
   const close = useDropdownClose();
+  const { t } = useDLocalization();
   const run = async (format: ExportFormat) => {
     close?.(); setLoading(true);
     try {
@@ -28,9 +30,10 @@ function ExportContent({ onExport, filename, onSuccess, onError, onProcessing, s
     } catch (error) { onError?.(error, format); }
     finally { setLoading(false); }
   };
-  return <div className="min-w-[140px] py-1"><button type="button" onClick={() => void run('pdf')} className="w-full px-3 py-2 text-left text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-muted)]">Export PDF</button><button type="button" onClick={() => void run('excel')} className="w-full px-3 py-2 text-left text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-muted)]">Export Excel</button></div>;
+  return <div className="min-w-[140px] py-1"><button type="button" onClick={() => void run('pdf')} className="w-full px-3 py-2 text-left text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-muted)]">{t('export.pdf')}</button><button type="button" onClick={() => void run('excel')} className="w-full px-3 py-2 text-left text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-muted)]">{t('export.excel')}</button></div>;
 }
 export function DExportButton({ filename = 'export', disabled, ...props }: ExportButtonProps) {
   const [loading, setLoading] = useState(false);
-  return <DDropdown placement="bottom-end" trigger={() => <DButton variant="outline" size="sm" leftIcon={<DownloadIcon />} loading={loading} disabled={disabled}>Export</DButton>}><ExportContent {...props} filename={filename} disabled={disabled} setLoading={setLoading} /></DDropdown>;
+  const { t } = useDLocalization();
+  return <DDropdown placement="bottom-end" trigger={() => <DButton variant="outline" size="sm" leftIcon={<DownloadIcon />} loading={loading} disabled={disabled}>{t('export.label')}</DButton>}><ExportContent {...props} filename={filename} disabled={disabled} setLoading={setLoading} /></DDropdown>;
 }

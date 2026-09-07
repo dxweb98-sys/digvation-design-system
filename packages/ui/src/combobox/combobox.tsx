@@ -10,6 +10,7 @@ import {
 
 import { cn } from '../cn';
 import { DDropdown, type FloatingScrollBehavior } from '../dropdown';
+import { useDLocalization } from '../localization';
 import { INPUT_SIZE_STYLES, type InputSize } from '../shared';
 import type { SelectOption } from '../select';
 
@@ -33,7 +34,6 @@ export interface ComboboxProps {
   size?: InputSize;
   onChange?: (value: string | number | null) => void;
   fetchOptions?: (search: string) => Promise<readonly SelectOption[]>;
-  /** Change this key (for example when countryId changes) to request fresh async options. */
   refetchKey?: string | number | boolean | null;
   onFetchError?: (error: unknown) => void;
   asyncErrorMessage?: ReactNode;
@@ -57,7 +57,7 @@ export interface ComboboxProps {
 
 export function DCombobox({
   label,
-  placeholder = 'Ketik untuk mencari...',
+  placeholder,
   options = [],
   value,
   size = 'md',
@@ -65,7 +65,7 @@ export function DCombobox({
   fetchOptions,
   refetchKey,
   onFetchError,
-  asyncErrorMessage = 'Gagal memuat pilihan',
+  asyncErrorMessage,
   error,
   hint,
   disabled = false,
@@ -84,6 +84,7 @@ export function DCombobox({
   scrollBehavior = 'reposition',
 }: ComboboxProps) {
   const id = useId();
+  const { t } = useDLocalization();
   const inputRef = useRef<HTMLInputElement>(null);
   const searchRequestIdRef = useRef(0);
   const resolveRequestIdRef = useRef(0);
@@ -96,6 +97,8 @@ export function DCombobox({
   const [resolvedSelection, setResolvedSelection] = useState<SelectOption | null>(null);
   const s = INPUT_SIZE_STYLES[size];
   const isAsync = Boolean(fetchOptions);
+  const resolvedPlaceholder = placeholder ?? t('combobox.placeholder');
+  const resolvedAsyncErrorMessage = asyncErrorMessage ?? t('combobox.asyncError');
 
   useEffect(() => {
     if (!fetchOptions || !open) return;
@@ -104,17 +107,13 @@ export function DCombobox({
       setFetching(true);
       setFetchError(null);
       void fetchOptions(inputValue)
-        .then((result) => {
-          if (requestId === searchRequestIdRef.current) setAsyncOptions(result);
-        })
+        .then((result) => { if (requestId === searchRequestIdRef.current) setAsyncOptions(result); })
         .catch((nextError: unknown) => {
           if (requestId !== searchRequestIdRef.current) return;
           setFetchError(nextError);
           onFetchError?.(nextError);
         })
-        .finally(() => {
-          if (requestId === searchRequestIdRef.current) setFetching(false);
-        });
+        .finally(() => { if (requestId === searchRequestIdRef.current) setFetching(false); });
     }, debounceMs);
     return () => window.clearTimeout(timeout);
   }, [debounceMs, fetchOptions, inputValue, onFetchError, open, refetchKey]);
@@ -170,11 +169,7 @@ export function DCombobox({
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Escape') {
-      setOpen(false);
-      setInputValue('');
-      return;
-    }
+    if (event.key === 'Escape') { setOpen(false); setInputValue(''); return; }
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault();
       setOpen(true);
@@ -184,25 +179,12 @@ export function DCombobox({
       });
       return;
     }
-    if (event.key === 'Home' && open) {
-      event.preventDefault();
-      setActiveIndex(0);
-      return;
-    }
-    if (event.key === 'End' && open) {
-      event.preventDefault();
-      setActiveIndex(Math.max(0, filtered.length - 1));
-      return;
-    }
+    if (event.key === 'Home' && open) { event.preventDefault(); setActiveIndex(0); return; }
+    if (event.key === 'End' && open) { event.preventDefault(); setActiveIndex(Math.max(0, filtered.length - 1)); return; }
     if (event.key === 'Enter' && open) {
       const active = filtered[activeIndex];
-      if (active && !active.disabled) {
-        event.preventDefault();
-        choose(active);
-      } else if (allowCreate && inputValue.trim()) {
-        event.preventDefault();
-        create();
-      }
+      if (active && !active.disabled) { event.preventDefault(); choose(active); }
+      else if (allowCreate && inputValue.trim()) { event.preventDefault(); create(); }
     }
   };
 
@@ -211,62 +193,48 @@ export function DCombobox({
   return (
     <div className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
       {label ? <label htmlFor={id} className={cn(s.label, 'w-fit font-medium text-[var(--color-text)]')}>{label}</label> : null}
-      <DDropdown
-        matchWidth
-        open={open}
-        onOpenChange={setOpen}
-        contentRole="listbox"
-        contentPadding={false}
-        contentClassName="max-h-60 overflow-y-auto p-1.5"
-        scrollBehavior={scrollBehavior}
-        onClose={() => { setOpen(false); setInputValue(''); }}
-        trigger={() => (
-          <div className="relative">
-            <SearchIcon className={cn('pointer-events-none absolute top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]', s.iconLeft)} />
-            <input
-              ref={inputRef}
-              id={id}
-              aria-label={ariaLabel}
-              role="combobox"
-              aria-autocomplete="list"
-              aria-expanded={open}
-              aria-controls={`${id}-listbox`}
-              aria-activedescendant={open && filtered[activeIndex] ? `${id}-option-${activeIndex}` : undefined}
-              autoComplete="off"
-              type="text"
-              disabled={disabled}
-              value={open ? inputValue : String(selectedOption?.label ?? '')}
-              placeholder={selectedOption ? String(selectedOption.label) : placeholder}
-              onClick={(event) => event.stopPropagation()}
-              onFocus={() => {
-                setOpen(true);
-                const selectedIndex = filtered.findIndex((option) => sameValue(option.value, value));
-                setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0);
-              }}
-              onChange={(event) => {
-                const next = event.target.value;
-                setInputValue(next);
-                onSearchChange?.(next);
-                setOpen(true);
-                setActiveIndex(0);
-              }}
-              onKeyDown={handleKeyDown}
-              className={cn(
-                'w-full rounded-lg border bg-[var(--color-surface)] text-[var(--color-text)] focus:border-[var(--color-brand)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:opacity-50',
-                s.input,
-                'pl-10 pr-10',
-                error ? 'border-[var(--color-danger)] focus:ring-[var(--color-danger)]/20' : 'border-[var(--color-border)]',
-              )}
-            />
-            {clearable && selectedOption && !disabled ? <button type="button" tabIndex={-1} aria-label="Clear selection" onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); clear(); }} className={cn('absolute top-1/2 -translate-y-1/2 rounded-md p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]', s.clear)}><ClearIcon /></button> : null}
-          </div>
-        )}
-      >
+      <DDropdown matchWidth open={open} onOpenChange={setOpen} contentRole="listbox" contentPadding={false} contentClassName="max-h-60 overflow-y-auto p-1.5" scrollBehavior={scrollBehavior} onClose={() => { setOpen(false); setInputValue(''); }} trigger={() => (
+        <div className="relative">
+          <SearchIcon className={cn('pointer-events-none absolute top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]', s.iconLeft)} />
+          <input
+            ref={inputRef}
+            id={id}
+            aria-label={ariaLabel}
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={open}
+            aria-invalid={Boolean(error) || undefined}
+            aria-controls={`${id}-listbox`}
+            aria-activedescendant={open && filtered[activeIndex] ? `${id}-option-${activeIndex}` : undefined}
+            autoComplete="off"
+            type="text"
+            disabled={disabled}
+            value={open ? inputValue : String(selectedOption?.label ?? '')}
+            placeholder={selectedOption ? String(selectedOption.label) : resolvedPlaceholder}
+            onClick={(event) => event.stopPropagation()}
+            onFocus={() => {
+              setOpen(true);
+              const selectedIndex = filtered.findIndex((option) => sameValue(option.value, value));
+              setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0);
+            }}
+            onChange={(event) => {
+              const next = event.target.value;
+              setInputValue(next);
+              onSearchChange?.(next);
+              setOpen(true);
+              setActiveIndex(0);
+            }}
+            onKeyDown={handleKeyDown}
+            className={cn('w-full rounded-lg border bg-[var(--color-surface)] text-[var(--color-text)] focus:border-[var(--color-brand)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:opacity-50', s.input, 'pl-10 pr-10', error ? 'border-[var(--color-danger)] focus:ring-[var(--color-danger)]/20' : 'border-[var(--color-border)]')}
+          />
+          {clearable && selectedOption && !disabled ? <button type="button" tabIndex={-1} aria-label={t('combobox.clear')} onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); clear(); }} className={cn('absolute top-1/2 -translate-y-1/2 rounded-md p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]', s.clear)}><ClearIcon /></button> : null}
+        </div>
+      )}>
         <div id={`${id}-listbox`} className="space-y-0.5">
-          {loading || isFetching ? <div className="px-3 py-6 text-center text-sm text-[var(--color-text-muted)]">Mencari...</div> : fetchError ? <div className="px-3 py-6 text-center text-sm text-[var(--color-danger)]">{asyncErrorMessage}</div> : showIdle ? <div className="px-3 py-6 text-center text-sm text-[var(--color-text-muted)]">{idleMessage}</div> : filtered.length === 0 ? (
+          {loading || isFetching ? <div className="px-3 py-6 text-center text-sm text-[var(--color-text-muted)]">{t('combobox.searching')}</div> : fetchError ? <div className="px-3 py-6 text-center text-sm text-[var(--color-danger)]">{resolvedAsyncErrorMessage}</div> : showIdle ? <div className="px-3 py-6 text-center text-sm text-[var(--color-text-muted)]">{idleMessage}</div> : filtered.length === 0 ? (
             renderEmpty ? renderEmpty(inputValue) : allowCreate && inputValue.trim() ? (
-              renderCreateOption ? renderCreateOption(inputValue, create) : <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.stopPropagation(); create(); }} className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-[var(--color-brand)] hover:bg-[var(--color-surface-muted)]">Gunakan “{inputValue.trim()}”</button>
-            ) : <div className="px-3 py-6 text-center text-sm text-[var(--color-text-muted)]">Tidak ditemukan</div>
+              renderCreateOption ? renderCreateOption(inputValue, create) : <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.stopPropagation(); create(); }} className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-[var(--color-brand)] hover:bg-[var(--color-surface-muted)]">{t('combobox.useValue', { value: inputValue.trim() })}</button>
+            ) : <div className="px-3 py-6 text-center text-sm text-[var(--color-text-muted)]">{t('combobox.empty')}</div>
           ) : filtered.map((option, index) => {
             const isSelected = sameValue(option.value, value);
             return <button id={`${id}-option-${index}`} key={String(option.value)} type="button" role="option" aria-selected={isSelected} disabled={option.disabled} onMouseEnter={() => setActiveIndex(index)} onMouseDown={(event) => event.preventDefault()} onClick={(event) => { event.stopPropagation(); choose(option); }} className={cn('w-full rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-[var(--color-surface-muted)] disabled:cursor-not-allowed disabled:opacity-50', isSelected && 'bg-[var(--color-brand)]/10 font-medium text-[var(--color-brand)]', index === activeIndex && !isSelected && 'bg-[var(--color-surface-muted)]')}>{renderOption ? renderOption(option, isSelected) : option.label}</button>;

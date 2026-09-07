@@ -29,10 +29,23 @@ The local docs app contains interactive previews and copyable usage snippets. Th
 | `DDateRangeFilter` | Toolbar date filter | `from`, `to`, change callbacks, `onClear` |
 | `DSelectFilter` | OldUi-style inline-label select filter | `label`, `options`, `value`, `onChange`, `scrollBehavior` |
 | `DStatusFilter` | Quick status chips | `options`, `value`, `onChange`, counts |
+| `DForm` / `DFormField` | Flexible form validation coordinator for Digvation and project-owned controls | `values`, `schema`, `validateOn`, `rules`, `onSubmit`, `onInvalid` |
+| `DValidationMessage` | Shared error message for primitives/custom controls without an `error` prop | `error` |
 
 `DDatePicker` keeps `variant="date"` as the default and preserves its existing `YYYY-MM-DD` value contract. `variant="date-hour"` and `variant="date-time"` emit local ISO-like values in `YYYY-MM-DDTHH:mm` form. `DTimePicker` uses canonical `HH:mm`; its `hour` variant always normalizes minutes to `00`.
 
 For new work, keep `DSelect` simple/static-first and use `DCombobox` when the user types to filter/search or options are fetched from an API.
+
+## Localization
+
+| Export | Purpose |
+|---|---|
+| `DLocalizationProvider` | Indonesian-default runtime localization context with project i18n adapter support |
+| `useDLocalization` | Read active locale and design-system translator |
+| `createDTranslator` | Build a translator outside React or for integration/testing |
+| `idMessages` / `enMessages` | Built-in Digvation message dictionaries |
+
+Projects may pass `locale`, selected `messages` overrides, or a `translate` adapter. Built-in component copy follows the active locale while consumer-provided labels/messages retain precedence.
 
 ## Feedback
 

@@ -12,6 +12,7 @@ import {
 } from 'react';
 
 import { cn } from '../cn';
+import { useDLocalization } from '../localization';
 import { INPUT_SIZE_STYLES, type InputSize } from '../shared';
 
 export type InputFormat = 'plain' | 'currency' | 'percentage';
@@ -110,6 +111,7 @@ export const DInput = forwardRef<HTMLInputElement, InputProps>(function DInput(
   },
   forwardedRef,
 ) {
+  const { t } = useDLocalization();
   const autoId = useId();
   const id = externalId ?? autoId;
   const inputRef = useRef<HTMLInputElement>(null);
@@ -188,7 +190,7 @@ export const DInput = forwardRef<HTMLInputElement, InputProps>(function DInput(
           <label htmlFor={id} className={cn(s.label, 'font-medium text-[var(--color-text)]')}>{label}</label>
           {labelInfo ? (
             <div ref={tooltipRef} className="group relative flex items-center">
-              <button type="button" aria-label="Field information" aria-expanded={showTooltip} onClick={() => setShowTooltip((v) => !v)} className="text-[var(--color-text-muted)] hover:text-[var(--color-text)]">
+              <button type="button" aria-label={t('input.fieldInfo')} aria-expanded={showTooltip} onClick={() => setShowTooltip((v) => !v)} className="text-[var(--color-text-muted)] hover:text-[var(--color-text)]">
                 <InfoIcon className="size-3.5" />
               </button>
               <div role="tooltip" className={cn('invisible absolute bottom-full left-1/2 z-50 mb-2 w-max max-w-[220px] -translate-x-1/2 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100', showTooltip && 'visible opacity-100')}>
@@ -230,9 +232,9 @@ export const DInput = forwardRef<HTMLInputElement, InputProps>(function DInput(
         {resolvedSuffix ? <span className={cn('pointer-events-none absolute top-1/2 -translate-y-1/2 font-medium text-[var(--color-text-muted)]', size === 'sm' ? 'right-2.5 text-xs' : 'right-3 text-sm')}>{resolvedSuffix}</span> : null}
         {(showClear || type === 'password' || trailingIcon || loading) ? (
           <div className={cn('absolute top-1/2 flex -translate-y-1/2 items-center text-[var(--color-text-muted)]', size === 'sm' ? 'right-1.5 gap-0.5' : 'right-2 gap-1', resolvedSuffix && 'pointer-events-none opacity-0')}>
-            {loading ? <span aria-label="Loading" className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" /> : null}
-            {!loading && showClear ? <button type="button" tabIndex={-1} aria-label="Clear input" onMouseDown={(event) => event.preventDefault()} onClick={handleClear} className={cn('rounded-md hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]', size === 'sm' ? 'p-0.5' : 'p-1')}><ClearIcon className={size === 'sm' ? 'size-3' : 'size-3.5'} /></button> : null}
-            {!loading && type === 'password' ? <button type="button" tabIndex={-1} aria-label={showPassword ? 'Hide password' : 'Show password'} onMouseDown={(event) => event.preventDefault()} onClick={() => setShowPassword((v) => !v)} className={cn('rounded-md hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]', size === 'sm' ? 'p-0.5' : 'p-1')}><EyeIcon closed={showPassword} className={size === 'sm' ? 'size-3' : 'size-3.5'} /></button> : null}
+            {loading ? <span aria-label={t('input.loading')} className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" /> : null}
+            {!loading && showClear ? <button type="button" tabIndex={-1} aria-label={t('input.clear')} onMouseDown={(event) => event.preventDefault()} onClick={handleClear} className={cn('rounded-md hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]', size === 'sm' ? 'p-0.5' : 'p-1')}><ClearIcon className={size === 'sm' ? 'size-3' : 'size-3.5'} /></button> : null}
+            {!loading && type === 'password' ? <button type="button" tabIndex={-1} aria-label={showPassword ? t('input.hidePassword') : t('input.showPassword')} onMouseDown={(event) => event.preventDefault()} onClick={() => setShowPassword((v) => !v)} className={cn('rounded-md hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]', size === 'sm' ? 'p-0.5' : 'p-1')}><EyeIcon closed={showPassword} className={size === 'sm' ? 'size-3' : 'size-3.5'} /></button> : null}
             {!loading && trailingIcon ? <span className="flex items-center">{trailingIcon}</span> : null}
           </div>
         ) : null}
