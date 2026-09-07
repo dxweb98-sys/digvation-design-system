@@ -14,6 +14,7 @@
 
 - Built-in copy and accessibility labels in form, filter, table, pagination, dialog, loading, notification, connection, and export surfaces now resolve through the design-system localization context while consumer-provided labels/messages still take precedence.
 - Calendar month/weekday names and `DDataTable` number/date formatting now follow the active locale via `Intl` APIs.
+- `DTimePicker` uses a compact popup for the hour-only variant, default documentation shows the full `00`–`59` minute range, and `DSelect` gives its clear and chevron controls more default breathing room.
 
 ## 1.0.0 - 2026-09-05
 

@@ -8,6 +8,16 @@ import { DTimePicker } from './time-picker';
 afterEach(cleanup);
 
 describe('date and time pickers', () => {
+  it('shows the full 00-59 minute range by default', () => {
+    render(<DTimePicker label="Full minute time" value="09:15" onChange={() => {}} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Full minute time' }));
+
+    expect(screen.getByRole('button', { name: 'Menit 00' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Menit 01' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Menit 59' })).toBeTruthy();
+  });
+
   it('selects hour and minute as a canonical HH:mm value', () => {
     function Example() {
       const [value, setValue] = useState('09:15');
