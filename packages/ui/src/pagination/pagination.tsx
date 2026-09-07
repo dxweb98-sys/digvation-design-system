@@ -1,5 +1,6 @@
 import { cn } from '../cn';
 import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from '../internal/icons';
+import { useDLocalization } from '../localization';
 
 export interface PaginationProps {
   page: number;
@@ -32,15 +33,16 @@ export function DPagination({
   disabled = false,
   className,
 }: PaginationProps) {
+  const { t } = useDLocalization();
   const go = (next: number) => {
     if (!disabled && next >= 1 && next <= totalPages && next !== page) onChange(next);
   };
 
   return (
-    <nav data-ds-component="pagination" aria-label="Pagination" className={cn('flex items-center gap-1', className)}>
+    <nav data-ds-component="pagination" aria-label={t('pagination.label')} className={cn('flex items-center gap-1', className)}>
       <button
         type="button"
-        aria-label="Previous page"
+        aria-label={t('pagination.previous')}
         disabled={disabled || page <= 1}
         onClick={() => go(page - 1)}
         className={cn(pageButtonBase, 'border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]')}
@@ -69,7 +71,7 @@ export function DPagination({
 
       <button
         type="button"
-        aria-label="Next page"
+        aria-label={t('pagination.next')}
         disabled={disabled || page >= totalPages}
         onClick={() => go(page + 1)}
         className={cn(pageButtonBase, 'border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)]')}

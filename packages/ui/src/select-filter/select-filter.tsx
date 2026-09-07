@@ -2,6 +2,7 @@ import { useId, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { cn } from '../cn';
 import { DDropdown, type FloatingScrollBehavior } from '../dropdown';
+import { useDLocalization } from '../localization';
 import type { SelectOption } from '../select';
 
 function ClearIcon() {
@@ -29,7 +30,7 @@ export interface SelectFilterProps {
 /** Filter-specific DSelect from oldUi: label lives inside the trigger, not above it. */
 export function DSelectFilter({
   label,
-  placeholder = 'Pilih...',
+  placeholder,
   options,
   value,
   onChange,
@@ -41,10 +42,12 @@ export function DSelectFilter({
   containerClassName,
   scrollBehavior = 'close',
 }: SelectFilterProps) {
+  const { t } = useDLocalization();
   const id = useId();
   const searchRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState('');
   const selectedOption = options.find((option) => String(option.value) === String(value ?? ''));
+  const resolvedPlaceholder = placeholder ?? t('selectFilter.placeholder');
   const filtered = useMemo(() => {
     if (!searchable || !search) return options;
     const query = search.toLocaleLowerCase();
@@ -80,18 +83,19 @@ export function DSelectFilter({
               id={id}
               type="button"
               disabled={disabled}
+              aria-invalid={Boolean(error) || undefined}
               className={cn(
                 'min-w-0 flex-1 truncate pl-3 pr-6 text-left outline-none',
                 selectedOption ? 'text-[var(--color-text)]' : 'text-[var(--color-text-muted)]/60',
               )}
             >
-              {selectedOption ? selectedOption.label : placeholder}
+              {selectedOption ? selectedOption.label : resolvedPlaceholder}
             </button>
             <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1 text-[var(--color-text-muted)]">
               {clearable && selectedOption && !disabled ? (
                 <button
                   type="button"
-                  aria-label="Clear filter"
+                  aria-label={t('selectFilter.clear')}
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={(event) => {
                     event.stopPropagation();
@@ -114,7 +118,7 @@ export function DSelectFilter({
                 ref={searchRef}
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Cari..."
+                placeholder={t('selectFilter.searchPlaceholder')}
                 className="h-8 w-full rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/20"
               />
             </div>
