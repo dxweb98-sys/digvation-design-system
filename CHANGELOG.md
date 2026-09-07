@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## 1.1.0 - 2026-09-07
+
+Backward-compatible form, localization, date/time, documentation, and interaction refinements for `@digvation/ui`.
+
 ### Added
 
 - Added `DTimePicker` with `hour` and `hour-minute` variants, configurable minute steps, shared field sizing, clear/error/hint behavior, and floating-overlay scroll policy.
