@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { cn } from '../cn';
 import { XIcon } from '../internal/icons';
 import { lockDocumentScroll } from '../internal/scroll-lock';
+import { useDLocalization } from '../localization';
 
 const FOCUSABLE_SELECTOR = [
   'a[href]',
@@ -184,6 +185,7 @@ export function DDialog({
   ariaLabel,
   ariaLabelledBy,
 }: DialogProps) {
+  const { t } = useDLocalization();
   return (
     <DialogRoot
       open={open}
@@ -210,7 +212,7 @@ export function DDialog({
           {showClose ? (
             <button
               type="button"
-              aria-label="Close dialog"
+              aria-label={t('dialog.close')}
               onClick={onClose}
               className="grid size-8 shrink-0 appearance-none place-items-center rounded-lg border-0 bg-transparent p-0 text-[var(--color-text-muted)] outline-none shadow-none transition-colors hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]/25"
             >

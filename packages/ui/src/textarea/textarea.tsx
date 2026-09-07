@@ -7,6 +7,7 @@ import {
 } from 'react';
 
 import { cn } from '../cn';
+import { useDLocalization } from '../localization';
 
 function ClearIcon() {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-3.5"><path d="m18 6-12 12M6 6l12 12" /></svg>;
@@ -46,6 +47,7 @@ export const DTextarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function
   },
   ref,
 ) {
+  const { t } = useDLocalization();
   const autoId = useId();
   const id = externalId ?? autoId;
   const hasValue = value !== undefined && value !== null && value !== '';
@@ -80,7 +82,7 @@ export const DTextarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function
             className,
           )}
         />
-        {clearable && hasValue && !disabled && !readOnly ? <button type="button" tabIndex={-1} aria-label="Clear textarea" onMouseDown={(event) => event.preventDefault()} onClick={clear} className="absolute right-2 top-2 rounded-md p-1 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]"><ClearIcon /></button> : null}
+        {clearable && hasValue && !disabled && !readOnly ? <button type="button" tabIndex={-1} aria-label={t('textarea.clear')} onMouseDown={(event) => event.preventDefault()} onClick={clear} className="absolute right-2 top-2 rounded-md p-1 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]"><ClearIcon /></button> : null}
       </div>
       {error ? <p className="text-xs text-[var(--color-danger)]">{error}</p> : null}
       {!error && hint ? <p className="text-xs text-[var(--color-text-muted)]">{hint}</p> : null}
