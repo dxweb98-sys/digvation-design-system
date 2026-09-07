@@ -88,7 +88,7 @@ describe('component normalization boundaries', () => {
     cleanup();
 
     render(<DPagination page={2} totalPages={5} onChange={() => undefined} />);
-    expect(screen.getByRole('button', { name: 'Previous page' }).className).toContain('appearance-none');
+    expect(screen.getByRole('button', { name: 'Halaman sebelumnya' }).className).toContain('appearance-none');
     expect(screen.getByRole('button', { name: '2' }).className).toContain('appearance-none');
     cleanup();
 
@@ -107,7 +107,7 @@ describe('component normalization boundaries', () => {
     const sortButton = screen.getByRole('button', { name: 'Project' });
     expect(sortButton.className).toContain('border-0');
     expect(sortButton.className).toContain('bg-transparent');
-    expect(screen.getByRole('button', { name: 'Page 1' }).className).toContain('border-0');
+    expect(screen.getByRole('button', { name: 'Halaman 1' }).className).toContain('border-0');
   });
 
   it('keeps accordion visual variants intentional and notification portal controls scoped', () => {
@@ -139,10 +139,10 @@ describe('component normalization boundaries', () => {
     );
     const panel = screen.getByRole('dialog', { name: 'Notifikasi' });
     expect(panel.getAttribute('data-ds-component')).toBe('notification-panel');
-    expect(screen.getByRole('button', { name: 'Mark all read' }).className).toContain('border-0');
-    expect(screen.getByRole('button', { name: 'Mark all read' }).className).toContain('shadow-none');
-    expect(screen.getByRole('button', { name: 'Dismiss Build complete' }).className).toContain('border-0');
-    expect(screen.getByRole('button', { name: 'Dismiss Build complete' }).className).toContain('shadow-none');
+    expect(screen.getByRole('button', { name: 'Tandai semua sudah dibaca' }).className).toContain('border-0');
+    expect(screen.getByRole('button', { name: 'Tandai semua sudah dibaca' }).className).toContain('shadow-none');
+    expect(screen.getByRole('button', { name: 'Tutup Build complete' }).className).toContain('border-0');
+    expect(screen.getByRole('button', { name: 'Tutup Build complete' }).className).toContain('shadow-none');
   });
 
   it('scopes dialog portal controls and keeps its close action visually neutral', () => {
@@ -153,7 +153,7 @@ describe('component normalization boundaries', () => {
     );
 
     const dialog = screen.getByRole('dialog', { name: 'Project settings' });
-    const closeButton = screen.getByRole('button', { name: 'Close dialog' });
+    const closeButton = screen.getByRole('button', { name: 'Tutup dialog' });
     expect(dialog.getAttribute('data-ds-component')).toBe('dialog');
     expect(closeButton.className).toContain('appearance-none');
     expect(closeButton.className).toContain('border-0');

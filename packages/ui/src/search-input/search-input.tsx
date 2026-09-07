@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { cn } from '../cn';
+import { useDLocalization } from '../localization';
 
 function SearchIcon() {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>;
@@ -22,12 +23,14 @@ export interface SearchInputProps {
 export function DSearchInput({
   value,
   onChange,
-  placeholder = 'Cari...',
+  placeholder,
   debounceMs = 300,
   className,
   align = 'right',
   expandedWidth = '280px',
 }: SearchInputProps) {
+  const { t } = useDLocalization();
+  const resolvedPlaceholder = placeholder ?? t('searchInput.placeholder');
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const desktopInputRef = useRef<HTMLInputElement | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -103,13 +106,13 @@ export function DSearchInput({
             setLocalValue(event.target.value);
             if (event.target.value) setActive(true);
           }}
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           className="h-9 w-full appearance-none rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] pl-9 pr-9 text-sm text-[var(--color-text)] outline-none shadow-sm placeholder:text-[var(--color-text-muted)]/70 focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/20"
         />
         {localValue ? (
           <button
             type="button"
-            aria-label="Clear search"
+            aria-label={t('searchInput.clear')}
             onClick={clearSearch}
             className="absolute right-2 top-1/2 -translate-y-1/2 appearance-none rounded-md border-0 bg-transparent p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]"
           >
@@ -141,7 +144,7 @@ export function DSearchInput({
             onKeyDown={(event) => {
               if (event.key === 'Escape') clearSearch();
             }}
-            placeholder={placeholder}
+            placeholder={resolvedPlaceholder}
             className={cn(
               'h-full w-full appearance-none border-0 bg-transparent pl-9 pr-9 text-sm text-[var(--color-text)] outline-none placeholder:text-[var(--color-text-muted)]/70 transition-opacity duration-150 ease-out',
               active ? 'opacity-100' : 'pointer-events-none opacity-0',
@@ -150,7 +153,7 @@ export function DSearchInput({
           {active && localValue ? (
             <button
               type="button"
-              aria-label="Clear search"
+              aria-label={t('searchInput.clear')}
               onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
