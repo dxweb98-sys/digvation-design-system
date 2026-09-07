@@ -1,1 +1,6 @@
-export { DDatePicker, type DatePickerProps } from './date-picker';
+export {
+  DDatePicker,
+  type DatePickerProps,
+  type DatePickerVariant,
+  type DatePickerMinuteStep,
+} from './date-picker';

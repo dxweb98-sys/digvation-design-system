@@ -143,6 +143,46 @@ Use `refetchKey` when remote options depend on external form state.
 
 When `countryId` changes while the combobox is open, fresh options are requested. The design system intentionally does not require TanStack Query or another data library; caching/retry policy remains an application concern.
 
+## DDatePicker and DTimePicker
+
+Use `DDatePicker` for a calendar value. Existing consumers keep the date-only behavior because `variant="date"` remains the default and continues to emit `YYYY-MM-DD`.
+
+```tsx
+<DDatePicker
+  label="Deployment date"
+  value={date}
+  onChange={setDate}
+/>
+```
+
+Use `date-hour` when the date only needs hour precision, or `date-time` for hour and minute selection. Both datetime variants use `YYYY-MM-DDTHH:mm`; `date-hour` always writes `:00` minutes.
+
+```tsx
+<DDatePicker
+  label="Deployment schedule"
+  variant="date-time"
+  minuteStep={15}
+  value={scheduledAt}
+  onChange={setScheduledAt}
+/>
+```
+
+Use `DTimePicker` when no calendar date is needed. Its value contract is always canonical `HH:mm` so consumers do not need different parsing logic between `hour` and `hour-minute` variants.
+
+```tsx
+<DTimePicker
+  label="Start time"
+  variant="hour-minute"
+  minuteStep={15}
+  value={startTime}
+  onChange={setStartTime}
+/>
+```
+
+`minuteStep` supports `1`, `5`, `10`, `15`, or `30`. The standalone `hour` variant normalizes any incoming minute value to `00` when displayed or emitted.
+
+Both controls reuse the shared `DDropdown` floating engine, semantic field sizing, and existing theme tokens.
+
 ## Shared field naming
 
 Where meaningful, form controls use:
@@ -160,3 +200,45 @@ loading
 ```
 
 Do not invent a second name for the same concept in a new form component without a concrete semantic reason.
+
+
+## Shared validation
+
+Use `DForm` with `DFormField` (or `useDFormField`) when a project wants design-system validation without coupling Digvation UI to React Hook Form, Formik, Zod, or another application library.
+
+```tsx
+<DForm validateOn={["blur", "submit"]} onSubmit={save}>
+  <DFormField name="email" label="Email" value={emailValue} rules={[required(), email()]}>
+    {({ error, onBlur }) => (
+      <DInput
+        label="Email"
+        value={emailValue}
+        error={error}
+        onBlur={onBlur}
+        onChange={setEmailValue}
+      />
+    )}
+  </DFormField>
+</DForm>
+```
+
+Built-in rules cover required/accepted values, email/URL, min/max length and number values, integers, patterns, same-as/cross-field checks, option membership, date, time, and custom sync/async rules. `validateOn` accepts `submit`, `blur`, `change`, or an array. A field may override the form-level mode.
+
+Components with an `error` prop render validation directly. Primitive controls such as `DCheckbox`, `DRadio`, `DToggle`, and custom project controls can use `DValidationMessage`.
+
+## Localization
+
+`DLocalizationProvider` defaults to `id-ID`. Built-in English messages are provided and the provider accepts a project-owned `translate` adapter so existing i18next, next-intl, react-intl, or internal i18n setup can control Digvation component copy.
+
+```tsx
+<DLocalizationProvider
+  locale={i18n.language}
+  translate={(key, params, fallback) =>
+    t(`designSystem.${key}`, { ...params, defaultValue: fallback })
+  }
+>
+  <App />
+</DLocalizationProvider>
+```
+
+When `locale` changes, localized Digvation component defaults rerender. Consumer-supplied props such as `label`, `placeholder`, `title`, `emptyMessage`, and action labels keep precedence. Calendar names and locale-sensitive table date/number formatting use `Intl`.

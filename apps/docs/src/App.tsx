@@ -37,6 +37,7 @@ import {
   DProgress,
   DRadio,
   DRangeDatePicker,
+  DTimePicker,
   DSearchInput,
   DSelect,
   DSelectFilter,
@@ -61,14 +62,17 @@ import {
   type ThemeMode,
   type ThemeRadius,
   type ThemeTokens,
-} from '@digvation-labs/ui';
+} from '@digvation/ui';
 import { ComponentDocsTabs } from './component-lab';
+import { ValidationLocalizationExamples } from './validation-localization-examples';
 
 type NavItem = { id: string; label: string; group: string };
 
 const navItems: NavItem[] = [
   { id: 'getting-started', label: 'Getting Started', group: 'Guide' },
   { id: 'theming', label: 'Theming', group: 'Guide' },
+  { id: 'validation', label: 'Form Validation', group: 'Guide' },
+  { id: 'localization', label: 'Localization', group: 'Guide' },
   { id: 'button', label: 'DButton', group: 'Actions' },
   { id: 'input', label: 'DInput', group: 'Forms' },
   { id: 'textarea', label: 'DTextarea', group: 'Forms' },
@@ -77,6 +81,7 @@ const navItems: NavItem[] = [
   { id: 'search-input', label: 'DSearchInput', group: 'Forms' },
   { id: 'checkbox-radio-toggle', label: 'DCheckbox / DRadio / DToggle', group: 'Forms' },
   { id: 'date-picker', label: 'DDatePicker', group: 'Forms' },
+  { id: 'time-picker', label: 'DTimePicker', group: 'Forms' },
   { id: 'range-date-picker', label: 'DRangeDatePicker', group: 'Forms' },
   { id: 'filters', label: 'Filters', group: 'Forms' },
   { id: 'badge-alert-note', label: 'DBadge / DAlert / DInfoNote', group: 'Feedback' },
@@ -218,7 +223,7 @@ function ThemePlayground({ tokens, setTokens, mode, setMode, radius, setRadius }
         </div>
         <div className="inline-actions"><DButton variant="outline" size="sm" onClick={()=>setTokens({})}>Reset colors</DButton></div>
       </div>
-      <div><Code>{css}</Code><p className="tiny-note">Documentation dogfoods @digvation-labs/ui. Native color input tetap dipakai hanya karena belum ada DColorPicker.</p></div>
+      <div><Code>{css}</Code><p className="tiny-note">Documentation dogfoods @digvation/ui. Native color input tetap dipakai hanya karena belum ada DColorPicker.</p></div>
     </div>
   );
 }
@@ -235,6 +240,9 @@ function FormExamples() {
   const [checked,setChecked]=useState(true);
   const [radio,setRadio]=useState('a');
   const [date,setDate]=useState('2026-09-04');
+  const [dateHour,setDateHour]=useState('2026-09-04T09:00');
+  const [dateTime,setDateTime]=useState('2026-09-04T09:15');
+  const [time,setTime]=useState('09:15');
   const [range,setRange]=useState({start:'2026-09-01',end:'2026-09-30'});
   const [status,setStatus]=useState('active');
   const [filter,setFilter]=useState<string|number|null>('all');
@@ -247,7 +255,8 @@ function FormExamples() {
     <DocSection id="combobox" title="DCombobox" description="Autocomplete/searchable choice dengan debounce async, allow-create, custom render option, clear, selected resolution dan refetch capability." props={['options','fetchOptions','allowCreate','onCreateOption','renderOption','debounceMs','refetchKey']} preview={<DCombobox label="Technology" value={combo} onChange={setCombo} allowCreate options={[{label:'React',value:'react'},{label:'Next.js',value:'next'},{label:'TypeScript',value:'ts'}]}/>} code={`<DCombobox value={technology} onChange={setTechnology} fetchOptions={fetchTechnology} refetchKey={projectId} />`} />
     <DocSection id="search-input" title="DSearchInput" description="Search field dengan local state + debounce, desktop expand/collapse, dan immediate clear." props={['value','onChange','debounceMs','placeholder','align','expandedWidth']} preview={<DSearchInput value={search} onChange={setSearch} placeholder="Search components..."/>} code={`<DSearchInput value={query} onChange={setQuery} debounceMs={300} placeholder="Search..." />`} />
     <DocSection id="checkbox-radio-toggle" title="DCheckbox, DRadio & DToggle" apiName="CheckboxProps" description="Primitive pilihan yang controlled-friendly dan memakai semantic brand token." preview={<div className="row-wrap"><label className="control-label"><DCheckbox checked={checked} onChange={(event)=>setChecked(event.target.checked)}/> DCheckbox</label><label className="control-label"><DRadio name="demo" checked={radio==='a'} onChange={()=>setRadio('a')}/> Option A</label><label className="control-label"><DRadio name="demo" checked={radio==='b'} onChange={()=>setRadio('b')}/> Option B</label><DToggle label="Notifications" checked={toggle} onChange={setToggle}/></div>} code={`<DCheckbox checked={checked} onChange={handleCheck} />\n<DRadio name="status" checked={selected} onChange={handleRadio} />\n<DToggle checked={enabled} onChange={setEnabled} />`} />
-    <DocSection id="date-picker" title="DDatePicker" description="Date picker dengan shared floating engine, size, clear, min/max, hint/error, dan controlled string value." props={['value','onChange','minDate','maxDate','clearable','size','scrollBehavior']} preview={<DDatePicker label="Deployment date" value={date} onChange={setDate}/>} code={`<DDatePicker label="Deployment date" value={date} onChange={setDate} />`} />
+    <DocSection id="date-picker" title="DDatePicker" description="Date picker dengan date-only default, date-hour, dan date-time. Ketiga variant tetap memakai controlled string value dan shared floating engine." props={['value','onChange','variant','minuteStep','minDate','maxDate','clearable','size','scrollBehavior']} preview={<div className="preview-grid"><DDatePicker label="Date only" value={date} onChange={setDate}/><DDatePicker label="Date + hour" variant="date-hour" value={dateHour} onChange={setDateHour}/><DDatePicker label="Date + time" variant="date-time" value={dateTime} onChange={setDateTime}/></div>} code={`<DDatePicker value={date} onChange={setDate} />\n<DDatePicker variant="date-hour" value={dateHour} onChange={setDateHour} />\n<DDatePicker variant="date-time" value={dateTime} onChange={setDateTime} />`} />
+    <DocSection id="time-picker" title="DTimePicker" description="Standalone time picker untuk jam saja atau jam + menit dengan canonical HH:mm value. Default menit menampilkan rentang valid 00–59." props={['value','onChange','variant','minuteStep','clearable','size','scrollBehavior']} preview={<div className="preview-grid"><DTimePicker label="Start time" value={time} onChange={setTime}/><DTimePicker label="Start hour" value={time} onChange={setTime} variant="hour"/></div>} code={`<DTimePicker label="Start time" value={time} onChange={setTime} />\n<DTimePicker label="Start hour" variant="hour" value={time} onChange={setTime} />`} />
     <DocSection id="range-date-picker" title="DRangeDatePicker" description="Range calendar dengan quick-range selection, compact popup, apply/cancel dan close-on-scroll default." props={['value','onChange','clearable','size','scrollBehavior']} preview={<DRangeDatePicker label="Report period" value={range} onChange={(next)=>setRange({start: next.start ?? '', end: next.end ?? ''})}/>} code={`<DRangeDatePicker label="Report period" value={range} onChange={setRange} />`} />
     <DocSection id="filters" title="Filter helpers" apiName="SelectFilterProps" description="Komponen filter reusable untuk toolbar dan data views." preview={<div className="stack"><DSelectFilter label="Category" value={filter} onChange={setFilter} options={[{label:'All',value:'all'},{label:'Product',value:'product'},{label:'Service',value:'service'}]}/><DStatusFilter label="Status" value={status} onChange={setStatus} options={[{label:'Active',value:'active',count:12},{label:'Draft',value:'draft',count:4}]}/><DDateRangeFilter from={from} to={to} onFromChange={setFrom} onToChange={setTo} onClear={()=>{setFrom('');setTo('');}}/></div>} code={`<DSelectFilter label="Category" options={options} value={category} onChange={setCategory} />`} />
   </>;
@@ -321,9 +330,10 @@ export function App() {
   const filtered=useMemo(()=>navItems.filter((item)=>item.label.toLowerCase().includes(query.toLowerCase())||item.group.toLowerCase().includes(query.toLowerCase())),[query]);
   const groups=useMemo(()=>Array.from(new Set(filtered.map((item)=>item.group))),[filtered]);
 
-  return <DThemeProvider tokens={tokens} mode={mode} radius={radius}><DToastProvider><div className="docs-app"><aside className="sidebar"><a className="brand" href="#top"><span>D.</span><div><strong>Digvation</strong><small>Design System</small></div></a><DInput containerClassName="nav-search-field" type="search" size="sm" clearable value={query} onChange={setQuery} placeholder="Search docs..."/><nav>{groups.map((group)=><div className="nav-group" key={group}><p>{group}</p>{filtered.filter((item)=>item.group===group).map((item)=><a key={item.id} href={`#${item.id}`}>{item.label}</a>)}</div>)}</nav><div className="sidebar-footer"><DBadge variant="success" dot>v0.2.0</DBadge><span>{navItems.length - 2} documented surfaces</span></div></aside><main><header id="top" className="hero"><div><DBadge variant="primary">Reusable React UI</DBadge><h1>One design system.<br/><span>Different project identities.</span></h1><p>Canonical reusable components with Digvation defaults, project-owned semantic theming, and documentation where Preview, Code, Props and Functions live in the same playground.</p><div className="hero-actions"><a className="hero-button" href="#getting-started">Get started</a><a className="hero-link" href="#theming">Customize theme →</a></div></div><div className="hero-card"><div className="hero-card-top"><span/><span/><span/></div><div className="hero-card-body"><DInput label="Project" value="New Product" onChange={()=>{}}/><DSelect label="Status" value="active" onChange={()=>{}} options={[{label:'Active',value:'active'}]}/><DButton fullWidth>Create project</DButton></div></div></header>
-        <section id="getting-started" className="guide-section"><p className="eyebrow">Guide</p><h2>Getting Started</h2><p className="lead">The repository is an npm workspace: the component package lives in <code>packages/ui</code>, while this documentation app lives in <code>apps/docs</code>.</p><div className="guide-grid"><DCard><DCardHeader><strong>Run documentation</strong></DCardHeader><DCardContent><Code>{`npm install\nnpm run dev`}</Code></DCardContent></DCard><DCard><DCardHeader><strong>Use in another project</strong></DCardHeader><DCardContent><Code>{`npm run pack:ui\nnpm install ../digvation-design-system/release/digvation-ui-0.2.0.tgz`}</Code></DCardContent></DCard></div><h3>Application setup</h3><Code>{`import '@digvation-labs/ui/styles.css';\nimport { DButton } from '@digvation-labs/ui';`}</Code><DAlert title="React requirement">React and React DOM remain peer dependencies.</DAlert></section>
+  return <DThemeProvider tokens={tokens} mode={mode} radius={radius}><DToastProvider><div className="docs-app"><aside className="sidebar"><a className="brand" href="#top"><span>D.</span><div><strong>Digvation</strong><small>Design System</small></div></a><DInput containerClassName="nav-search-field" type="search" size="sm" clearable value={query} onChange={setQuery} placeholder="Search docs..."/><nav>{groups.map((group)=><div className="nav-group" key={group}><p>{group}</p>{filtered.filter((item)=>item.group===group).map((item)=><a key={item.id} href={`#${item.id}`}>{item.label}</a>)}</div>)}</nav><div className="sidebar-footer"><DBadge variant="success" dot>v1.0.0</DBadge><span>{navItems.length - 2} documented surfaces</span></div></aside><main><header id="top" className="hero"><div><DBadge variant="primary">Reusable React UI</DBadge><h1>One design system.<br/><span>Different project identities.</span></h1><p>Canonical reusable components with Digvation defaults, project-owned semantic theming, and documentation where Preview, Code, Props and Functions live in the same playground.</p><div className="hero-actions"><a className="hero-button" href="#getting-started">Get started</a><a className="hero-link" href="#theming">Customize theme →</a></div></div><div className="hero-card"><div className="hero-card-top"><span/><span/><span/></div><div className="hero-card-body"><DInput label="Project" value="New Product" onChange={()=>{}}/><DSelect label="Status" value="active" onChange={()=>{}} options={[{label:'Active',value:'active'}]}/><DButton fullWidth>Create project</DButton></div></div></header>
+        <section id="getting-started" className="guide-section"><p className="eyebrow">Guide</p><h2>Getting Started</h2><p className="lead">The repository is an npm workspace: the component package lives in <code>packages/ui</code>, while this documentation app lives in <code>apps/docs</code>.</p><div className="guide-grid"><DCard><DCardHeader><strong>Run documentation</strong></DCardHeader><DCardContent><Code>{`npm install\nnpm run dev`}</Code></DCardContent></DCard><DCard><DCardHeader><strong>Use in another project</strong></DCardHeader><DCardContent><Code>{`npm run pack:ui\nnpm install ../digvation-design-system/release/digvation-ui-1.0.0.tgz`}</Code></DCardContent></DCard></div><h3>Application setup</h3><Code>{`import '@digvation/ui/styles.css';\nimport { DButton } from '@digvation/ui';`}</Code><DAlert title="React requirement">React and React DOM remain peer dependencies.</DAlert></section>
         <section id="theming" className="guide-section"><p className="eyebrow">Guide</p><h2>Theming</h2><p className="lead">Digvation defaults are always present. Projects only override semantic identity tokens such as primary, secondary, surfaces and status colors.</p><ThemePlayground tokens={tokens} setTokens={setTokens} mode={mode} setMode={setMode} radius={radius} setRadius={setRadius}/><DInfoNote variant="info" title="Portal-safe theming">DThemeProvider applies variables to the document root so portal surfaces inherit the same project theme.</DInfoNote></section>
+        <ValidationLocalizationExamples/>
         <ActionExamples/><FormExamples/><DisplayExamples/><ToastExample/><OverlayExamples/>
         <footer className="docs-footer"><strong>Digvation Design System</strong><span>Canonical components · themeable tokens · reusable package</span></footer>
       </main></div></DToastProvider></DThemeProvider>;

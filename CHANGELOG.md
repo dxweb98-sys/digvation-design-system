@@ -2,9 +2,27 @@
 
 ## [Unreleased]
 
+## 1.1.0 - 2026-09-07
+
+Backward-compatible form, localization, date/time, documentation, and interaction refinements for `@digvation/ui`.
+
+### Added
+
+- Added `DTimePicker` with `hour` and `hour-minute` variants, configurable minute steps, shared field sizing, clear/error/hint behavior, and floating-overlay scroll policy.
+- Added `DDatePicker` `date-hour` and `date-time` variants while preserving the existing `date` value/behavior contract. Date-time variants emit local ISO-like values in `YYYY-MM-DDTHH:mm` format.
+- Added flexible `DForm`, `DFormField`, `useDFormField`, and `DValidationMessage` primitives with reusable sync/async validation rules for required/accepted values, email/URL, length/value bounds, integers, patterns, cross-field equality, option membership, dates, times, and project-owned custom rules.
+- Added `DLocalizationProvider`, `useDLocalization`, and `createDTranslator` with Indonesian defaults, built-in English messages, runtime locale switching, message overrides, and an adapter hook for project i18n libraries.
+- Added interactive documentation for validation, localization, every `DDatePicker` variant, and both `DTimePicker` variants.
+
+### Changed
+
+- Built-in copy and accessibility labels in form, filter, table, pagination, dialog, loading, notification, connection, and export surfaces now resolve through the design-system localization context while consumer-provided labels/messages still take precedence.
+- Calendar month/weekday names and `DDataTable` number/date formatting now follow the active locale via `Intl` APIs.
+- `DTimePicker` uses a compact popup for the hour-only variant, default documentation shows the full `00`–`59` minute range, and `DSelect` gives its clear and chevron controls more default breathing room.
+
 ## 1.0.0 - 2026-09-05
 
-First stable production release of `@digvation-labs/ui`. The `D*` public component API, semantic theming contract, package exports, floating-overlay behavior, and repository/release workflow are now treated as stable consumer contracts.
+First stable production release of `@digvation/ui`. The `D*` public component API, semantic theming contract, package exports, floating-overlay behavior, and repository/release workflow are now treated as stable consumer contracts.
 
 ### Added
 

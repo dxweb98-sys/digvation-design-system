@@ -7,7 +7,7 @@ Reusable React + TypeScript design system for Digvation projects. The package ke
 Current stable production line:
 
 ```text
-@digvation-labs/ui@1.0.0
+@digvation/ui@1.0.0
 ```
 
 Starting with `1.0.0`, the public `D*` component API, exported types, semantic theme contract, package exports, and documented interaction behavior are compatibility-sensitive.
@@ -21,7 +21,7 @@ digvation-design-system/
 │  └─ docs/              # Vite documentation + integrated component playgrounds
 ├─ docs/                 # architecture, usage, release and customization guides
 ├─ packages/
-│  └─ ui/                # @digvation-labs/ui reusable package
+│  └─ ui/                # @digvation/ui reusable package
 ├─ release/              # npm pack output (.tgz)
 ├─ CHANGELOG.md
 ├─ CONTRIBUTING.md
@@ -48,19 +48,19 @@ See:
 After the package is available in the configured Digvation registry:
 
 ```bash
-npm install @digvation-labs/ui@^1.0.0
+npm install @digvation/ui@^1.0.0
 ```
 
 or:
 
 ```bash
-pnpm add @digvation-labs/ui@^1.0.0
+pnpm add @digvation/ui@^1.0.0
 ```
 
 Import the stylesheet once at the application entry/root stylesheet boundary:
 
 ```ts
-import '@digvation-labs/ui/styles.css';
+import '@digvation/ui/styles.css';
 import './app.css';
 ```
 
@@ -72,7 +72,7 @@ import {
   DInput,
   DSelect,
   DDialog,
-} from '@digvation-labs/ui';
+} from '@digvation/ui';
 ```
 
 A consumer does **not** need a theme provider just to make components look correct. The package always ships the Digvation fallback theme.
@@ -89,7 +89,7 @@ import {
   DCombobox,
   DDialog,
   DDataTable,
-} from '@digvation-labs/ui';
+} from '@digvation/ui';
 ```
 
 There is one canonical implementation per component. The package does not export duplicate unprefixed `Button`, `Input`, `Select`, etc.
@@ -97,12 +97,12 @@ There is one canonical implementation per component. The package does not export
 Types and helpers keep normal names:
 
 ```tsx
-import { DButton, type ButtonProps, type ButtonVariant } from '@digvation-labs/ui';
+import { DButton, type ButtonProps, type ButtonVariant } from '@digvation/ui';
 ```
 
 ## Project-owned theming
 
-`@digvation-labs/ui/styles.css` intentionally omits Tailwind Preflight and application-level global resets. The consuming project owns `html`, `body`, layout, sidebar, base typography, routing shell, and application reset CSS.
+`@digvation/ui/styles.css` intentionally omits Tailwind Preflight and application-level global resets. The consuming project owns `html`, `body`, layout, sidebar, base typography, routing shell, and application reset CSS.
 
 The design system owns component structure, spacing, states, accessibility, and behavior. Project identity is mapped through semantic tokens.
 
@@ -131,7 +131,7 @@ Map them once:
 import {
   DThemeProvider,
   createCssVariableTheme,
-} from '@digvation-labs/ui';
+} from '@digvation/ui';
 
 const uiTheme = createCssVariableTheme({
   primary: '--app-primary',

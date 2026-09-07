@@ -120,7 +120,7 @@ describe('shared field controls', () => {
       />,
     );
     expect(screen.getByRole('cell', { name: 'Alya' })).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Halaman berikutnya' }));
     expect(pages).toEqual([3]);
     expect(getPaginationPages(6, 10)).toEqual([4, 5, 6, 7, 8]);
   });

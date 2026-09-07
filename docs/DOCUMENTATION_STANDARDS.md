@@ -1,6 +1,6 @@
 # Documentation standards
 
-The documentation app is a consumer of `@digvation-labs/ui` and should exercise the same public API that product applications use.
+The documentation app is a consumer of `@digvation/ui` and should exercise the same public API that product applications use.
 
 ## Dogfooding rule
 
