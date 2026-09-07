@@ -7,6 +7,7 @@ import {
   useFloatingPosition,
   type FloatingScrollBehavior,
 } from '../internal/floating/use-floating-position';
+import { useDLocalization } from '../localization';
 
 export interface NotificationItem {
   id: string;
@@ -50,12 +51,15 @@ export function DNotificationPanel({
   onMarkAllRead,
   onDismiss,
   anchorRef,
-  title = 'Notifikasi',
-  emptyMessage = 'Tidak ada notifikasi',
+  title,
+  emptyMessage,
   className,
   offset = 8,
   scrollBehavior = 'reposition',
 }: NotificationPanelProps) {
+  const { t } = useDLocalization();
+  const resolvedTitle = title ?? t('notification.title');
+  const resolvedEmptyMessage = emptyMessage ?? t('notification.empty');
   const floatingRef = useRef<HTMLDivElement>(null);
   const emptyReference = useRef<HTMLElement | null>(null);
   const referenceRef = anchorRef ?? emptyReference;
@@ -101,7 +105,7 @@ export function DNotificationPanel({
     <div
       ref={floatingRef}
       role="dialog"
-      aria-label={title}
+      aria-label={resolvedTitle}
       data-ds-component="notification-panel"
       data-ds-surface="floating"
       data-positioned={hasAnchor ? (positioned ? 'true' : 'false') : 'fallback'}
@@ -115,7 +119,7 @@ export function DNotificationPanel({
     >
       <div className="flex min-h-12 items-center justify-between border-b border-[var(--color-border)] px-4 py-2">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="truncate text-sm font-semibold text-[var(--color-text)]">{title}</span>
+          <span className="truncate text-sm font-semibold text-[var(--color-text)]">{resolvedTitle}</span>
           {unread > 0 ? (
             <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-brand)] px-1.5 text-[10px] font-bold text-[var(--color-brand-foreground)]">
               {unread}
@@ -124,11 +128,11 @@ export function DNotificationPanel({
         </div>
         <div className="flex shrink-0 items-center gap-0.5">
           {unread > 0 ? (
-            <button type="button" aria-label="Mark all read" onClick={onMarkAllRead} className={iconButtonClass}>
+            <button type="button" aria-label={t('notification.markAllRead')} onClick={onMarkAllRead} className={iconButtonClass}>
               <CheckIcon size={15} />
             </button>
           ) : null}
-          <button type="button" aria-label="Close notifications" onClick={onClose} className={iconButtonClass}>
+          <button type="button" aria-label={t('notification.close')} onClick={onClose} className={iconButtonClass}>
             <XIcon size={15} />
           </button>
         </div>
@@ -136,7 +140,7 @@ export function DNotificationPanel({
 
       <div className="flex max-h-[min(24rem,60vh)] flex-col gap-1.5 overflow-y-auto p-2">
         {notifications.length === 0 ? (
-          <div className="px-4 py-10 text-center text-sm text-[var(--color-text-muted)]">{emptyMessage}</div>
+          <div className="px-4 py-10 text-center text-sm text-[var(--color-text-muted)]">{resolvedEmptyMessage}</div>
         ) : notifications.map((item) => (
           <div
             key={item.id}
@@ -159,7 +163,7 @@ export function DNotificationPanel({
             </button>
             <button
               type="button"
-              aria-label={`Dismiss ${item.title}`}
+              aria-label={t('notification.dismiss', { title: item.title })}
               onClick={() => onDismiss(item.id)}
               className="mt-1 grid size-7 shrink-0 appearance-none place-items-center rounded-md border-0 bg-transparent p-0 text-[var(--color-text-muted)]/55 opacity-65 shadow-none outline-none transition-colors hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-focus)]/25 group-hover:opacity-100"
             >

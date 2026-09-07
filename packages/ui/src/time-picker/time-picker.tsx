@@ -9,6 +9,7 @@ import {
   type TimeMinuteStep,
   type TimePrecision,
 } from '../internal/time/time-utils';
+import { useDLocalization } from '../localization';
 import { INPUT_SIZE_STYLES, type InputSize } from '../shared';
 
 function ClockIcon() {
@@ -48,6 +49,7 @@ function TimePickerContent({
   minuteStep: TimePickerMinuteStep;
 }) {
   const close = useDropdownClose();
+  const { t } = useDLocalization();
   const fallback = () => getCurrentTimeValue(variant, minuteStep);
   const [draft, setDraft] = useState(() => normalizeTimeValue(value, variant) || fallback());
 
@@ -64,8 +66,8 @@ function TimePickerContent({
     <div className="w-[min(320px,calc(100vw-16px))] p-3">
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold text-[var(--color-text)]">Pilih waktu</p>
-          <p className="mt-0.5 text-[11px] text-[var(--color-text-muted)]">{variant === 'hour' ? 'Presisi jam' : 'Presisi jam dan menit'}</p>
+          <p className="text-xs font-semibold text-[var(--color-text)]">{t('timePicker.title')}</p>
+          <p className="mt-0.5 text-[11px] text-[var(--color-text-muted)]">{variant === 'hour' ? t('timePicker.hourPrecision') : t('timePicker.hourMinutePrecision')}</p>
         </div>
         <span className="rounded-[var(--radius-menu-item)] bg-[var(--color-surface-muted)] px-2 py-1 text-xs font-semibold tabular-nums text-[var(--color-text)]">{draft}</span>
       </div>
@@ -78,7 +80,7 @@ function TimePickerContent({
           onClick={() => setDraft(fallback())}
           className="h-8 appearance-none rounded-[var(--radius-menu-item)] border-0 bg-transparent px-2 text-xs font-medium text-[var(--color-brand)] shadow-none hover:bg-[var(--color-surface-muted)]"
         >
-          Sekarang
+          {t('timePicker.now')}
         </button>
         <div className="flex items-center gap-2">
           <button
@@ -86,14 +88,14 @@ function TimePickerContent({
             onClick={() => close?.()}
             className="h-8 appearance-none rounded-[var(--radius-menu-item)] border-0 bg-transparent px-3 text-xs font-medium text-[var(--color-text-muted)] shadow-none hover:bg-[var(--color-surface-muted)]"
           >
-            Batal
+            {t('common.cancel')}
           </button>
           <button
             type="button"
             onClick={apply}
             className="h-8 appearance-none rounded-[var(--radius-menu-item)] border-0 bg-[var(--color-brand)] px-3 text-xs font-semibold text-[var(--color-brand-foreground)] shadow-none hover:brightness-95"
           >
-            Terapkan
+            {t('common.apply')}
           </button>
         </div>
       </div>
@@ -106,7 +108,7 @@ export function DTimePicker({
   value,
   onChange,
   onClear,
-  placeholder = 'Pilih waktu',
+  placeholder,
   error,
   hint,
   disabled = false,
@@ -118,8 +120,10 @@ export function DTimePicker({
   scrollBehavior = 'reposition',
 }: TimePickerProps) {
   const id = useId();
+  const { t } = useDLocalization();
   const s = INPUT_SIZE_STYLES[size];
   const display = normalizeTimeValue(value, variant);
+  const resolvedPlaceholder = placeholder ?? t('timePicker.placeholder');
 
   return (
     <div data-ds-component="time-picker" className={cn('flex min-w-0 flex-col gap-1.5', containerClassName)}>
@@ -130,6 +134,7 @@ export function DTimePicker({
             id={id}
             type="button"
             disabled={disabled}
+            aria-invalid={Boolean(error) || undefined}
             className={cn(
               'flex w-full items-center gap-2 rounded-[var(--radius-control)] border bg-[var(--color-surface)] text-left text-[var(--color-text)] transition-colors focus:border-[var(--color-brand)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:opacity-50',
               s.input,
@@ -139,12 +144,12 @@ export function DTimePicker({
             )}
           >
             <span className="text-[var(--color-text-muted)]"><ClockIcon /></span>
-            <span className="min-w-0 flex-1 truncate tabular-nums">{display || placeholder}</span>
+            <span className="min-w-0 flex-1 truncate tabular-nums">{display || resolvedPlaceholder}</span>
           </button>
           {clearable && display && !disabled ? (
             <button
               type="button"
-              aria-label="Clear time"
+              aria-label={t('timePicker.clear')}
               onMouseDown={(event) => event.preventDefault()}
               onClick={(event) => {
                 event.preventDefault();

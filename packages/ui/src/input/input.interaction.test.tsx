@@ -32,11 +32,11 @@ describe('canonical input interactions', () => {
     expect(input.value).toBe('secret123');
     expect(input.type).toBe('password');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Show password' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Tampilkan password' }));
     expect(input.type).toBe('text');
     expect(input.value).toBe('secret123');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Hide password' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Sembunyikan password' }));
     expect(input.type).toBe('password');
     expect(input.value).toBe('secret123');
   });
@@ -57,7 +57,7 @@ describe('canonical input interactions', () => {
     fireEvent.change(input, { target: { value: 'digvation' } });
     expect(input.value).toBe('digvation');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Show password' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Tampilkan password' }));
     expect(input.type).toBe('text');
     expect(input.value).toBe('digvation');
   });
