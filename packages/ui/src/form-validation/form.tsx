@@ -61,7 +61,7 @@ export interface FormRenderProps {
   clearErrors: () => void;
 }
 
-export interface DFormProps extends Omit<FormHTMLAttributes<HTMLFormElement>, 'onSubmit' | 'children'> {
+export interface DFormProps extends Omit<FormHTMLAttributes<HTMLFormElement>, 'onSubmit' | 'children' | 'onInvalid'> {
   children: ReactNode | ((props: FormRenderProps) => ReactNode);
   values?: FormValues;
   schema?: ValidationSchema;
