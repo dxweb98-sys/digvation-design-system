@@ -143,6 +143,46 @@ Use `refetchKey` when remote options depend on external form state.
 
 When `countryId` changes while the combobox is open, fresh options are requested. The design system intentionally does not require TanStack Query or another data library; caching/retry policy remains an application concern.
 
+## DDatePicker and DTimePicker
+
+Use `DDatePicker` for a calendar value. Existing consumers keep the date-only behavior because `variant="date"` remains the default and continues to emit `YYYY-MM-DD`.
+
+```tsx
+<DDatePicker
+  label="Deployment date"
+  value={date}
+  onChange={setDate}
+/>
+```
+
+Use `date-hour` when the date only needs hour precision, or `date-time` for hour and minute selection. Both datetime variants use `YYYY-MM-DDTHH:mm`; `date-hour` always writes `:00` minutes.
+
+```tsx
+<DDatePicker
+  label="Deployment schedule"
+  variant="date-time"
+  minuteStep={15}
+  value={scheduledAt}
+  onChange={setScheduledAt}
+/>
+```
+
+Use `DTimePicker` when no calendar date is needed. Its value contract is always canonical `HH:mm` so consumers do not need different parsing logic between `hour` and `hour-minute` variants.
+
+```tsx
+<DTimePicker
+  label="Start time"
+  variant="hour-minute"
+  minuteStep={15}
+  value={startTime}
+  onChange={setStartTime}
+/>
+```
+
+`minuteStep` supports `1`, `5`, `10`, `15`, or `30`. The standalone `hour` variant normalizes any incoming minute value to `00` when displayed or emitted.
+
+Both controls reuse the shared `DDropdown` floating engine, semantic field sizing, and existing theme tokens.
+
 ## Shared field naming
 
 Where meaningful, form controls use:

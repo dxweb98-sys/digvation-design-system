@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added `DTimePicker` with `hour` and `hour-minute` variants, configurable minute steps, shared field sizing, clear/error/hint behavior, and floating-overlay scroll policy.
+- Added `DDatePicker` `date-hour` and `date-time` variants while preserving the existing `date` value/behavior contract. Date-time variants emit local ISO-like values in `YYYY-MM-DDTHH:mm` format.
+
 ## 1.0.0 - 2026-09-05
 
 First stable production release of `@digvation/ui`. The `D*` public component API, semantic theming contract, package exports, floating-overlay behavior, and repository/release workflow are now treated as stable consumer contracts.

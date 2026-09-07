@@ -23,11 +23,14 @@ The local docs app contains interactive previews and copyable usage snippets. Th
 | `DCheckbox` | Boolean checkbox | Native checkbox props |
 | `DRadio` | Radio selection | Native radio props |
 | `DToggle` | Switch/toggle with oldUi label layout | `checked`, `onChange`, `labelPosition`, `size`, `fullWidth` |
-| `DDatePicker` | Single date calendar | `value`, `onChange`, `minDate`, `maxDate`, `clearable`, `size`, `scrollBehavior` |
+| `DDatePicker` | Single date calendar with optional time selection | `value`, `onChange`, `variant`, `minuteStep`, `minDate`, `maxDate`, `clearable`, `size`, `scrollBehavior` |
+| `DTimePicker` | Standalone hour or hour-minute picker | `value`, `onChange`, `variant`, `minuteStep`, `clearable`, `size`, `scrollBehavior` |
 | `DRangeDatePicker` | Date range calendar | `value`, `onChange`, `clearable`, `size`, `scrollBehavior` |
 | `DDateRangeFilter` | Toolbar date filter | `from`, `to`, change callbacks, `onClear` |
 | `DSelectFilter` | OldUi-style inline-label select filter | `label`, `options`, `value`, `onChange`, `scrollBehavior` |
 | `DStatusFilter` | Quick status chips | `options`, `value`, `onChange`, counts |
+
+`DDatePicker` keeps `variant="date"` as the default and preserves its existing `YYYY-MM-DD` value contract. `variant="date-hour"` and `variant="date-time"` emit local ISO-like values in `YYYY-MM-DDTHH:mm` form. `DTimePicker` uses canonical `HH:mm`; its `hour` variant always normalizes minutes to `00`.
 
 For new work, keep `DSelect` simple/static-first and use `DCombobox` when the user types to filter/search or options are fetched from an API.
 

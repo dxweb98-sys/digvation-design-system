@@ -37,6 +37,7 @@ import {
   DProgress,
   DRadio,
   DRangeDatePicker,
+  DTimePicker,
   DSearchInput,
   DSelect,
   DSelectFilter,
@@ -77,6 +78,7 @@ const navItems: NavItem[] = [
   { id: 'search-input', label: 'DSearchInput', group: 'Forms' },
   { id: 'checkbox-radio-toggle', label: 'DCheckbox / DRadio / DToggle', group: 'Forms' },
   { id: 'date-picker', label: 'DDatePicker', group: 'Forms' },
+  { id: 'time-picker', label: 'DTimePicker', group: 'Forms' },
   { id: 'range-date-picker', label: 'DRangeDatePicker', group: 'Forms' },
   { id: 'filters', label: 'Filters', group: 'Forms' },
   { id: 'badge-alert-note', label: 'DBadge / DAlert / DInfoNote', group: 'Feedback' },
@@ -235,6 +237,8 @@ function FormExamples() {
   const [checked,setChecked]=useState(true);
   const [radio,setRadio]=useState('a');
   const [date,setDate]=useState('2026-09-04');
+  const [dateTime,setDateTime]=useState('2026-09-04T09:15');
+  const [time,setTime]=useState('09:15');
   const [range,setRange]=useState({start:'2026-09-01',end:'2026-09-30'});
   const [status,setStatus]=useState('active');
   const [filter,setFilter]=useState<string|number|null>('all');
@@ -247,7 +251,8 @@ function FormExamples() {
     <DocSection id="combobox" title="DCombobox" description="Autocomplete/searchable choice dengan debounce async, allow-create, custom render option, clear, selected resolution dan refetch capability." props={['options','fetchOptions','allowCreate','onCreateOption','renderOption','debounceMs','refetchKey']} preview={<DCombobox label="Technology" value={combo} onChange={setCombo} allowCreate options={[{label:'React',value:'react'},{label:'Next.js',value:'next'},{label:'TypeScript',value:'ts'}]}/>} code={`<DCombobox value={technology} onChange={setTechnology} fetchOptions={fetchTechnology} refetchKey={projectId} />`} />
     <DocSection id="search-input" title="DSearchInput" description="Search field dengan local state + debounce, desktop expand/collapse, dan immediate clear." props={['value','onChange','debounceMs','placeholder','align','expandedWidth']} preview={<DSearchInput value={search} onChange={setSearch} placeholder="Search components..."/>} code={`<DSearchInput value={query} onChange={setQuery} debounceMs={300} placeholder="Search..." />`} />
     <DocSection id="checkbox-radio-toggle" title="DCheckbox, DRadio & DToggle" apiName="CheckboxProps" description="Primitive pilihan yang controlled-friendly dan memakai semantic brand token." preview={<div className="row-wrap"><label className="control-label"><DCheckbox checked={checked} onChange={(event)=>setChecked(event.target.checked)}/> DCheckbox</label><label className="control-label"><DRadio name="demo" checked={radio==='a'} onChange={()=>setRadio('a')}/> Option A</label><label className="control-label"><DRadio name="demo" checked={radio==='b'} onChange={()=>setRadio('b')}/> Option B</label><DToggle label="Notifications" checked={toggle} onChange={setToggle}/></div>} code={`<DCheckbox checked={checked} onChange={handleCheck} />\n<DRadio name="status" checked={selected} onChange={handleRadio} />\n<DToggle checked={enabled} onChange={setEnabled} />`} />
-    <DocSection id="date-picker" title="DDatePicker" description="Date picker dengan shared floating engine, size, clear, min/max, hint/error, dan controlled string value." props={['value','onChange','minDate','maxDate','clearable','size','scrollBehavior']} preview={<DDatePicker label="Deployment date" value={date} onChange={setDate}/>} code={`<DDatePicker label="Deployment date" value={date} onChange={setDate} />`} />
+    <DocSection id="date-picker" title="DDatePicker" description="Date picker dengan date-only default dan optional hour/hour-minute selection memakai shared floating engine." props={['value','onChange','variant','minuteStep','minDate','maxDate','clearable','size','scrollBehavior']} preview={<div className="preview-grid"><DDatePicker label="Deployment date" value={date} onChange={setDate}/><DDatePicker label="Deployment schedule" variant="date-time" minuteStep={15} value={dateTime} onChange={setDateTime}/></div>} code={`<DDatePicker label="Deployment date" value={date} onChange={setDate} />\n\n<DDatePicker\n  label="Deployment schedule"\n  variant="date-time"\n  minuteStep={15}\n  value={scheduledAt}\n  onChange={setScheduledAt}\n/>`} />
+    <DocSection id="time-picker" title="DTimePicker" description="Standalone time picker untuk jam saja atau jam + menit dengan canonical HH:mm value." props={['value','onChange','variant','minuteStep','clearable','size','scrollBehavior']} preview={<div className="preview-grid"><DTimePicker label="Start time" value={time} onChange={setTime} minuteStep={15}/><DTimePicker label="Start hour" value={time} onChange={setTime} variant="hour"/></div>} code={`<DTimePicker label="Start time" value={time} onChange={setTime} minuteStep={15} />\n<DTimePicker label="Start hour" variant="hour" value={time} onChange={setTime} />`} />
     <DocSection id="range-date-picker" title="DRangeDatePicker" description="Range calendar dengan quick-range selection, compact popup, apply/cancel dan close-on-scroll default." props={['value','onChange','clearable','size','scrollBehavior']} preview={<DRangeDatePicker label="Report period" value={range} onChange={(next)=>setRange({start: next.start ?? '', end: next.end ?? ''})}/>} code={`<DRangeDatePicker label="Report period" value={range} onChange={setRange} />`} />
     <DocSection id="filters" title="Filter helpers" apiName="SelectFilterProps" description="Komponen filter reusable untuk toolbar dan data views." preview={<div className="stack"><DSelectFilter label="Category" value={filter} onChange={setFilter} options={[{label:'All',value:'all'},{label:'Product',value:'product'},{label:'Service',value:'service'}]}/><DStatusFilter label="Status" value={status} onChange={setStatus} options={[{label:'Active',value:'active',count:12},{label:'Draft',value:'draft',count:4}]}/><DDateRangeFilter from={from} to={to} onFromChange={setFrom} onToChange={setTo} onClear={()=>{setFrom('');setTo('');}}/></div>} code={`<DSelectFilter label="Category" options={options} value={category} onChange={setCategory} />`} />
   </>;
