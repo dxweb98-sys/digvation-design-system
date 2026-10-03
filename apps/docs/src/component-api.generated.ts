@@ -545,7 +545,7 @@ export const generatedComponentApi = {
         },
         {
           "name": "align",
-          "type": "'left' | 'center' | 'right'",
+          "type": "\"left\" | \"center\" | \"right\"",
           "required": false,
           "description": "Configure this prop according to its declared type. Native inherited props keep the semantics of the underlying HTML element."
         },
@@ -563,7 +563,7 @@ export const generatedComponentApi = {
         },
         {
           "name": "type",
-          "type": "'text' | 'currency' | 'number' | 'date'",
+          "type": "\"text\" | \"currency\" | \"number\" | \"date\"",
           "required": false,
           "description": "Configure this prop according to its declared type. Native inherited props keep the semantics of the underlying HTML element."
         },
@@ -607,7 +607,7 @@ export const generatedComponentApi = {
         },
         {
           "name": "variant",
-          "type": "'default' | 'danger'",
+          "type": "\"default\" | \"danger\"",
           "required": false,
           "description": "Visual/semantic variant. Use variants to express hierarchy or status, not project-specific colors."
         },
@@ -3523,7 +3523,7 @@ export const generatedComponentApi = {
       "name": "DDataTable",
       "source": "data-table/data-table.tsx",
       "description": "Exported helper from the same component module. Use the signature shown below as the public contract.",
-      "signature": "DDataTable({ columns, data, rowKey = 'id' as keyof T, loading = false, emptyMessage, onRowClick, sortBy, sortDirection, sortDir, onSort, pagination, onPageChange, onPageSizeChange, actions, searchable = false, searchPlaceholder, searchValue = '', onSearchChange, headerActions, filters }: DataTableProps<T>): inferred"
+      "signature": "DDataTable({\r\n  columns,\r\n  data,\r\n  rowKey = \"id\" as keyof T,\r\n  loading = false,\r\n  emptyMessage,\r\n  onRowClick,\r\n  sortBy,\r\n  sortDirection,\r\n  sortDir,\r\n  onSort,\r\n  pagination,\r\n  onPageChange,\r\n  onPageSizeChange,\r\n  actions,\r\n  searchable = false,\r\n  searchPlaceholder,\r\n  searchValue = \"\",\r\n  onSearchChange,\r\n  headerActions,\r\n  filters,\r\n}: DataTableProps<T>): inferred"
     },
     "DDatePicker": {
       "name": "DDatePicker",
