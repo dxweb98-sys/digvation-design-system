@@ -3529,7 +3529,7 @@ export const generatedComponentApi = {
       "name": "DDatePicker",
       "source": "date-picker/date-picker.tsx",
       "description": "Exported helper from the same component module. Use the signature shown below as the public contract.",
-      "signature": "DDatePicker({ label, value, onChange, onClear, placeholder, error, hint, disabled = false, clearable = true, containerClassName, minDate, maxDate, size = 'md', variant = 'date', minuteStep = 1, scrollBehavior = 'reposition' }: DatePickerProps): inferred"
+      "signature": "DDatePicker({\r\n  label,\r\n  value,\r\n  onChange,\r\n  onClear,\r\n  placeholder,\r\n  error,\r\n  hint,\r\n  disabled = false,\r\n  clearable = true,\r\n  containerClassName,\r\n  minDate,\r\n  maxDate,\r\n  size = \"md\",\r\n  variant = \"date\",\r\n  minuteStep = 1,\r\n  scrollBehavior = \"reposition\",\r\n}: DatePickerProps): inferred"
     },
     "DDateRangeFilter": {
       "name": "DDateRangeFilter",
